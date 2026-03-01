@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="017-create-user-nutrition-plans-table" author="MariamHovhannisyan">
+        <createTable tableName="user_nutrition_plans">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_user_nutrition_plans"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_user_nutrition_plans_user" references="users(id)"/>
+            </column>
+            <column name="nutrition_plan_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_user_nutrition_plans_plan" references="nutrition_plans(id)"/>
+            </column>
+            <column name="purchased_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
