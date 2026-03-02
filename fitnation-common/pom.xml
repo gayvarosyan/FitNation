@@ -26,8 +26,12 @@
     <properties>
         <java.version>25</java.version>
     </properties>
-    <dependencies>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

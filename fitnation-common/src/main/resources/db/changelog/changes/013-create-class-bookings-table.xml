@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="013-create-class-bookings-table" author="MariamHovhannisyan">
+        <createTable tableName="class_bookings">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_class_bookings"/>
+            </column>
+            <column name="class_schedule_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_class_bookings_schedule" references="class_schedule(id)"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_class_bookings_user" references="users(id)"/>
+            </column>
+            <column name="status" type="booking_status" defaultValue="BOOKED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
