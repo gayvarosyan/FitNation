@@ -1,6 +1,13 @@
 spring:
   application:
     name: fitnation-rest-api
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: public
   datasource:
     url: jdbc:postgresql://localhost:5432/fitnation
     username: postgres
