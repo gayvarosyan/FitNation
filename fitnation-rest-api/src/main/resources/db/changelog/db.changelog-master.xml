@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <include file="db/changelog/changes/001-create-enums.xml"/>
+    <include file="db/changelog/changes/002-create-users-table.xml"/>
+    <include file="db/changelog/changes/003-create-blacklist-table.xml"/>
+    <include file="db/changelog/changes/004-create-membership-types-table.xml"/>
+    <include file="db/changelog/changes/005-create-promotions-table.xml"/>
+    <include file="db/changelog/changes/006-create-memberships-table.xml"/>
+    <include file="db/changelog/changes/007-create-membership-freeze-requests-table.xml"/>
+    <include file="db/changelog/changes/008-create-trainers-table.xml"/>
+    <include file="db/changelog/changes/009-create-trainer-schedule-table.xml"/>
+    <include file="db/changelog/changes/010-create-trainer-income-table.xml"/>
+    <include file="db/changelog/changes/011-create-group-classes-table.xml"/>
+    <include file="db/changelog/changes/012-create-class-schedule-table.xml"/>
+    <include file="db/changelog/changes/013-create-class-bookings-table.xml"/>
+    <include file="db/changelog/changes/014-create-personal-training-sessions-table.xml"/>
+    <include file="db/changelog/changes/015-create-workout-plans-table.xml"/>
+    <include file="db/changelog/changes/016-create-nutrition-plans-table.xml"/>
+    <include file="db/changelog/changes/017-create-user-nutrition-plans-table.xml"/>
+    <include file="db/changelog/changes/018-create-progress-tracking-table.xml"/>
+    <include file="db/changelog/changes/019-create-progress-notes-table.xml"/>
+    <include file="db/changelog/changes/020-create-ratings-table.xml"/>
+    <include file="db/changelog/changes/021-create-favorites-table.xml"/>
+    <include file="db/changelog/changes/022-create-payments-table.xml"/>
+
+</databaseChangeLog>
