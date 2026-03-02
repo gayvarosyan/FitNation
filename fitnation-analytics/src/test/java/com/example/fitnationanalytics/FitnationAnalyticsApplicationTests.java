@@ -1,13 +1,12 @@
 package com.example.fitnationanalytics;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 class FitnationAnalyticsApplicationTests {
 
     @Test
-    void contextLoads() {
+    void moduleLoads() {
+        // Business library - no Spring context; run full app via fitnation-rest-api
     }
 
 }

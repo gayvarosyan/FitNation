@@ -1,3 +1,11 @@
 spring:
   application:
     name: fitnation-rest-api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fitnation
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
