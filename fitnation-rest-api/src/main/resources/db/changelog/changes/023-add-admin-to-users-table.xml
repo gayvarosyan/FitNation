@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="023-add-admin-to-users-table" author="MeriSargsyan">
+        <insert tableName="users">
+            <column name="first_name" value="Admin"/>
+            <column name="last_name" value="User"/>
+            <column name="email" value="admin@fitnation.com"/>
+            <column name="password" value="$2a$10$DFpX2/bpuJ4wsY.mwgpQGu4FyNWP/iwvmaBlnPXpAuDWG9ILd3BPS"/>
+            <column name="phone" value="0000000000"/>
+            <column name="role" value="ADMIN"/>
+            <column name="status" value="ACTIVE"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
