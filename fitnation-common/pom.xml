@@ -27,7 +27,12 @@
         <java.version>25</java.version>
     </properties>
 
-    <dependencies/>
+    <dependencies>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
