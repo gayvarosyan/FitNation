@@ -1,14 +1,44 @@
 package com.example.fitnationrestapi.Mapper;
 
-import com.example.fitnationcommon.dto.RegisterRequest;
+
+import com.example.fitnationcommon.dto.request.RegisterRequest;
+import com.example.fitnationcommon.enums.UserRole;
+import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationtainuser.entity.Trainer;
 import com.example.fitnationuser.user.User;
-import org.mapstruct.Mapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+@Component
+@RequiredArgsConstructor
+public class UserMapper {
 
-    User toUser(RegisterRequest request);
+    private final PasswordEncoder passwordEncoder;
 
-    Trainer toTrainer(RegisterRequest request);
+    public User toUser(RegisterRequest request) {
+        User user = new User();
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setEmail(request.email());
+        user.setPhone(request.phone());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(UserRole.CLIENT);
+        user.setStatus(UserStatus.INACTIVE);
+        return user;
+    }
+
+    public Trainer toTrainer(RegisterRequest request) {
+        Trainer trainer = new Trainer();
+        trainer.setFirstName(request.firstName());
+        trainer.setLastName(request.lastName());
+        trainer.setEmail(request.email());
+        trainer.setPhone(request.phone());
+        trainer.setPassword(passwordEncoder.encode(request.password()));
+        trainer.setRole(UserRole.TRAINER);
+        trainer.setStatus(UserStatus.INACTIVE);
+        trainer.setSpecialization(request.specialization());
+        trainer.setBio(request.bio());
+        return trainer;
+    }
 }

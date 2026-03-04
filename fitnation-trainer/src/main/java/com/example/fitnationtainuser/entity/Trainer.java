@@ -1,6 +1,7 @@
 package com.example.fitnationtainuser.entity;
 
 import com.example.fitnationuser.user.User;
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;
@@ -15,9 +16,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Trainer extends User {
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = ApplicationConstants.SMALL_TEXT)
     private String specialization;
 
-    @Column(length = 250)
+    @Column(length = ApplicationConstants.LARGE_TEXT)
     private String bio;
 }
