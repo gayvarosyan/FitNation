@@ -1,6 +1,10 @@
 package com.example.fitnationrestapi.exception;
 
 import com.example.fitnationcommon.dto.response.ErrorResponse;
+import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
+import com.example.fitnationcommon.exception.InvalidPasswordException;
+import com.example.fitnationcommon.exception.InvalidRoleException;
+import com.example.fitnationcommon.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
