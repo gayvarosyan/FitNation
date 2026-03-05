@@ -1,6 +1,6 @@
-package com.example.fitnationtainuser.repository;
+package com.example.fitnationtrainer.repository;
 
-import com.example.fitnationtainuser.entity.Trainer;
+import com.example.fitnationtrainer.entity.Trainer;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TrainerRepository extends JpaRepository<Trainer, Long> {

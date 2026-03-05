@@ -1,7 +1,7 @@
-package com.example.fitnationtainuser.entity;
+package com.example.fitnationtrainer.entity;
 
-import com.example.fitnationuser.user.User;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationuser.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;
