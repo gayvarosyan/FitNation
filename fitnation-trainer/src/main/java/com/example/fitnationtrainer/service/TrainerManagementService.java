@@ -2,7 +2,6 @@ package com.example.fitnationtrainer.service;
 
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
 import com.example.fitnationcommon.dto.request.EditTrainerRequest;
-import com.example.fitnationcommon.dto.request.UpdateTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
 import com.example.fitnationcommon.enums.UserRole;
