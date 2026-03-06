@@ -1,6 +1,7 @@
 package com.example.fitnationtrainer.service;
 
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
+import com.example.fitnationcommon.dto.request.EditTrainerRequest;
 import com.example.fitnationcommon.dto.request.UpdateTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -51,27 +53,16 @@ public class TrainerManagementService {
     }
 
     @Transactional
-    public TrainerDirectoryItem update(Long id, UpdateTrainerRequest request) {
+    public TrainerDirectoryItem edit(Long id, EditTrainerRequest request) {
         Trainer trainer = trainerRepository.findById(id)
                 .orElseThrow(() -> new TrainerNotFoundException("Trainer not found: " + id));
-        if (request.firstName() != null) {
-            trainer.setFirstName(request.firstName());
-        }
-        if (request.lastName() != null) {
-            trainer.setLastName(request.lastName());
-        }
-        if (request.phone() != null) {
-            trainer.setPhone(request.phone());
-        }
-        if (request.specialization() != null) {
-            trainer.setSpecialization(request.specialization());
-        }
-        if (request.bio() != null) {
-            trainer.setBio(request.bio());
-        }
-        trainer.setStatus(request.status());
-        trainer = trainerRepository.save(trainer);
-        return trainerMapper.toDirectoryItem(trainer);
+
+        Optional.ofNullable(request.firstName()).ifPresent(trainer::setFirstName);
+        Optional.ofNullable(request.lastName()).ifPresent(trainer::setLastName);
+        Optional.ofNullable(request.phone()).ifPresent(trainer::setPhone);
+        Optional.ofNullable(request.specialization()).ifPresent(trainer::setSpecialization);
+
+        return trainerMapper.toDirectoryItem(trainerRepository.save(trainer));
     }
 
     @Transactional
