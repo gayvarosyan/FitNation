@@ -105,6 +105,7 @@
         <module>fitnation-rest-api</module>
         <module>fitnation-frontend</module>
         <module>fitnation-trainer</module>
+        <module>fitnation-nutrition</module>
     </modules>
 
 </project>
