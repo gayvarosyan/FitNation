@@ -23,12 +23,15 @@ public class AuthService {
         if (request.role() != UserRole.CLIENT && request.role() != UserRole.TRAINER) {
             throw new InvalidRoleException("Invalid role");
         }
-        if (request.role() == UserRole.CLIENT) {
-            userRegistrationService.register(request);
-        } else {
-            trainerRegistrationService.register(request);
-        }
-        return null;
+        User user = request.role() == UserRole.CLIENT
+                ? userRegistrationService.register(request)
+                : trainerRegistrationService.register(request);
+        return new AuthResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getStatus().name()
+        );
     }
 
     public AuthResponse login(String email, String rawPassword) {
