@@ -29,6 +29,8 @@
     <include file="db/changelog/changes/022-create-payments-table.xml"/>
     <include file="db/changelog/changes/023-add-admin-to-users-table.xml"/>
     <include file="db/changelog/changes/024-alter-users-role-status-to-varchar.xml"/>
+    <include file="db/changelog/changes/025-nutrition-plans-add-category-status.xml"/>
+    <include file="db/changelog/changes/026-ratings-add-nutrition-plan-id.xml"/>
 
 
 </databaseChangeLog>
