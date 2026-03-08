@@ -1,12 +1,13 @@
 package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
-import com.example.fitnationcommon.dto.request.UpdateTrainerRequest;
+import com.example.fitnationcommon.dto.request.EditTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
 import com.example.fitnationtrainer.service.TrainerManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/trainers")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class TrainerController {
 
     private final TrainerManagementService trainerManagementService;
@@ -41,10 +43,10 @@ public class TrainerController {
     }
 
     @PutMapping("/{id}")
-    public TrainerDirectoryItem update(
+    public TrainerDirectoryItem edit(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateTrainerRequest request) {
-        return trainerManagementService.update(id, request);
+            @Valid @RequestBody EditTrainerRequest request) {
+        return trainerManagementService.edit(id, request);
     }
 
     @DeleteMapping("/{id}")
