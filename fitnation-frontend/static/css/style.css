@@ -1,0 +1,225 @@
+:root {
+  --fn-bg-dark: #0d0d0d;
+  --fn-panel: #1a1a1a;
+  --fn-input-bg: #252525;
+  --fn-border: #333;
+  --fn-green: #22c55e;
+  --fn-green-hover: #16a34a;
+  --fn-text: #ffffff;
+  --fn-text-muted: #9ca3af;
+  --fn-radius: 12px;
+  --fn-radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--fn-bg-dark);
+  color: var(--fn-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.fn-container {
+  width: 100%;
+  max-width: 420px;
+  background: var(--fn-panel);
+  border-radius: var(--fn-radius);
+  padding: 2.5rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.fn-logo {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1rem;
+  display: block;
+  color: var(--fn-green);
+}
+
+.fn-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 0.25rem;
+}
+
+.fn-tagline {
+  font-size: 0.9rem;
+  color: var(--fn-text-muted);
+  text-align: center;
+  margin: 0 0 1.75rem;
+}
+
+.fn-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.fn-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--fn-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.fn-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: var(--fn-text);
+  background: var(--fn-input-bg);
+  border: 1px solid var(--fn-border);
+  border-radius: var(--fn-radius-sm);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.fn-input:focus {
+  border-color: var(--fn-green);
+}
+
+.fn-input::placeholder {
+  color: var(--fn-text-muted);
+}
+
+.fn-password-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fn-password-row .fn-input {
+  flex: 1;
+}
+
+.fn-link {
+  color: var(--fn-green);
+  text-decoration: none;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.fn-link:hover {
+  color: var(--fn-green-hover);
+  text-decoration: underline;
+}
+
+.fn-role-label {
+  font-size: 0.8rem;
+  color: var(--fn-text-muted);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.fn-role-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.fn-role-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--fn-text);
+  background: var(--fn-input-bg);
+  border: 1px solid var(--fn-border);
+  border-radius: var(--fn-radius-sm);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.fn-role-btn:hover {
+  background: #2d2d2d;
+  border-color: var(--fn-border);
+}
+
+.fn-role-btn.active {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--fn-green);
+  color: var(--fn-green);
+}
+
+.fn-btn-primary {
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--fn-green);
+  border: none;
+  border-radius: var(--fn-radius-sm);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.fn-btn-primary:hover {
+  background: var(--fn-green-hover);
+}
+
+.fn-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fn-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.fn-nav-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--fn-text);
+  background: var(--fn-input-bg);
+  border: 1px solid var(--fn-border);
+  border-radius: var(--fn-radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.fn-nav-btn:hover {
+  background: #2d2d2d;
+  border-color: var(--fn-green);
+  color: var(--fn-green);
+}
+
+.fn-alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--fn-radius-sm);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.fn-alert-error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.fn-alert-success {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.fn-trainer-fields {
+  margin-top: 1rem;
+}
+
+/* Bootstrap overrides when used in same page - ensure our vars win */
+.container-fluid { max-width: 100%; }

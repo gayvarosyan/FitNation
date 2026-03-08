@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register – FitNation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+  <div class="fn-container">
+    <svg class="fn-logo" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M6 2v4h2V4h8v2h2V2H6zm0 16h12v2H6v-2zm0-4h12v2H6v-2zm4-8h4v2h-4V6zM6 10v2h12v-2H6z"/>
+    </svg>
+    <h1 class="fn-title">FitNation</h1>
+    <p class="fn-tagline">Modern fitness management.</p>
+
+    <div id="registerAlert" class="fn-alert fn-alert-error" style="display: none;" role="alert"></div>
+
+    <form id="registerForm" class="fn-form">
+      <div class="row g-2">
+        <div class="col-6">
+          <div class="fn-form-group">
+            <label class="fn-label" for="firstName">First name</label>
+            <input type="text" id="firstName" name="firstName" class="fn-input" required maxlength="50">
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="fn-form-group">
+            <label class="fn-label" for="lastName">Last name</label>
+            <input type="text" id="lastName" name="lastName" class="fn-input" required maxlength="50">
+          </div>
+        </div>
+      </div>
+      <div class="fn-form-group">
+        <label class="fn-label" for="regEmail">Email</label>
+        <input type="email" id="regEmail" name="email" class="fn-input" required autocomplete="email">
+      </div>
+      <div class="fn-form-group">
+        <label class="fn-label" for="regPassword">Password</label>
+        <input type="password" id="regPassword" name="password" class="fn-input" required autocomplete="new-password" minlength="8">
+      </div>
+      <div class="fn-form-group">
+        <label class="fn-label" for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" class="fn-input" required maxlength="50">
+      </div>
+
+      <span class="fn-role-label">Role</span>
+      <div class="fn-role-group" role="group" aria-label="Registration role">
+        <button type="button" class="fn-role-btn active" data-role="CLIENT">User</button>
+        <button type="button" class="fn-role-btn" data-role="TRAINER">Trainer</button>
+      </div>
+
+      <div id="trainerFields" class="fn-trainer-fields" style="display: none;">
+        <div class="fn-form-group">
+          <label class="fn-label" for="specialization">Specialization</label>
+          <input type="text" id="specialization" name="specialization" class="fn-input" maxlength="50" placeholder="e.g. Yoga, Strength">
+        </div>
+        <div class="fn-form-group">
+          <label class="fn-label" for="bio">Bio</label>
+          <textarea id="bio" name="bio" class="fn-input" rows="3" maxlength="250" placeholder="Short bio"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="fn-btn-primary" id="registerBtn">Register</button>
+    </form>
+
+    <div class="fn-nav">
+      <a href="/login" class="fn-nav-btn">Login</a>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/register.js"></script>
+</body>
+</html>
