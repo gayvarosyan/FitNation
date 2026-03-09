@@ -23,6 +23,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/*.html", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/trainers/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
         return http.build();
