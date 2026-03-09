@@ -4,6 +4,7 @@ import com.example.fitnationcommon.dto.response.ErrorResponse;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationcommon.exception.InvalidPasswordException;
 import com.example.fitnationcommon.exception.InvalidRoleException;
+import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,6 +39,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleInvalidPassword(InvalidPasswordException ex) {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(TrainerNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleTrainerNotFound(TrainerNotFoundException ex) {
+        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
