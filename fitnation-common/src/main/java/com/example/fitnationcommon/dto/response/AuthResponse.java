@@ -5,5 +5,7 @@ public record AuthResponse(
         Long id,
         String email,
         String role,
-        String message
+        String message,
+        String redirectUrl,
+        String token
 ) {}

@@ -18,6 +18,7 @@ public class AuthService {
     private final UserRegistrationService userRegistrationService;
     private final TrainerRegistrationService trainerRegistrationService;
     private final UserAuthService userAuthService;
+    private final JwtService jwtService;
 
     public AuthResponse register(RegisterRequest request) {
         if (request.role() != UserRole.CLIENT && request.role() != UserRole.TRAINER) {
@@ -30,17 +31,24 @@ public class AuthService {
                 user.getId(),
                 user.getEmail(),
                 user.getRole().name(),
-                user.getStatus().name()
+                user.getStatus().name(),
+                null,
+                null
         );
     }
 
     public AuthResponse login(String email, String rawPassword) {
         User user = userAuthService.login(email, rawPassword);
+        boolean isAdmin = user.getRole() == UserRole.ADMIN || user.getRole() == UserRole.SUPER_ADMIN;
+        String redirectUrl = isAdmin ? "/admin-trainers.html" : null;
+        String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
         return new AuthResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getRole().name(),
-                user.getStatus().name()
+                user.getStatus().name(),
+                redirectUrl,
+                token
         );
     }
 }

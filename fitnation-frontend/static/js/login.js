@@ -51,6 +51,8 @@
         }
         if (data.redirectUrl) {
           window.location.href = data.redirectUrl;
+        } else if (data.role === 'ADMIN' || data.role === 'SUPER_ADMIN') {
+          window.location.href = '/admin-trainers.html';
         } else {
           window.location.href = '/';
         }
