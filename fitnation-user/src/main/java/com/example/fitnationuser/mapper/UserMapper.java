@@ -22,7 +22,7 @@ public class UserMapper {
         user.setPhone(request.phone());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(UserRole.CLIENT);
-        user.setStatus(UserStatus.INACTIVE);
+        user.setStatus(UserStatus.ACTIVE);
         return user;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.request.LoginRequest;
+import com.example.fitnationcommon.dto.request.RefreshTokenRequest;
 import com.example.fitnationcommon.dto.response.AuthResponse;
 import com.example.fitnationcommon.dto.request.RegisterRequest;
 import com.example.fitnationrestapi.service.AuthService;
@@ -26,5 +27,9 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request.email(), request.password());
+    }
+    @PostMapping("/refresh")
+    public AuthResponse refresh(@RequestBody RefreshTokenRequest request) {
+        return authService.refresh(request.refreshToken());
     }
 }

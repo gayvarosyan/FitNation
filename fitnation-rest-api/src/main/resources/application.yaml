@@ -16,3 +16,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
+jwt:
+  secret: fitnation-super-secret-key-must-be-at-least-32-characters-long
+  expiration: 3600
+  refresh-expiration: 604800
