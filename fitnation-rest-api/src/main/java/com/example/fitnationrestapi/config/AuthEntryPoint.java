@@ -1,5 +1,6 @@
 package com.example.fitnationrestapi.config;
 
+import com.example.fitnationcommon.dto.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +15,6 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private record ErrorResponse(int status, String error, String message) {}
 
     @Override
     public void commence(HttpServletRequest request,
@@ -24,7 +24,7 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
 
-        ErrorResponse body = new ErrorResponse(401, "Unauthorized", "Authentication required");
+        ErrorResponse body = new ErrorResponse(401, "Authentication required");
 
         objectMapper.writeValue(response.getOutputStream(), body);
     }
