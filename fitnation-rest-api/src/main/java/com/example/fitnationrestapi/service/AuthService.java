@@ -58,6 +58,7 @@ public class AuthService {
 
         return buildAuthResponse(user, accessToken, refreshToken);
     }
+
     public AuthResponse refresh(String refreshToken) {
         if (!jwtService.isRefreshTokenValid(refreshToken)) {
             throw new IllegalArgumentException("Invalid refresh token");

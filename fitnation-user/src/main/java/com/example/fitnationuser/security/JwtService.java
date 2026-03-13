@@ -38,6 +38,7 @@ public class JwtService {
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("id", user.getId())
+                .claim("email", user.getEmail())  // ✅ ավելացված
                 .claim("role", user.getRole().name())
                 .claim("status", user.getStatus().name())
                 .claim(TOKEN_TYPE_CLAIM, ACCESS_TOKEN_TYPE)

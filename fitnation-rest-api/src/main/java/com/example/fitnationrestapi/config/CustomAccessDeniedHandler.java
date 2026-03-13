@@ -13,6 +13,8 @@ import java.io.IOException;
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper(); // ✅ ավելացված
+
     @Override
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
@@ -26,6 +28,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                 "Access denied"
         );
 
-        new ObjectMapper().writeValue(response.getOutputStream(), body);
+        objectMapper.writeValue(response.getOutputStream(), body); // ✅ new ObjectMapper() → objectMapper
     }
 }

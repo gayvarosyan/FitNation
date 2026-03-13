@@ -8,10 +8,13 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 public class AuthEntryPoint implements AuthenticationEntryPoint {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private record ErrorResponse(int status, String error, String message) {}
 
     @Override
     public void commence(HttpServletRequest request,
@@ -21,12 +24,8 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
 
-        Map<String, Object> body = Map.of(
-                "status", 401,
-                "error", "Unauthorized",
-                "message", "Authentication required"
-        );
+        ErrorResponse body = new ErrorResponse(401, "Unauthorized", "Authentication required");
 
-        new ObjectMapper().writeValue(response.getOutputStream(), body);
+        objectMapper.writeValue(response.getOutputStream(), body);
     }
 }
