@@ -9,10 +9,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface NutritionPlanMapper {
 
-    @Mapping(target = "description", expression = "java(request.getDescription() != null ? request.getDescription() : \"\")")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "price", expression = "java(request.getPrice() != null ? java.math.BigDecimal.valueOf(request.getPrice()) : null)")
-    @Mapping(target = "status", expression = "java(request.getStatus() != null ? request.getStatus() : PlanStatus.DRAFT)")
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     NutritionPlan toEntity(CreateNutritionPlanRequest request);
 
     NutritionPlanCatalogItemDto toCatalogItem(NutritionPlan plan);

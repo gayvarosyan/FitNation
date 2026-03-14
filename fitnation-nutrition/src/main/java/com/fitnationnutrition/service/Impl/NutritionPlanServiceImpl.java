@@ -6,7 +6,6 @@ import com.example.fitnationcommon.dto.response.NutritionStatsResponse;
 import com.fitnationnutrition.mapper.NutritionPlanMapper;
 import com.fitnationnutrition.model.NutritionPlan;
 import com.fitnationnutrition.repository.NutritionPlanRepository;
-import com.fitnationnutrition.repository.RatingRepository;
 import com.fitnationnutrition.repository.UserNutritionPlanRepository;
 import com.fitnationnutrition.service.NutritionPlanService;
 import lombok.AllArgsConstructor;
@@ -21,7 +20,6 @@ public class NutritionPlanServiceImpl implements NutritionPlanService {
 
     private final NutritionPlanRepository planRepo;
     private final UserNutritionPlanRepository userPlanRepo;
-    private final RatingRepository ratingRepo;
     private final NutritionPlanMapper mapper;
 
     @Override
@@ -40,11 +38,8 @@ public class NutritionPlanServiceImpl implements NutritionPlanService {
 
     @Override
     public NutritionPlanCatalogItemDto createPlan(CreateNutritionPlanRequest request) {
-
         NutritionPlan plan = mapper.toEntity(request);
-
         NutritionPlan saved = planRepo.save(plan);
-
         return mapper.toCatalogItem(saved);
     }
 
