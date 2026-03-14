@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Pattern;
 
 public record LoginRequest(
 
-        //sonq e krnas tanis constant
 
         @NotBlank(message = "Email cannot be blank")
         @Email(message = ApplicationConstants.VALID_EMAIL_MESSAGE)
