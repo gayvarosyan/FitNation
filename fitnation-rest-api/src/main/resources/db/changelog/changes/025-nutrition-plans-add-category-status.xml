@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -10,10 +9,11 @@
             <column name="category" type="VARCHAR(255)"/>
             <column name="status" type="VARCHAR(50)"/>
         </addColumn>
+
         <update tableName="nutrition_plans">
             <column name="status" value="ACTIVE"/>
             <where>status IS NULL</where>
         </update>
-    </changeSet>
 
+    </changeSet>
 </databaseChangeLog>
