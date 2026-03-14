@@ -1,6 +1,7 @@
 package com.example.fitnationcommon.dto.request;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.enums.UserStatus;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -24,5 +25,7 @@ public record EditTrainerRequest(
         String specialization,
 
         @Size(max = ApplicationConstants.LARGE_TEXT)
-        String bio
+        String bio,
+
+        UserStatus status
 ) {}

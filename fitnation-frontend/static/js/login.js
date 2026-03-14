@@ -46,8 +46,9 @@
       })
       .then(function (data) {
         showAlert('Login successful.', false);
-        if (data.token) {
-          localStorage.setItem('token', data.token);
+        var token = data.accessToken || data.token;
+        if (token) {
+          localStorage.setItem('token', token);
         }
         if (data.redirectUrl) {
           window.location.href = data.redirectUrl;

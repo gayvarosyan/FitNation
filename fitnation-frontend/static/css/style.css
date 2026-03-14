@@ -605,6 +605,45 @@ body {
   background: #ef4444;
 }
 
+.fn-admin-actions-cell {
+  white-space: nowrap;
+}
+
+.fn-admin-action-btn {
+  padding: 0.35rem 0.65rem;
+  margin-right: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: var(--fn-radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.fn-admin-action-btn:last-child {
+  margin-right: 0;
+}
+
+.fn-admin-action-edit {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.fn-admin-action-edit:hover {
+  background: rgba(34, 197, 94, 0.35);
+  color: #fff;
+}
+
+.fn-admin-action-delete {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.fn-admin-action-delete:hover {
+  background: rgba(239, 68, 68, 0.35);
+  color: #fff;
+}
+
 .fn-admin-modal .modal-content {
   background: var(--fn-panel);
   border: 1px solid var(--fn-border);

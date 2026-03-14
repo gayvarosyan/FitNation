@@ -7,6 +7,7 @@ import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
 import com.example.fitnationtrainer.service.TrainerManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/trainers")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class TrainerController {
 
     private final TrainerManagementService trainerManagementService;

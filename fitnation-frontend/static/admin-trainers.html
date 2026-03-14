@@ -65,6 +65,7 @@
                 <th scope="col">Specialization</th>
                 <th scope="col">Contact</th>
                 <th scope="col">Status</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody id="trainerTableBody">
@@ -120,6 +121,61 @@
         <div class="modal-footer fn-admin-modal-footer">
           <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="fn-admin-add-btn" id="addTrainerSubmitBtn">Add Trainer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editTrainerModal" tabindex="-1" aria-labelledby="editTrainerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content fn-admin-modal">
+        <div class="modal-header fn-admin-modal-header">
+          <h2 class="modal-title fs-5" id="editTrainerModalLabel">Edit Trainer</h2>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body fn-admin-modal-body">
+          <div id="editTrainerAlert" class="fn-alert fn-alert-error" style="display:none;" role="alert"></div>
+          <form id="editTrainerForm">
+            <input type="hidden" id="editTrainerId" name="trainerId">
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="fn-label" for="editFirstName">First name</label>
+                <input type="text" id="editFirstName" name="firstName" class="fn-input" required maxlength="50">
+              </div>
+              <div class="col-6">
+                <label class="fn-label" for="editLastName">Last name</label>
+                <input type="text" id="editLastName" name="lastName" class="fn-input" required maxlength="50">
+              </div>
+            </div>
+            <div class="fn-form-group">
+              <label class="fn-label" for="editPassword">New password</label>
+              <input type="password" id="editPassword" name="password" class="fn-input" minlength="8" placeholder="Leave blank to keep current" title="At least 8 characters, one uppercase, one digit, one special character">
+            </div>
+            <div class="fn-form-group">
+              <label class="fn-label" for="editPhone">Phone</label>
+              <input type="tel" id="editPhone" name="phone" class="fn-input" required maxlength="50">
+            </div>
+            <div class="fn-form-group">
+              <label class="fn-label" for="editStatus">Status</label>
+              <select id="editStatus" name="status" class="fn-input">
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+                <option value="BLOCKED">Blocked</option>
+              </select>
+            </div>
+            <div class="fn-form-group">
+              <label class="fn-label" for="editSpecialization">Specialization</label>
+              <input type="text" id="editSpecialization" name="specialization" class="fn-input" maxlength="50" placeholder="e.g. Yoga, HIIT">
+            </div>
+            <div class="fn-form-group">
+              <label class="fn-label" for="editBio">Bio</label>
+              <textarea id="editBio" name="bio" class="fn-input" rows="3" maxlength="250" placeholder="Short bio"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer fn-admin-modal-footer">
+          <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="fn-admin-add-btn" id="editTrainerSubmitBtn">Save changes</button>
         </div>
       </div>
     </div>
