@@ -6,6 +6,8 @@ import com.example.fitnationcommon.exception.InvalidPasswordException;
 import com.example.fitnationcommon.exception.InvalidRoleException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
+import com.example.fitnationcommon.exception.UserBlockedException;
+import com.example.fitnationcommon.exception.UserInactiveException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +41,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleInvalidPassword(InvalidPasswordException ex) {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler({UserBlockedException.class, UserInactiveException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleUserStatusExceptions(RuntimeException ex) {
+        return new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     }
 
     @ExceptionHandler(TrainerNotFoundException.class)

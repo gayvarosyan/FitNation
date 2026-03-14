@@ -15,14 +15,24 @@ public class UserAuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserStatusUtil userStatusUtil;
 
     public User login(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
+
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new InvalidPasswordException("Invalid password");
         }
+
+        userStatusUtil.ensureActive(user);
+
         user.setStatus(UserStatus.ACTIVE);
         return userRepository.save(user);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }
