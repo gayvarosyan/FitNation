@@ -54,6 +54,9 @@ public class TrainerMapper {
         trainer.setPhone(request.phone());
         trainer.setSpecialization(request.specialization());
         trainer.setBio(request.bio());
+        if (request.status() != null) {
+            trainer.setStatus(request.status());
+        }
     }
 
     public TrainerDirectoryItem toDirectoryItem(Trainer trainer) {
