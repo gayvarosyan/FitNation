@@ -65,7 +65,7 @@ public class AuthService {
             throw new InvalidTokenException("Invalid refresh token");
         }
         String email = jwtService.extractEmail(refreshToken);
-        User user = userAuthService.findByEmail(email);
+        var user = userAuthService.findByEmail(email);
 
         userStatusUtil.ensureActive(user);
 

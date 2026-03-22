@@ -19,6 +19,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.fitnationnutrition.model"})
 @EnableJpaRepositories(basePackages = {
         "com.example.fitnationuser.repository",
+        "com.example.fitnationuser.membership",
+        "com.example.fitnationuser.payment",
         "com.example.fitnationtrainer.repository",
         "com.fitnationnutrition.repository"})
 public class FitnationRestApiApplication {
@@ -26,5 +28,4 @@ public class FitnationRestApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(FitnationRestApiApplication.class, args);
     }
-
 }
