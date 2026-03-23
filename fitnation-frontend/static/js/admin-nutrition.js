@@ -2,30 +2,28 @@
   'use strict';
 
   const API_BASE = '/api';
-  const PAGE_SIZE = 10;
 
-  const nutritionStats = document.getElementById('nutritionStats');
-  const statsError = document.getElementById('statsError');
-  const statsLoading = document.getElementById('statsLoading');
-  const plansError = document.getElementById('plansError');
-  const plansLoading = document.getElementById('plansLoading');
-  const tableWrapper = document.getElementById('tableWrapper');
-  const plansTableBody = document.getElementById('plansTableBody');
-  const planSearch = document.getElementById('planSearch');
-  const plansSummary = document.getElementById('plansSummary');
-  const prevPageBtn = document.getElementById('prevPageBtn');
-  const nextPageBtn = document.getElementById('nextPageBtn');
-  const createPlanBtn = document.getElementById('createPlanBtn');
+  const nutritionStats   = document.getElementById('nutritionStats');
+  const statsError       = document.getElementById('statsError');
+  const statsLoading     = document.getElementById('statsLoading');
+  const plansError       = document.getElementById('plansError');
+  const plansLoading     = document.getElementById('plansLoading');
+  const tableWrapper     = document.getElementById('tableWrapper');
+  const plansTableBody   = document.getElementById('plansTableBody');
+  const createPlanBtn    = document.getElementById('createPlanBtn');
   const createPlanModalEl = document.getElementById('createPlanModal');
-  const createPlanForm = document.getElementById('createPlanForm');
+  const createPlanForm   = document.getElementById('createPlanForm');
   const createPlanSubmitBtn = document.getElementById('createPlanSubmitBtn');
-  const createPlanAlert = document.getElementById('createPlanAlert');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const toastContainer = document.getElementById('toastContainer');
-
-  let allPlans = [];
-  let currentPage = 0;
-  let filteredPlans = [];
+  const createPlanAlert  = document.getElementById('createPlanAlert');
+  const editPlanModalEl  = document.getElementById('editPlanModal');
+  const editPlanForm     = document.getElementById('editPlanForm');
+  const editPlanSubmitBtn = document.getElementById('editPlanSubmitBtn');
+  const editPlanAlert    = document.getElementById('editPlanAlert');
+  const deletePlanModalEl = document.getElementById('deletePlanModal');
+  const deletePlanConfirmBtn = document.getElementById('deletePlanConfirmBtn');
+  const deletePlanAlert  = document.getElementById('deletePlanAlert');
+  const logoutBtn        = document.getElementById('logoutBtn');
+  const toastContainer   = document.getElementById('toastContainer');
 
   function getToken() {
     return localStorage.getItem('token');
@@ -45,8 +43,7 @@
     }).then(function (res) {
       if (!res.ok) {
         return res.json().catch(function () { return {}; }).then(function (body) {
-          var msg = (body && (body.message || body.error)) || 'Request failed';
-          throw new Error(msg);
+          throw new Error((body && (body.message || body.error)) || 'Request failed');
         });
       }
       return res.json();
@@ -61,11 +58,38 @@
     }).then(function (res) {
       if (!res.ok) {
         return res.json().catch(function () { return {}; }).then(function (data) {
-          var msg = (data && (data.message || data.error)) || 'Request failed';
-          throw new Error(msg);
+          throw new Error((data && (data.message || data.error)) || 'Request failed');
         });
       }
       return res.json();
+    });
+  }
+
+  function putJson(path, body) {
+    return fetch(API_BASE + path, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(body)
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (data) {
+          throw new Error((data && (data.message || data.error)) || 'Request failed');
+        });
+      }
+      return res.json();
+    });
+  }
+
+  function deleteRequest(path) {
+    return fetch(API_BASE + path, {
+      method: 'DELETE',
+      headers: authHeaders()
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (data) {
+          throw new Error((data && (data.message || data.error)) || 'Request failed');
+        });
+      }
     });
   }
 
@@ -95,20 +119,26 @@
   function mapStatus(status) {
     var s = status ? String(status).toUpperCase() : '';
     if (s === 'ACTIVE') return { label: 'ACTIVE', className: 'fn-nutrition-status-active' };
-    if (s === 'DRAFT') return { label: 'DRAFT', className: 'fn-nutrition-status-draft' };
+    if (s === 'DRAFT')  return { label: 'DRAFT',  className: 'fn-nutrition-status-draft' };
     return { label: s || 'DRAFT', className: 'fn-nutrition-status-draft' };
   }
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function formatNumber(n) {
+    if (typeof n !== 'number' || isNaN(n)) return '0';
+    return n >= 1000 ? n.toLocaleString() : String(n);
+  }
+
+  // ── Stats ──────────────────────────────────────────────────────────────────
 
   function fetchStats() {
     if (statsLoading) statsLoading.style.display = 'flex';
     hideError(statsError);
-    if (nutritionStats) {
-      var placeholder = document.getElementById('statsLoading');
-      if (placeholder && placeholder.parentNode === nutritionStats) {
-        nutritionStats.innerHTML = '';
-        nutritionStats.appendChild(placeholder);
-      }
-    }
 
     fetchJson('/nutrition/stats')
       .then(function (data) {
@@ -124,9 +154,8 @@
 
   function renderStats(data) {
     if (!nutritionStats) return;
-    var totalPlans = data && (data.totalPlans != null) ? Number(data.totalPlans) : 0;
-    var activeUsers = data && (data.activeUsers != null) ? Number(data.activeUsers) : 0;
-    var avgSuccessRate = (data && data.avgSuccessRate != null) ? data.avgSuccessRate : '92%';
+    var totalPlans  = data && data.totalPlans  != null ? Number(data.totalPlans)  : 0;
+    var activeUsers = data && data.activeUsers != null ? Number(data.activeUsers) : 0;
 
     if (statsLoading && statsLoading.parentNode === nutritionStats) {
       nutritionStats.removeChild(statsLoading);
@@ -137,29 +166,20 @@
     card1.className = 'fn-admin-stat-card';
     card1.innerHTML =
       '<div class="fn-admin-stat-icon" aria-hidden="true">🍎</div>' +
-      '<div><div class="fn-admin-stat-meta">Total Plans</div><div class="fn-admin-stat-value">' + totalPlans + '</div></div>';
+      '<div><div class="fn-admin-stat-meta">Total Plans</div>' +
+      '<div class="fn-admin-stat-value">' + totalPlans + '</div></div>';
     nutritionStats.appendChild(card1);
 
     var card2 = document.createElement('div');
     card2.className = 'fn-admin-stat-card';
     card2.innerHTML =
       '<div class="fn-admin-stat-icon" aria-hidden="true">👥</div>' +
-      '<div><div class="fn-admin-stat-meta">Active Users</div><div class="fn-admin-stat-value">' + formatNumber(activeUsers) + '</div></div>';
+      '<div><div class="fn-admin-stat-meta">Active Users</div>' +
+      '<div class="fn-admin-stat-value">' + formatNumber(activeUsers) + '</div></div>';
     nutritionStats.appendChild(card2);
-
-    var card3 = document.createElement('div');
-    card3.className = 'fn-admin-stat-card';
-    card3.innerHTML =
-      '<div class="fn-admin-stat-icon" aria-hidden="true">📈</div>' +
-      '<div><div class="fn-admin-stat-meta">Avg. Success Rate</div><div class="fn-admin-stat-value">' + avgSuccessRate + '</div></div>';
-    nutritionStats.appendChild(card3);
   }
 
-  function formatNumber(n) {
-    if (typeof n !== 'number' || isNaN(n)) return '0';
-    if (n >= 1000) return n.toLocaleString();
-    return String(n);
-  }
+  // ── Plans table ────────────────────────────────────────────────────────────
 
   function fetchPlans() {
     hideError(plansError);
@@ -168,49 +188,24 @@
 
     fetchJson('/nutrition/plans')
       .then(function (list) {
-        allPlans = Array.isArray(list) ? list : [];
-        applyFilterAndPage();
         if (plansLoading) plansLoading.style.display = 'none';
         if (tableWrapper) tableWrapper.style.visibility = '';
+        renderPlans(Array.isArray(list) ? list : []);
       })
       .catch(function (err) {
-        allPlans = [];
-        applyFilterAndPage();
         if (plansLoading) plansLoading.style.display = 'none';
         if (tableWrapper) tableWrapper.style.visibility = '';
+        renderPlans([]);
         showError(plansError, err.message || 'Failed to load plans.');
       });
   }
 
-  function getSearchQuery() {
-    return planSearch && planSearch.value ? planSearch.value.trim().toLowerCase() : '';
-  }
-
-  function applyFilterAndPage() {
-    var q = getSearchQuery();
-    if (!q) {
-      filteredPlans = allPlans.slice();
-    } else {
-      filteredPlans = allPlans.filter(function (p) {
-        var name = (p.planName || '').toLowerCase();
-        return name.indexOf(q) !== -1;
-      });
-    }
-    currentPage = 0;
-    renderPlans();
-  }
-
-  function renderPlans() {
+  function renderPlans(plans) {
     if (!plansTableBody) return;
-
-    var total = filteredPlans.length;
-    var start = currentPage * PAGE_SIZE;
-    var pagePlans = filteredPlans.slice(start, start + PAGE_SIZE);
-
     plansTableBody.innerHTML = '';
 
-    if (pagePlans.length === 0) {
-      var emptyRow = document.createElement('tr');
+    if (plans.length === 0) {
+      var emptyRow  = document.createElement('tr');
       var emptyCell = document.createElement('td');
       emptyCell.colSpan = 6;
       emptyCell.className = 'fn-nutrition-empty-cell';
@@ -218,100 +213,95 @@
         '<div class="fn-nutrition-empty">' +
         '<div class="fn-nutrition-empty-icon" aria-hidden="true">🍎</div>' +
         '<p class="fn-nutrition-empty-title">No plans found</p>' +
-        '<p class="fn-nutrition-empty-text">' + (total === 0 && allPlans.length === 0
-          ? 'Create your first nutrition plan to get started.'
-          : 'No plans match your search. Try a different term.') + '</p>' +
+        '<p class="fn-nutrition-empty-text">Create your first nutrition plan to get started.</p>' +
         '</div>';
       emptyRow.appendChild(emptyCell);
       plansTableBody.appendChild(emptyRow);
-    } else {
-      pagePlans.forEach(function (plan) {
-        var row = document.createElement('tr');
-
-        var nameCell = document.createElement('td');
-        nameCell.className = 'fn-nutrition-plan-cell';
-        nameCell.innerHTML =
-          '<span class="fn-nutrition-plan-icon" aria-hidden="true">🍎</span>' +
-          '<span class="fn-nutrition-plan-name">' + escapeHtml(plan.planName || '—') + '</span>';
-        row.appendChild(nameCell);
-
-        var categoryCell = document.createElement('td');
-        categoryCell.innerHTML = '<span class="fn-nutrition-category">' + escapeHtml(plan.category || '—') + '</span>';
-        row.appendChild(categoryCell);
-
-        var clientsCell = document.createElement('td');
-        clientsCell.textContent = plan.activeClients != null ? formatNumber(Number(plan.activeClients)) : '0';
-        row.appendChild(clientsCell);
-
-        var ratingCell = document.createElement('td');
-        var rating = plan.avgRating != null ? Number(plan.avgRating) : 0;
-        ratingCell.innerHTML = '<span class="fn-nutrition-rating"><span class="fn-nutrition-rating-star">★</span> ' + (rating > 0 ? rating.toFixed(1) : '—') + '</span>';
-        row.appendChild(ratingCell);
-
-        var statusMap = mapStatus(plan.status);
-        var statusCell = document.createElement('td');
-        statusCell.innerHTML = '<span class="fn-nutrition-status ' + statusMap.className + '">' + statusMap.label + '</span>';
-        row.appendChild(statusCell);
-
-        var actionsCell = document.createElement('td');
-        actionsCell.className = 'fn-admin-actions-cell';
-        actionsCell.innerHTML =
-          '<button type="button" class="fn-admin-action-btn fn-admin-action-edit">Edit</button>' +
-          '<button type="button" class="fn-admin-action-btn fn-admin-action-delete">Delete</button>';
-        row.appendChild(actionsCell);
-
-        plansTableBody.appendChild(row);
-      });
+      return;
     }
 
-    if (plansSummary) {
-      plansSummary.textContent = 'Showing ' + (pagePlans.length ? start + 1 : 0) + '–' + (start + pagePlans.length) + ' of ' + total + ' plans';
-    }
-    if (prevPageBtn) {
-      prevPageBtn.disabled = currentPage <= 0;
-    }
-    if (nextPageBtn) {
-      nextPageBtn.disabled = start + pagePlans.length >= total;
-    }
+    plans.forEach(function (plan) {
+      var row = document.createElement('tr');
+
+      var nameCell = document.createElement('td');
+      nameCell.className = 'fn-nutrition-plan-cell';
+      nameCell.innerHTML =
+        '<span class="fn-nutrition-plan-icon" aria-hidden="true">🍎</span>' +
+        '<span class="fn-nutrition-plan-name">' + escapeHtml(plan.planName || '—') + '</span>';
+      row.appendChild(nameCell);
+
+      var categoryCell = document.createElement('td');
+      categoryCell.innerHTML = '<span class="fn-nutrition-category">' + escapeHtml(plan.category || '—') + '</span>';
+      row.appendChild(categoryCell);
+
+      var clientsCell = document.createElement('td');
+      clientsCell.textContent = plan.activeClients != null ? formatNumber(Number(plan.activeClients)) : '0';
+      row.appendChild(clientsCell);
+
+      var ratingCell = document.createElement('td');
+      var rating = plan.avgRating != null ? Number(plan.avgRating) : 0;
+      ratingCell.innerHTML =
+        '<span class="fn-nutrition-rating">' +
+        '<span class="fn-nutrition-rating-star">★</span> ' +
+        (rating > 0 ? rating.toFixed(1) : '—') +
+        '</span>';
+      row.appendChild(ratingCell);
+
+      var statusMap  = mapStatus(plan.status);
+      var statusCell = document.createElement('td');
+      statusCell.innerHTML =
+        '<span class="fn-nutrition-status ' + statusMap.className + '">' + statusMap.label + '</span>';
+      row.appendChild(statusCell);
+
+      var actionsCell = document.createElement('td');
+      actionsCell.className = 'fn-admin-actions-cell';
+
+      var editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'fn-admin-action-btn fn-admin-action-edit';
+      editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', function () { openEditModal(plan); });
+
+      var deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'fn-admin-action-btn fn-admin-action-delete';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.addEventListener('click', function () { openDeleteModal(plan); });
+
+      actionsCell.appendChild(editBtn);
+      actionsCell.appendChild(deleteBtn);
+      row.appendChild(actionsCell);
+
+      plansTableBody.appendChild(row);
+    });
   }
 
-  function escapeHtml(text) {
-    var div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
+  // ── Create ─────────────────────────────────────────────────────────────────
 
-  function createPlan(payload) {
-    return postJson('/nutrition/plans', payload);
-  }
-
-  function validateForm() {
-    var nameEl = document.getElementById('planName');
+  function validateCreateForm() {
+    var nameEl     = document.getElementById('planName');
     var categoryEl = document.getElementById('category');
-    var priceEl = document.getElementById('price');
-    var nameErr = document.getElementById('planNameError');
+    var priceEl    = document.getElementById('price');
+    var nameErr    = document.getElementById('planNameError');
     var categoryErr = document.getElementById('categoryError');
-    var priceErr = document.getElementById('priceError');
+    var priceErr   = document.getElementById('priceError');
 
-    function setErr(el, msg) {
-      if (el) { el.textContent = msg || ''; }
-    }
-    setErr(nameErr, '');
-    setErr(categoryErr, '');
-    setErr(priceErr, '');
+    nameErr.textContent = '';
+    categoryErr.textContent = '';
+    priceErr.textContent = '';
 
     var valid = true;
     if (!nameEl || !nameEl.value.trim()) {
-      setErr(nameErr, 'Plan name is required.');
+      nameErr.textContent = 'Plan name is required.';
       valid = false;
     }
     if (!categoryEl || !categoryEl.value.trim()) {
-      setErr(categoryErr, 'Category is required.');
+      categoryErr.textContent = 'Category is required.';
       valid = false;
     }
-    var priceVal = priceEl ? parseFloat(priceEl.value, 10) : NaN;
-    if (!priceEl || (priceEl.value.trim() === '' || isNaN(priceVal) || priceVal < 0)) {
-      setErr(priceErr, 'Price is required and must be 0 or greater.');
+    var priceVal = priceEl ? parseFloat(priceEl.value) : NaN;
+    if (!priceEl || priceEl.value.trim() === '' || isNaN(priceVal) || priceVal < 0) {
+      priceErr.textContent = 'Price is required and must be 0 or greater.';
       valid = false;
     }
     return valid;
@@ -323,37 +313,29 @@
     document.getElementById('planNameError').textContent = '';
     document.getElementById('categoryError').textContent = '';
     document.getElementById('priceError').textContent = '';
-    var modal = new bootstrap.Modal(createPlanModalEl);
-    modal.show();
+    new bootstrap.Modal(createPlanModalEl).show();
   }
 
   function submitCreatePlan() {
     if (!createPlanForm) return;
     hideError(createPlanAlert);
-    if (!validateForm()) return;
-
-    var planName = document.getElementById('planName').value.trim();
-    var category = document.getElementById('category').value.trim();
-    var price = parseFloat(document.getElementById('price').value, 10);
-    var descriptionEl = document.getElementById('description');
-    var statusEl = document.getElementById('status');
-    var description = descriptionEl ? descriptionEl.value.trim() : '';
-    var status = statusEl ? statusEl.value : 'DRAFT';
+    if (!validateCreateForm()) return;
 
     var payload = {
-      planName: planName,
-      category: category,
-      price: price,
-      status: status
+      planName:    document.getElementById('planName').value.trim(),
+      category:    document.getElementById('category').value.trim(),
+      price:       parseFloat(document.getElementById('price').value),
+      description: (document.getElementById('description').value || '').trim() || null,
+      status:      document.getElementById('status').value || 'DRAFT'
     };
-    if (description) payload.description = description;
+    if (!payload.description) delete payload.description;
 
     createPlanSubmitBtn.disabled = true;
-    createPlan(payload)
+    postJson('/nutrition/plans', payload)
       .then(function () {
         var modal = bootstrap.Modal.getInstance(createPlanModalEl);
         if (modal) modal.hide();
-        if (createPlanForm) createPlanForm.reset();
+        createPlanForm.reset();
         showToast('Plan created successfully.');
         fetchPlans();
         fetchStats();
@@ -366,37 +348,117 @@
       });
   }
 
+  // ── Edit ───────────────────────────────────────────────────────────────────
+
+  function validateEditForm() {
+    var nameEl     = document.getElementById('editPlanName');
+    var categoryEl = document.getElementById('editCategory');
+    var priceEl    = document.getElementById('editPrice');
+    var nameErr    = document.getElementById('editPlanNameError');
+    var categoryErr = document.getElementById('editCategoryError');
+    var priceErr   = document.getElementById('editPriceError');
+
+    nameErr.textContent = '';
+    categoryErr.textContent = '';
+    priceErr.textContent = '';
+
+    var valid = true;
+    if (!nameEl || !nameEl.value.trim()) {
+      nameErr.textContent = 'Plan name is required.';
+      valid = false;
+    }
+    if (!categoryEl || !categoryEl.value.trim()) {
+      categoryErr.textContent = 'Category is required.';
+      valid = false;
+    }
+    var priceVal = priceEl ? parseFloat(priceEl.value) : NaN;
+    if (!priceEl || priceEl.value.trim() === '' || isNaN(priceVal) || priceVal < 0) {
+      priceErr.textContent = 'Price is required and must be 0 or greater.';
+      valid = false;
+    }
+    return valid;
+  }
+
+  function openEditModal(plan) {
+    hideError(editPlanAlert);
+    document.getElementById('editPlanId').value           = plan.id;
+    document.getElementById('editPlanName').value         = plan.planName  || '';
+    document.getElementById('editCategory').value         = plan.category  || '';
+    document.getElementById('editPrice').value            = plan.price     != null ? plan.price : '';
+    document.getElementById('editDescription').value      = plan.description || '';
+    document.getElementById('editStatus').value           = plan.status    || 'DRAFT';
+    document.getElementById('editPlanNameError').textContent  = '';
+    document.getElementById('editCategoryError').textContent  = '';
+    document.getElementById('editPriceError').textContent     = '';
+    new bootstrap.Modal(editPlanModalEl).show();
+  }
+
+  function submitEditPlan() {
+    hideError(editPlanAlert);
+    if (!validateEditForm()) return;
+
+    var id = document.getElementById('editPlanId').value;
+    var payload = {
+      planName:    document.getElementById('editPlanName').value.trim(),
+      category:    document.getElementById('editCategory').value.trim(),
+      price:       parseFloat(document.getElementById('editPrice').value),
+      description: (document.getElementById('editDescription').value || '').trim() || null,
+      status:      document.getElementById('editStatus').value || 'DRAFT'
+    };
+    if (!payload.description) delete payload.description;
+
+    editPlanSubmitBtn.disabled = true;
+    putJson('/nutrition/plans/' + id, payload)
+      .then(function () {
+        var modal = bootstrap.Modal.getInstance(editPlanModalEl);
+        if (modal) modal.hide();
+        showToast('Plan updated successfully.');
+        fetchPlans();
+        fetchStats();
+      })
+      .catch(function (err) {
+        showError(editPlanAlert, err.message || 'Failed to update plan.');
+      })
+      .finally(function () {
+        editPlanSubmitBtn.disabled = false;
+      });
+  }
+
+  // ── Delete ─────────────────────────────────────────────────────────────────
+
+  function openDeleteModal(plan) {
+    hideError(deletePlanAlert);
+    document.getElementById('deletePlanId').value   = plan.id;
+    document.getElementById('deletePlanName').textContent = plan.planName || 'this plan';
+    new bootstrap.Modal(deletePlanModalEl).show();
+  }
+
+  function confirmDelete() {
+    var id = document.getElementById('deletePlanId').value;
+    hideError(deletePlanAlert);
+    deletePlanConfirmBtn.disabled = true;
+    deleteRequest('/nutrition/plans/' + id)
+      .then(function () {
+        var modal = bootstrap.Modal.getInstance(deletePlanModalEl);
+        if (modal) modal.hide();
+        showToast('Plan deleted successfully.');
+        fetchPlans();
+        fetchStats();
+      })
+      .catch(function (err) {
+        showError(deletePlanAlert, err.message || 'Failed to delete plan.');
+      })
+      .finally(function () {
+        deletePlanConfirmBtn.disabled = false;
+      });
+  }
+
+  // ── Event wiring ───────────────────────────────────────────────────────────
+
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
       localStorage.removeItem('token');
       window.location.href = '/login';
-    });
-  }
-
-  if (planSearch) {
-    planSearch.addEventListener('input', function () {
-      applyFilterAndPage();
-    });
-    planSearch.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') e.preventDefault();
-    });
-  }
-
-  if (prevPageBtn) {
-    prevPageBtn.addEventListener('click', function () {
-      if (currentPage > 0) {
-        currentPage--;
-        renderPlans();
-      }
-    });
-  }
-  if (nextPageBtn) {
-    nextPageBtn.addEventListener('click', function () {
-      var start = (currentPage + 1) * PAGE_SIZE;
-      if (start < filteredPlans.length) {
-        currentPage++;
-        renderPlans();
-      }
     });
   }
 
@@ -414,6 +476,23 @@
       submitCreatePlan();
     });
   }
+
+  if (editPlanSubmitBtn) {
+    editPlanSubmitBtn.addEventListener('click', submitEditPlan);
+  }
+
+  if (editPlanForm) {
+    editPlanForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitEditPlan();
+    });
+  }
+
+  if (deletePlanConfirmBtn) {
+    deletePlanConfirmBtn.addEventListener('click', confirmDelete);
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
 
   fetchStats();
   fetchPlans();
