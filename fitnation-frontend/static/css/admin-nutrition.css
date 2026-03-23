@@ -1,4 +1,3 @@
-/* Nutrition admin – stats, table, badges, search, loading, toast */
 
 .fn-nutrition-stats .fn-admin-stat-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -9,7 +8,6 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* Loading state */
 .fn-loading-placeholder {
   display: flex;
   align-items: center;
@@ -33,7 +31,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Search and filter toolbar */
 .fn-nutrition-toolbar {
   display: flex;
   align-items: center;
@@ -99,7 +96,6 @@
   color: var(--fn-text);
 }
 
-/* Plan name cell with icon */
 .fn-nutrition-plan-cell {
   display: flex;
   align-items: center;
@@ -123,7 +119,6 @@
   font-weight: 500;
 }
 
-/* Category pill (neutral) */
 .fn-nutrition-category {
   display: inline-flex;
   align-items: center;
@@ -134,7 +129,6 @@
   color: var(--fn-text-muted);
 }
 
-/* Status badges */
 .fn-nutrition-status {
   display: inline-flex;
   align-items: center;
@@ -154,7 +148,6 @@
   color: #fff;
 }
 
-/* Rating display */
 .fn-nutrition-rating {
   display: inline-flex;
   align-items: center;
@@ -166,7 +159,6 @@
   color: #eab308;
 }
 
-/* Table row hover */
 .fn-nutrition-table tbody tr {
   transition: background 0.15s ease;
 }
@@ -175,7 +167,6 @@
   background: rgba(15, 23, 42, 0.95);
 }
 
-/* Action menu (ellipsis) */
 .fn-nutrition-actions-cell {
   text-align: right;
 }
@@ -197,7 +188,6 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-/* Table footer and pagination */
 .fn-nutrition-footer {
   display: flex;
   align-items: center;
@@ -246,7 +236,6 @@
   cursor: not-allowed;
 }
 
-/* Empty state */
 .fn-nutrition-empty-cell {
   padding: 1.25rem !important;
   vertical-align: middle;
@@ -276,7 +265,6 @@
   font-size: 0.9rem;
 }
 
-/* Form field error */
 .fn-field-error {
   display: block;
   font-size: 0.8rem;
@@ -288,7 +276,6 @@
   color: #f87171;
 }
 
-/* Toast notification */
 .fn-toast-container {
   position: fixed;
   top: 1rem;
@@ -322,7 +309,6 @@
   }
 }
 
-/* Screen reader only */
 .fn-sr-only {
   position: absolute;
   width: 1px;
@@ -335,7 +321,6 @@
   border: 0;
 }
 
-/* Nav icon apple (emoji) */
 .fn-admin-nav-icon-apple {
   font-size: 1rem;
 }
