@@ -11,7 +11,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/fitnation
     username: postgres
-    password: postgres
+    password: root
     driver-class-name: org.postgresql.Driver
   liquibase:
     enabled: true
