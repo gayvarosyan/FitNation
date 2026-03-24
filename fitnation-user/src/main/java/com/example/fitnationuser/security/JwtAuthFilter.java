@@ -41,9 +41,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+        log.info("Token received: {}", token);
+        log.info("Token valid: {}", jwtService.isAccessTokenValid(token));
 
         if (!jwtService.isAccessTokenValid(token)) {
-            log.warn("Invalid or expired JWT token - request: {} {}", request.getMethod(), request.getRequestURI()); // ✅
+            log.warn("Invalid or expired JWT token - request: {} {}", request.getMethod(), request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }

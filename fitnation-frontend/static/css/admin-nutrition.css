@@ -1,0 +1,306 @@
+
+.fn-nutrition-stats .fn-admin-stat-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fn-nutrition-stats .fn-admin-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.fn-loading-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  color: var(--fn-text-muted);
+  font-size: 0.9rem;
+}
+
+.fn-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--fn-border);
+  border-top-color: var(--fn-green);
+  border-radius: 50%;
+  animation: fn-spin 0.7s linear infinite;
+}
+
+@keyframes fn-spin {
+  to { transform: rotate(360deg); }
+}
+
+.fn-nutrition-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.fn-search-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fn-search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.fn-search-input {
+  width: 100%;
+  padding: 0.65rem 1rem 0.65rem 2.75rem;
+  font-size: 0.95rem;
+  color: var(--fn-text);
+  background: var(--fn-input-bg);
+  border: 1px solid var(--fn-border);
+  border-radius: var(--fn-radius-sm);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.fn-search-input::placeholder {
+  color: var(--fn-text-muted);
+}
+
+.fn-search-input:focus {
+  border-color: var(--fn-green);
+}
+
+.fn-filter-btn {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fn-input-bg);
+  border: 1px solid var(--fn-border);
+  border-radius: var(--fn-radius-sm);
+  color: var(--fn-text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.fn-filter-btn:hover {
+  background: #2d2d2d;
+  border-color: var(--fn-green);
+  color: var(--fn-text);
+}
+
+.fn-nutrition-plan-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.fn-nutrition-plan-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--fn-green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.fn-nutrition-plan-name {
+  font-weight: 500;
+}
+
+.fn-nutrition-category {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: var(--fn-input-bg);
+  color: var(--fn-text-muted);
+}
+
+.fn-nutrition-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.fn-nutrition-status-active {
+  background: var(--fn-green);
+  color: #0b1120;
+}
+
+.fn-nutrition-status-draft {
+  background: #6c757d;
+  color: #fff;
+}
+
+.fn-nutrition-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.fn-nutrition-rating-star {
+  color: #eab308;
+}
+
+.fn-nutrition-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.fn-nutrition-table tbody tr:hover {
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.fn-nutrition-actions-cell {
+  text-align: right;
+}
+
+.fn-nutrition-action-menu {
+  padding: 0.35rem 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--fn-text-muted);
+  cursor: pointer;
+  border-radius: var(--fn-radius-sm);
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+
+.fn-nutrition-action-menu:hover {
+  color: var(--fn-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.fn-nutrition-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--fn-border);
+}
+
+.fn-nutrition-summary {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--fn-text-muted);
+}
+
+.fn-nutrition-pagination {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.fn-page-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fn-input-bg);
+  border: 1px solid var(--fn-border);
+  border-radius: 50%;
+  color: var(--fn-text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.fn-page-btn:hover:not(:disabled) {
+  border-color: var(--fn-green);
+  color: var(--fn-green);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.fn-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.fn-nutrition-empty-cell {
+  padding: 1.25rem !important;
+  vertical-align: middle;
+}
+
+.fn-nutrition-empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  color: var(--fn-text-muted);
+}
+
+.fn-nutrition-empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.7;
+}
+
+.fn-nutrition-empty-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fn-text);
+  margin: 0 0 0.35rem;
+}
+
+.fn-nutrition-empty-text {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.fn-field-error {
+  display: block;
+  font-size: 0.8rem;
+  color: #fca5a5;
+  margin-top: 0.35rem;
+}
+
+.fn-required {
+  color: #f87171;
+}
+
+
+.fn-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.fn-admin-nav-icon-apple {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .fn-nutrition-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fn-nutrition-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

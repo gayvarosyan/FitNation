@@ -15,6 +15,10 @@
   const editTrainerForm = document.getElementById('editTrainerForm');
   const editTrainerSubmitBtn = document.getElementById('editTrainerSubmitBtn');
   const editTrainerAlert = document.getElementById('editTrainerAlert');
+  const deleteTrainerModalEl = document.getElementById('deleteTrainerModal');
+  const deleteTrainerConfirmBtn = document.getElementById('deleteTrainerConfirmBtn');
+  const deleteTrainerAlert = document.getElementById('deleteTrainerAlert');
+  const toastContainer = document.getElementById('toastContainer');
 
   function showError(el, message) {
     if (!el) return;
@@ -218,20 +222,50 @@
     modal.show();
   }
 
+  function showToast(message) {
+    if (!toastContainer) return;
+    var toast = document.createElement('div');
+    toast.className = 'fn-toast';
+    toast.setAttribute('role', 'status');
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+    setTimeout(function () {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 4000);
+  }
+
+  function openDeleteModal(trainer) {
+    hideError(deleteTrainerAlert);
+    var name = ((trainer.firstName || '') + (trainer.lastName ? ' ' + trainer.lastName : '')).trim() || trainer.email || 'this trainer';
+    document.getElementById('deleteTrainerId').value = trainer.trainerId || '';
+    document.getElementById('deleteTrainerName').textContent = name;
+    new bootstrap.Modal(deleteTrainerModalEl).show();
+  }
+
   function confirmDeleteTrainer(trainer) {
-    var name = (trainer.firstName || '') + (trainer.lastName ? ' ' + trainer.lastName : '');
-    if (!window.confirm('Delete trainer ' + (name || trainer.email) + '? This cannot be undone.')) {
-      return;
-    }
-    var id = trainer.trainerId;
-    if (!id) return;
-    deleteJson('/trainers/' + id)
-      .then(function () {
-        refreshData();
-      })
-      .catch(function (err) {
-        showError(trainersError, err.message || 'Failed to delete trainer.');
-      });
+    openDeleteModal(trainer);
+  }
+
+  if (deleteTrainerConfirmBtn) {
+    deleteTrainerConfirmBtn.addEventListener('click', function () {
+      var id = document.getElementById('deleteTrainerId').value;
+      if (!id) return;
+      hideError(deleteTrainerAlert);
+      deleteTrainerConfirmBtn.disabled = true;
+      deleteJson('/trainers/' + id)
+        .then(function () {
+          var modal = bootstrap.Modal.getInstance(deleteTrainerModalEl);
+          if (modal) modal.hide();
+          showToast('Trainer deleted successfully.');
+          refreshData();
+        })
+        .catch(function (err) {
+          showError(deleteTrainerAlert, err.message || 'Failed to delete trainer.');
+        })
+        .finally(function () {
+          deleteTrainerConfirmBtn.disabled = false;
+        });
+    });
   }
 
   function getToken() {

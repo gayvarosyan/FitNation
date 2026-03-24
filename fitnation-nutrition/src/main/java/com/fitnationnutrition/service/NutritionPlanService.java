@@ -16,4 +16,8 @@ public interface NutritionPlanService {
     NutritionPlanCatalogItemDto createPlan(CreateNutritionPlanRequest request);
 
     NutritionPlan createPlan(NutritionPlan plan);
+
+    NutritionPlanCatalogItemDto updatePlan(Long id, CreateNutritionPlanRequest request);
+
+    void deletePlan(Long id);
 }
