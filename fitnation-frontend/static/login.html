@@ -9,22 +9,27 @@
 </head>
 <body>
   <div class="fn-container">
-    <svg class="fn-logo" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M6 2v4h2V4h8v2h2V2H6zm0 16h12v2H6v-2zm0-4h12v2H6v-2zm4-8h4v2h-4V6zM6 10v2h12v-2H6z"/>
-    </svg>
+    <div class="fn-logo-wrap" aria-hidden="true">
+      <svg class="fn-logo" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2 4.86l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43L22 19.14l-1.43-1.43L22 16.29z"/>
+      </svg>
+    </div>
     <h1 class="fn-title">FitNation</h1>
-    <p class="fn-tagline">Modern fitness management.</p>
+    <p class="fn-tagline">Modern fitness management</p>
 
     <div id="loginAlert" class="fn-alert fn-alert-error" style="display: none;" role="alert"></div>
 
     <form id="loginForm" class="fn-form">
       <div class="fn-form-group">
         <label class="fn-label" for="email">Email</label>
-        <input type="email" id="email" name="email" class="fn-input" required autocomplete="email">
+        <input type="email" id="email" name="email" class="fn-input" required autocomplete="email" placeholder="you@example.com">
       </div>
       <div class="fn-form-group">
-        <label class="fn-label" for="password">Password</label>
-        <input type="password" id="password" name="password" class="fn-input" required autocomplete="current-password">
+        <div class="fn-label-row">
+          <label class="fn-label" for="password">Password</label>
+          <a href="#" class="fn-forgot">Forgot?</a>
+        </div>
+        <input type="password" id="password" name="password" class="fn-input" required autocomplete="current-password" placeholder="••••••••">
       </div>
 
       <button type="submit" class="fn-btn-primary" id="loginBtn">Login</button>

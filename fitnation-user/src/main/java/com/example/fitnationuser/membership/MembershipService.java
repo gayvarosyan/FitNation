@@ -28,12 +28,11 @@ public class MembershipService {
     }
 
     public MembershipType createMembershipType(CreateMembershipTypeRequest request) {
-        MembershipType type = MembershipType.builder()
-                .name(request.name())
-                .durationDays(request.durationDays())
-                .price(request.price())
-                .description(request.description())
-                .build();
+        MembershipType type = new MembershipType();
+        type.setName(request.name());
+        type.setDurationDays(request.durationDays());
+        type.setPrice(request.price());
+        type.setDescription(request.description());
         return membershipTypeRepository.save(type);
     }
 
@@ -47,21 +46,21 @@ public class MembershipService {
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = startDate.plusDays(type.getDurationDays());
 
-        Membership membership = membershipRepository.save(Membership.builder()
-                .user(user)
-                .membershipType(type)
-                .startDate(startDate)
-                .endDate(endDate)
-                .status(MembershipStatus.ACTIVE)
-                .build());
+        Membership membership = new Membership();
+        membership.setUser(user);
+        membership.setMembershipType(type);
+        membership.setStartDate(startDate);
+        membership.setEndDate(endDate);
+        membership.setStatus(MembershipStatus.ACTIVE);
+        membershipRepository.save(membership);
 
-        paymentRepository.save(Payment.builder()
-                .user(user)
-                .amount(type.getPrice())
-                .paymentType("MEMBERSHIP")
-                .entityId(membership.getId())
-                .status("COMPLETED")
-                .build());
+        Payment payment = new Payment();
+        payment.setUser(user);
+        payment.setAmount(type.getPrice());
+        payment.setPaymentType("MEMBERSHIP");
+        payment.setEntityId(membership.getId());
+        payment.setStatus("COMPLETED");
+        paymentRepository.save(payment);
 
         return toResponse(membership);
     }
@@ -80,16 +79,10 @@ public class MembershipService {
         Membership membership = membershipRepository.findById(membershipId)
                 .orElseThrow(() -> new RuntimeException("Membership not found"));
 
-        Membership cancelled = membershipRepository.save(Membership.builder()
-                .id(membership.getId())
-                .user(membership.getUser())
-                .membershipType(membership.getMembershipType())
-                .startDate(membership.getStartDate())
-                .endDate(membership.getEndDate())
-                .status(MembershipStatus.EXPIRED)
-                .build());
+        membership.setStatus(MembershipStatus.EXPIRED);
+        membershipRepository.save(membership);
 
-        return toResponse(cancelled);
+        return toResponse(membership);
     }
 
     private MembershipResponse toResponse(Membership m) {
