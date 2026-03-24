@@ -115,6 +115,7 @@
     <modules>
         <module>fitnation-common</module>
         <module>fitnation-user</module>
+        <module>fitnation-membership</module>
         <module>fitnation-admin</module>
         <module>fitnation-booking</module>
         <module>fitnation-notification</module>

@@ -3,8 +3,8 @@ package com.example.fitnationrestapi.controller;
 import com.example.fitnationcommon.dto.request.CreateMembershipTypeRequest;
 import com.example.fitnationcommon.dto.request.PurchaseMembershipRequest;
 import com.example.fitnationcommon.dto.response.MembershipResponse;
-import com.example.fitnationuser.membership.MembershipService;
-import com.example.fitnationuser.membership.MembershipType;
+import com.example.fitnationcommon.dto.response.MembershipTypeResponse;
+import com.example.fitnationmembership.service.MembershipService;
 import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,13 +27,13 @@ public class MembershipController {
     private final MembershipService membershipService;
 
     @GetMapping("/api/membership-types")
-    public ResponseEntity<List<MembershipType>> getMembershipTypes() {
+    public ResponseEntity<List<MembershipTypeResponse>> getMembershipTypes() {
         return ResponseEntity.ok(membershipService.getAllMembershipTypes());
     }
 
     @PostMapping("/api/admin/membership-types")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MembershipType> createMembershipType(
+    public ResponseEntity<MembershipTypeResponse> createMembershipType(
             @RequestBody CreateMembershipTypeRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(membershipService.createMembershipType(request));
@@ -55,7 +55,9 @@ public class MembershipController {
     }
 
     @PutMapping("/api/memberships/{id}/cancel")
-    public ResponseEntity<MembershipResponse> cancelMembership(@PathVariable Long id) {
-        return ResponseEntity.ok(membershipService.cancelMembership(id));
+    public ResponseEntity<MembershipResponse> cancelMembership(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(membershipService.cancelMembership(id, user));
     }
 }

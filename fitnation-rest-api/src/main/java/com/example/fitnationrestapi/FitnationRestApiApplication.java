@@ -10,17 +10,19 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ComponentScan(basePackages = {
         "com.example.fitnationrestapi",
         "com.example.fitnationuser",
+        "com.example.fitnationmembership",
         "com.example.fitnationtrainer",
         "com.example.fitnationcommon",
         "com.fitnationnutrition"})
 @EntityScan(basePackages = {
         "com.example.fitnationuser",
+        "com.example.fitnationmembership.model",
         "com.example.fitnationtrainer",
         "com.fitnationnutrition.model"})
 @EnableJpaRepositories(basePackages = {
         "com.example.fitnationuser.repository",
-        "com.example.fitnationuser.membership",
         "com.example.fitnationuser.payment",
+        "com.example.fitnationmembership.repository",
         "com.example.fitnationtrainer.repository",
         "com.fitnationnutrition.repository"})
 public class FitnationRestApiApplication {
