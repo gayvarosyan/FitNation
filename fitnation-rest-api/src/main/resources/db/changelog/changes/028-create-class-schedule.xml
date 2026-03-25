@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+    <changeSet id="028-create-class-schedule" author="Gayane">
+        <createTable tableName="class_schedule">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="class_id" type="BIGINT"/>
+
+            <column name="date" type="DATE"/>
+            <column name="start_time" type="TIME"/>
+            <column name="end_time" type="TIME"/>
+
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="class_schedule"
+                baseColumnNames="class_id"
+                referencedTableName="group_classes"
+                referencedColumnNames="id"
+                constraintName="fk_schedule_class"/>
+    </changeSet>
+</databaseChangeLog>
