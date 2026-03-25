@@ -4,6 +4,9 @@ import com.example.fitnationcommon.dto.response.ErrorResponse;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationcommon.exception.InvalidPasswordException;
 import com.example.fitnationcommon.exception.InvalidRoleException;
+import com.example.fitnationcommon.exception.ForbiddenOperationException;
+import com.example.fitnationcommon.exception.MembershipNotFoundException;
+import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.exception.UserBlockedException;
@@ -53,6 +56,18 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleTrainerNotFound(TrainerNotFoundException ex) {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler({MembershipNotFoundException.class, MembershipTypeNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleMembershipNotFound(RuntimeException ex) {
+        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(ForbiddenOperationException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenOperation(ForbiddenOperationException ex) {
+        return new ErrorResponse(HttpStatus.FORBIDDEN.value(), ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
