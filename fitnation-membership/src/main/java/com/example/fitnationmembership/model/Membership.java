@@ -1,7 +1,6 @@
-package com.example.fitnationuser.payment;
+package com.example.fitnationmembership.model;
 
-import com.example.fitnationcommon.enums.PaymentEntityType;
-import com.example.fitnationcommon.enums.PaymentStatus;
+import com.example.fitnationcommon.enums.MembershipStatus;
 import com.example.fitnationuser.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,20 +13,22 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "payments")
-public class Payment {
+@Table(name = "memberships")
+public class Membership {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,17 +38,21 @@ public class Payment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private BigDecimal amount;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "membership_type_id", nullable = false)
+    private MembershipType membershipType;
 
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "payment_type", nullable = false)
-    private PaymentEntityType paymentType;
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
 
-    @Column(name = "entity_id")
-    private Long entityId;
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
 
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false)
-    private PaymentStatus status;
+    private MembershipStatus status;
+
+    public void markExpired() {
+        this.status = MembershipStatus.EXPIRED;
+    }
 }
