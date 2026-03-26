@@ -5,7 +5,10 @@ import java.time.LocalTime;
 
 public record ClassScheduleItemResponse(
         Long scheduleId,
+        Long classId,
         String className,
+        String classDescription,
+        Long trainerId,
         String trainerName,
         LocalDate date,
         LocalTime startTime,
