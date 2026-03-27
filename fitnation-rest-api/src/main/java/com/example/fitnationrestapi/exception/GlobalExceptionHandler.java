@@ -1,10 +1,13 @@
 package com.example.fitnationrestapi.exception;
 
 import com.example.fitnationcommon.dto.response.ErrorResponse;
+import com.example.fitnationcommon.exception.ClassBookingNotFoundException;
+import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationcommon.exception.InvalidPasswordException;
 import com.example.fitnationcommon.exception.InvalidRoleException;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
+import com.example.fitnationcommon.exception.GroupClassNotFoundException;
 import com.example.fitnationcommon.exception.MembershipNotFoundException;
 import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
@@ -61,6 +64,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MembershipNotFoundException.class, MembershipTypeNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleMembershipNotFound(RuntimeException ex) {
+        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler({ClassScheduleNotFoundException.class, ClassBookingNotFoundException.class, GroupClassNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleClassNotFound(RuntimeException ex) {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 

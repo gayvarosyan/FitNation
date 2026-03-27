@@ -116,10 +116,7 @@
         <module>fitnation-common</module>
         <module>fitnation-user</module>
         <module>fitnation-membership</module>
-        <module>fitnation-admin</module>
         <module>fitnation-booking</module>
-        <module>fitnation-notification</module>
-        <module>fitnation-analytics</module>
         <module>fitnation-rest-api</module>
         <module>fitnation-frontend</module>
         <module>fitnation-trainer</module>

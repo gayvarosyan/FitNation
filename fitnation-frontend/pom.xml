@@ -8,6 +8,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>fitnation-frontend</artifactId>
+    <packaging>pom</packaging>
     <name>fitnation-frontend</name>
     <description>fitnation-frontend</description>
     <url/>
@@ -27,15 +28,4 @@
         <java.version>25</java.version>
     </properties>
     <dependencies/>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

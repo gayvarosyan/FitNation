@@ -4,8 +4,12 @@ import com.example.fitnationbooking.mapper.ClassBookingMapper;
 import com.example.fitnationbooking.repository.ClassBookingRepository;
 import com.example.fitnationbooking.repository.ClassScheduleRepository;
 import com.example.fitnationbooking.validation.ClassBookingValidator;
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
+import com.example.fitnationcommon.exception.ClassBookingNotFoundException;
+import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
+import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationuser.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +30,12 @@ public class ClassBookingService {
     @Transactional
     public void bookClass(Long scheduleId, Long userId) {
         var schedule = classScheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("Schedule not found: " + scheduleId));
+                .orElseThrow(() -> new ClassScheduleNotFoundException(
+                        ApplicationConstants.MSG_SCHEDULE_NOT_FOUND + scheduleId));
 
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(
+                        ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
         classBookingValidator.validateCanBook(schedule, user);
 
@@ -40,10 +46,12 @@ public class ClassBookingService {
     @Transactional
     public void cancelBooking(Long bookingId, Long userId) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(
+                        ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
         var booking = classBookingRepository.findByIdAndUser(bookingId, user)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+                .orElseThrow(() -> new ClassBookingNotFoundException(
+                        ApplicationConstants.MSG_BOOKING_NOT_FOUND + bookingId));
 
         booking.setStatus(ClassBookingStatus.CANCELLED);
     }
@@ -51,7 +59,8 @@ public class ClassBookingService {
     @Transactional
     public List<UserBookingItemResponse> getUserBookings(Long userId) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(
+                        ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
         return classBookingRepository.findByUser(user).stream()
                 .map(classBookingMapper::toUserBookingItemResponse)

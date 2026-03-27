@@ -1,0 +1,14 @@
+.fn-class-name {
+  font-weight: 600;
+  color: var(--fn-text);
+}
+
+.fn-class-id {
+  font-size: 0.75rem;
+  color: var(--fn-text-muted);
+  margin-top: 0.15rem;
+}
+
+#classStats .fn-admin-stat-card {
+  min-height: 86px;
+}
