@@ -1,0 +1,12 @@
+com\example\fitnationmembership\mapper\MembershipTypeMapperImpl.class
+com\example\fitnationmembership\mapper\MembershipMapper.class
+com\example\fitnationmembership\model\Membership.class
+com\example\fitnationmembership\mapper\MembershipMapperImpl.class
+com\example\fitnationmembership\service\impl\MembershipServiceImpl.class
+com\example\fitnationmembership\service\MembershipService.class
+com\example\fitnationmembership\mapper\MembershipTypeMapper.class
+com\example\fitnationmembership\model\MembershipType$MembershipTypeBuilder.class
+com\example\fitnationmembership\repository\MembershipRepository.class
+com\example\fitnationmembership\model\Membership$MembershipBuilder.class
+com\example\fitnationmembership\model\MembershipType.class
+com\example\fitnationmembership\repository\MembershipTypeRepository.class

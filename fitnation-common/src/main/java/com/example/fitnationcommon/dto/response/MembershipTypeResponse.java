@@ -9,5 +9,8 @@ public record MembershipTypeResponse(
         String name,
         @JsonProperty("duration") Integer durationDays,
         BigDecimal price,
-        String description
+        String description,
+        Long nutritionPlanId,
+        Long trainerId,
+        Long groupClassId
 ) {}

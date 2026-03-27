@@ -10,9 +10,14 @@ import java.util.Optional;
 
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
+    long countByMembershipType_Id(Long membershipTypeId);
+
     @Query("SELECT m FROM Membership m JOIN FETCH m.membershipType WHERE m.user.id = :userId")
     List<Membership> findAllByUserIdWithType(@Param("userId") Long userId);
 
     @Query("SELECT m FROM Membership m JOIN FETCH m.membershipType JOIN FETCH m.user WHERE m.id = :id")
     Optional<Membership> findByIdWithTypeAndUser(@Param("id") Long id);
+
+    @Query("SELECT m FROM Membership m JOIN FETCH m.membershipType JOIN FETCH m.user")
+    List<Membership> findAllWithTypeAndUser();
 }

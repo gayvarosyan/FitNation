@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="010-create-trainer-income-table" author="MariamHovhannisyan">
+        <createTable tableName="trainer_income">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_trainer_income"/>
+            </column>
+            <column name="trainer_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_trainer_income_trainer" references="trainers(id)"/>
+            </column>
+            <column name="month" type="INT"/>
+            <column name="year" type="INT"/>
+            <column name="total_sessions" type="INT"/>
+            <column name="total_income" type="DECIMAL(19,2)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

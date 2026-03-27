@@ -52,6 +52,15 @@ public class Membership {
     @Column(name = "status", nullable = false)
     private MembershipStatus status;
 
+    @Column(name = "nutrition_plan_id")
+    private Long nutritionPlanId;
+
+    @Column(name = "trainer_id")
+    private Long trainerId;
+
+    @Column(name = "group_class_id")
+    private Long groupClassId;
+
     public void markExpired() {
         this.status = MembershipStatus.EXPIRED;
     }

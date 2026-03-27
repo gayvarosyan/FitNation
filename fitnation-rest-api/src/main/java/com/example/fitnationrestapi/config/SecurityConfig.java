@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/login", "/register").permitAll()
                         .requestMatchers("/*.html", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/trainers/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/analytics/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers("/api/bookings/**").hasAnyRole("CLIENT", "TRAINER", "ADMIN")

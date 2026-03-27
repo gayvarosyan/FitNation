@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscriptions – FitNation Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/admin-subscriptions.css" rel="stylesheet">
+</head>
+<body class="fn-admin-body">
+  <div class="fn-admin-shell">
+    <aside class="fn-admin-sidebar">
+      <div class="fn-admin-brand">
+        <div class="fn-admin-brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2 4.86l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43L22 19.14l-1.43-1.43L22 16.29z"/>
+          </svg>
+        </div>
+        <span class="fn-admin-brand-text">FitNation</span>
+      </div>
+      <nav class="fn-admin-nav" aria-label="Admin navigation">
+        <a href="/admin-trainers.html" class="fn-admin-nav-item"><span class="fn-admin-nav-icon">🏋️</span><span class="fn-admin-nav-label">Trainers</span></a>
+        <a href="/admin-subscriptions.html" class="fn-admin-nav-item active"><span class="fn-admin-nav-icon">💳</span><span class="fn-admin-nav-label">Subscriptions</span></a>
+        <a href="/admin-classes.html" class="fn-admin-nav-item"><span class="fn-admin-nav-icon">📅</span><span class="fn-admin-nav-label">Classes</span></a>
+        <a href="/admin-nutrition.html" class="fn-admin-nav-item"><span class="fn-admin-nav-icon">🍎</span><span class="fn-admin-nav-label">Nutrition</span></a>
+      </nav>
+      <div class="fn-admin-sidebar-footer">
+        <button id="logoutBtn" class="fn-admin-logout-btn">Logout</button>
+      </div>
+    </aside>
+
+    <main class="fn-admin-main">
+      <div class="fn-sub-topbar">
+        <span class="fn-sub-topbar-title">Admin Portal</span>
+        <div class="fn-sub-topbar-actions">
+          <button type="button" class="fn-sub-topbar-btn" aria-label="Notifications">🔔</button>
+          <button type="button" class="fn-sub-topbar-btn" aria-label="Settings">⚙️</button>
+          <span class="fn-sub-avatar-ring" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <header class="fn-admin-header">
+        <div>
+          <h1 class="fn-admin-title">Subscriptions</h1>
+          <p class="fn-admin-subtitle">Manage membership plans, billing, and recurring revenue.</p>
+        </div>
+        <button class="fn-admin-add-btn" type="button" id="createPlanBtn">
+          <span class="fn-admin-add-icon">+</span>
+          <span>Create Plan</span>
+        </button>
+      </header>
+
+      <div id="pageError" class="fn-alert fn-alert-error" style="display:none;" role="alert"></div>
+      <div id="dataScopeNotice" class="fn-alert fn-sub-alert-info" role="status"></div>
+
+      <section class="fn-admin-section" aria-label="Key metrics">
+        <div id="kpiGrid" class="fn-admin-stats-grid fn-sub-stats"></div>
+      </section>
+
+      <section class="fn-admin-section" aria-label="Membership plans catalog">
+        <div class="fn-admin-section-header">
+          <div>
+            <h2 class="fn-admin-section-title">Membership plans (catalog)</h2>
+            <p class="fn-admin-section-subtitle">Templates from GET /api/membership-types — default bundle for new purchases.</p>
+          </div>
+        </div>
+        <div class="fn-admin-table-wrapper fn-sub-table-scroll">
+          <table class="fn-admin-table fn-sub-table" aria-label="Membership plans">
+            <thead>
+              <tr>
+                <th scope="col">Plan</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Price</th>
+                <th scope="col">Nutrition</th>
+                <th scope="col">Trainer</th>
+                <th scope="col">Class</th>
+                <th scope="col"><span class="fn-sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="plansCatalogBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="fn-admin-section">
+        <div class="fn-admin-section-header">
+          <div>
+            <h2 class="fn-admin-section-title">Subscription Records</h2>
+            <p class="fn-admin-section-subtitle">Purchased memberships (not plan templates). Edit bundle links or cancel.</p>
+          </div>
+        </div>
+
+        <div id="tableLoading" class="fn-sub-loading" style="display:none;">
+          <div class="fn-spinner" aria-hidden="true"></div>
+          <span>Loading subscription records...</span>
+        </div>
+        <div id="tableError" class="fn-alert fn-alert-error" style="display:none;" role="alert"></div>
+
+        <div class="fn-admin-table-wrapper fn-sub-table-scroll">
+          <table class="fn-admin-table fn-sub-table" aria-label="Subscription records">
+            <thead>
+              <tr>
+                <th scope="col">Sub ID</th>
+                <th scope="col">User</th>
+                <th scope="col">Plan</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Period end</th>
+                <th scope="col">Status</th>
+                <th scope="col">Nutrition</th>
+                <th scope="col">Trainer</th>
+                <th scope="col">Class</th>
+                <th scope="col"><span class="fn-sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="subsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal fade" id="createPlanModal" tabindex="-1" aria-labelledby="createPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content fn-admin-modal">
+        <div class="modal-header fn-admin-modal-header">
+          <h2 class="modal-title fs-5" id="createPlanModalLabel">Create Membership Plan</h2>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body fn-admin-modal-body">
+          <div id="createPlanAlert" class="fn-alert fn-alert-error" style="display:none;" role="alert"></div>
+          <form id="createPlanForm" novalidate>
+            <input type="hidden" id="cpPlanId" value="">
+            <div class="row g-2">
+              <div class="col-12">
+                <label class="fn-label" for="cpName">Name <span class="fn-required">*</span></label>
+                <input type="text" id="cpName" class="fn-input" required maxlength="120" placeholder="e.g. Pro Annual">
+                <span id="cpNameError" class="fn-field-error" aria-live="polite"></span>
+              </div>
+              <div class="col-md-6">
+                <label class="fn-label" for="cpDuration">Duration (days) <span class="fn-required">*</span></label>
+                <input type="number" id="cpDuration" class="fn-input" required min="1" step="1" placeholder="365">
+                <span id="cpDurationError" class="fn-field-error" aria-live="polite"></span>
+              </div>
+              <div class="col-md-6">
+                <label class="fn-label" for="cpPrice">Price <span class="fn-required">*</span></label>
+                <input type="number" id="cpPrice" class="fn-input" required min="0.01" step="0.01" placeholder="299.00">
+                <span id="cpPriceError" class="fn-field-error" aria-live="polite"></span>
+              </div>
+              <div class="col-12">
+                <label class="fn-label" for="cpDescription">Description</label>
+                <textarea id="cpDescription" class="fn-input" rows="2" maxlength="500" placeholder="Optional plan details"></textarea>
+              </div>
+              <div class="col-12">
+                <p class="fn-sub-modal-hint">Optional defaults for this plan. Shown by name; cleared if you choose “None”.</p>
+              </div>
+              <div class="col-md-4">
+                <label class="fn-label" for="cpNutritionSelect">Nutrition plan</label>
+                <select id="cpNutritionSelect" class="fn-input"></select>
+              </div>
+              <div class="col-md-4">
+                <label class="fn-label" for="cpTrainerSelect">Trainer</label>
+                <select id="cpTrainerSelect" class="fn-input"></select>
+              </div>
+              <div class="col-md-4">
+                <label class="fn-label" for="cpGroupClassSelect">Group class</label>
+                <select id="cpGroupClassSelect" class="fn-input"></select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer fn-admin-modal-footer">
+          <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="fn-admin-add-btn" id="createPlanSubmitBtn">Create Plan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="editMembershipModal" tabindex="-1" aria-labelledby="editMembershipModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content fn-admin-modal">
+        <div class="modal-header fn-admin-modal-header">
+          <h2 class="modal-title fs-5" id="editMembershipModalLabel">Edit membership</h2>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body fn-admin-modal-body">
+          <div id="editMembershipAlert" class="fn-alert fn-alert-error" style="display:none;" role="alert"></div>
+          <form id="editMembershipForm" novalidate>
+            <input type="hidden" id="umMembershipId">
+            <div class="fn-form-group">
+              <label class="fn-label" for="umMembershipTypeId">Membership type <span class="fn-required">*</span></label>
+              <select id="umMembershipTypeId" class="fn-input" required></select>
+            </div>
+            <div class="row g-2">
+              <div class="col-md-6">
+                <label class="fn-label" for="umStartDate">Start date <span class="fn-required">*</span></label>
+                <input type="date" id="umStartDate" class="fn-input" required>
+              </div>
+              <div class="col-md-6">
+                <label class="fn-label" for="umEndDate">End date <span class="fn-required">*</span></label>
+                <input type="date" id="umEndDate" class="fn-input" required>
+              </div>
+            </div>
+            <div class="fn-form-group">
+              <label class="fn-label" for="umStatus">Status <span class="fn-required">*</span></label>
+              <select id="umStatus" class="fn-input" required>
+                <option value="ACTIVE">Active</option>
+                <option value="EXPIRED">Expired</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="FROZEN">Frozen</option>
+                <option value="BLOCKED">Blocked</option>
+                <option value="PAST_DUE">Past due</option>
+              </select>
+            </div>
+            <p class="fn-sub-modal-hint">Optional bundle links. Choose “None” to clear.</p>
+            <div class="row g-2">
+              <div class="col-md-4">
+                <label class="fn-label" for="umNutritionSelect">Nutrition plan</label>
+                <select id="umNutritionSelect" class="fn-input"></select>
+              </div>
+              <div class="col-md-4">
+                <label class="fn-label" for="umTrainerSelect">Trainer</label>
+                <select id="umTrainerSelect" class="fn-input"></select>
+              </div>
+              <div class="col-md-4">
+                <label class="fn-label" for="umGroupClassSelect">Group class</label>
+                <select id="umGroupClassSelect" class="fn-input"></select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer fn-admin-modal-footer">
+          <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="fn-admin-add-btn" id="editMembershipSubmitBtn">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="deletePlanModal" tabindex="-1" aria-labelledby="deletePlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content fn-admin-modal">
+        <div class="modal-header fn-admin-modal-header">
+          <h2 class="modal-title fs-5" id="deletePlanModalLabel">Delete plan</h2>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body fn-admin-modal-body">
+          <p id="deletePlanText">Remove this membership plan from the catalog? This cannot be undone.</p>
+          <div id="deletePlanAlert" class="fn-alert fn-alert-error" style="display:none;" role="alert"></div>
+          <input type="hidden" id="deletePlanId">
+        </div>
+        <div class="modal-footer fn-admin-modal-footer">
+          <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="fn-admin-action-btn fn-admin-action-delete" id="deletePlanConfirmBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="cancelMembershipModal" tabindex="-1" aria-labelledby="cancelMembershipModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content fn-admin-modal">
+        <div class="modal-header fn-admin-modal-header">
+          <h2 class="modal-title fs-5" id="cancelMembershipModalLabel">Cancel subscription</h2>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body fn-admin-modal-body">
+          <p id="cancelMembershipText">End this membership? It will be marked expired.</p>
+          <div id="cancelMembershipAlert" class="fn-alert fn-alert-error" style="display:none;" role="alert"></div>
+          <input type="hidden" id="cancelMembershipId">
+        </div>
+        <div class="modal-footer fn-admin-modal-footer">
+          <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Back</button>
+          <button type="button" class="fn-admin-action-btn fn-admin-action-delete" id="cancelMembershipConfirmBtn">Confirm cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="fn-toast-container" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/admin-subscriptions.js"></script>
+</body>
+</html>

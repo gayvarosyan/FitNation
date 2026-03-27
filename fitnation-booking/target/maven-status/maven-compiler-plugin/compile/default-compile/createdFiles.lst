@@ -1,0 +1,11 @@
+com\example\fitnationbooking\entity\ClassSchedule.class
+com\example\fitnationbooking\mapper\GroupClassMapper.class
+com\example\fitnationbooking\repository\ClassBookingRepository.class
+com\example\fitnationbooking\entity\GroupClass.class
+com\example\fitnationbooking\validation\ClassBookingValidator.class
+com\example\fitnationbooking\mapper\ClassBookingMapper.class
+com\example\fitnationbooking\service\GroupClassService.class
+com\example\fitnationbooking\repository\ClassScheduleRepository.class
+com\example\fitnationbooking\service\ClassBookingService.class
+com\example\fitnationbooking\entity\ClassBooking.class
+com\example\fitnationbooking\repository\GroupClassRepository.class

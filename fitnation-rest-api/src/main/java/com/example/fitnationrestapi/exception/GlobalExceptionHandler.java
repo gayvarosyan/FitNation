@@ -10,6 +10,7 @@ import com.example.fitnationcommon.exception.ForbiddenOperationException;
 import com.example.fitnationcommon.exception.GroupClassNotFoundException;
 import com.example.fitnationcommon.exception.MembershipNotFoundException;
 import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
+import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.exception.UserBlockedException;
@@ -61,10 +62,17 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
-    @ExceptionHandler({MembershipNotFoundException.class, MembershipTypeNotFoundException.class})
+    @ExceptionHandler({MembershipNotFoundException.class, MembershipTypeNotFoundException.class,
+            NutritionPlanNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleMembershipNotFound(RuntimeException ex) {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex) {
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
     }
 
     @ExceptionHandler({ClassScheduleNotFoundException.class, ClassBookingNotFoundException.class, GroupClassNotFoundException.class})

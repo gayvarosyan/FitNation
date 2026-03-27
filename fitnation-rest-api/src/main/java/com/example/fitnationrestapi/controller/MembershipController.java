@@ -2,15 +2,20 @@ package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.request.CreateMembershipTypeRequest;
 import com.example.fitnationcommon.dto.request.PurchaseMembershipRequest;
+import com.example.fitnationcommon.dto.request.UpdateMembershipRequest;
+import com.example.fitnationcommon.dto.response.AdminMembershipRecordResponse;
+import com.example.fitnationcommon.dto.response.AdminMembershipStatsResponse;
 import com.example.fitnationcommon.dto.response.MembershipResponse;
 import com.example.fitnationcommon.dto.response.MembershipTypeResponse;
 import com.example.fitnationmembership.service.MembershipService;
 import com.example.fitnationuser.user.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,11 +37,26 @@ public class MembershipController {
     }
 
     @PostMapping("/api/admin/membership-types")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<MembershipTypeResponse> createMembershipType(
             @RequestBody CreateMembershipTypeRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(membershipService.createMembershipType(request));
+    }
+
+    @PutMapping("/api/admin/membership-types/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<MembershipTypeResponse> updateMembershipType(
+            @PathVariable Long id,
+            @RequestBody CreateMembershipTypeRequest request) {
+        return ResponseEntity.ok(membershipService.updateMembershipType(id, request));
+    }
+
+    @DeleteMapping("/api/admin/membership-types/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<Void> deleteMembershipType(@PathVariable Long id) {
+        membershipService.deleteMembershipType(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/api/users/memberships")
@@ -52,6 +72,26 @@ public class MembershipController {
             @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(
                 membershipService.getUserMemberships(user.getEmail()));
+    }
+
+    @GetMapping("/api/admin/memberships")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<List<AdminMembershipRecordResponse>> getAdminMemberships() {
+        return ResponseEntity.ok(membershipService.getAdminMemberships());
+    }
+
+    @GetMapping("/api/admin/memberships/stats")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<AdminMembershipStatsResponse> getAdminMembershipStats() {
+        return ResponseEntity.ok(membershipService.getAdminMembershipStats());
+    }
+
+    @PutMapping("/api/memberships/{id}")
+    public ResponseEntity<MembershipResponse> updateMembership(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateMembershipRequest request,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(membershipService.updateMembership(id, request, user));
     }
 
     @PutMapping("/api/memberships/{id}/cancel")

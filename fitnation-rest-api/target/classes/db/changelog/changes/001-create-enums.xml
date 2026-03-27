@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="001-1-user-role-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE user_role AS ENUM ('CLIENT', 'TRAINER', 'ADMIN');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS user_role;</sql></rollback>
+    </changeSet>
+    <changeSet id="001-2-user-status-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE user_status AS ENUM ('ACTIVE', 'BLOCKED');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS user_status;</sql></rollback>
+    </changeSet>
+    <changeSet id="001-3-membership-status-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE membership_status AS ENUM ('ACTIVE', 'EXPIRED', 'FROZEN', 'BLOCKED');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS membership_status;</sql></rollback>
+    </changeSet>
+    <changeSet id="001-4-freeze-request-status-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE freeze_request_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS freeze_request_status;</sql></rollback>
+    </changeSet>
+    <changeSet id="001-5-booking-status-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE booking_status AS ENUM ('BOOKED', 'CANCELLED', 'ATTENDED');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS booking_status;</sql></rollback>
+    </changeSet>
+    <changeSet id="001-6-personal-session-status-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE personal_session_status AS ENUM ('BOOKED', 'COMPLETED', 'CANCELLED');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS personal_session_status;</sql></rollback>
+    </changeSet>
+    <changeSet id="001-7-payment-status-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE payment_status AS ENUM ('SUCCESS', 'FAILED', 'PENDING');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS payment_status;</sql></rollback>
+    </changeSet>
+    <changeSet id="001-8-payment-entity-type-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE payment_entity_type AS ENUM ('MEMBERSHIP', 'NUTRITION_PLAN', 'PERSONAL_SESSION');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS payment_entity_type;</sql></rollback>
+    </changeSet>
+    <changeSet id="001-9-notification-type-enum" author="MariamHovhannisyan">
+        <sql>CREATE TYPE notification_type AS ENUM ('MEMBERSHIP_EXPIRING', 'NEW_BOOKING', 'FREEZE_APPROVED', 'FREEZE_REJECTED', 'SYSTEM');</sql>
+        <rollback><sql>DROP TYPE IF EXISTS notification_type;</sql></rollback>
+    </changeSet>
+
+</databaseChangeLog>

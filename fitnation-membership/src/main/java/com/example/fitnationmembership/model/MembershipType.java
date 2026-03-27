@@ -37,4 +37,13 @@ public class MembershipType {
     private BigDecimal price;
 
     private String description;
+
+    @Column(name = "nutrition_plan_id")
+    private Long nutritionPlanId;
+
+    @Column(name = "trainer_id")
+    private Long trainerId;
+
+    @Column(name = "group_class_id")
+    private Long groupClassId;
 }
