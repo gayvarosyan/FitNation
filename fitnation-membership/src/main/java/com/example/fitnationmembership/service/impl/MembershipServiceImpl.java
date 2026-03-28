@@ -19,6 +19,7 @@ import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
 import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
+import com.example.fitnationmembership.constant.ApplicationConstants;
 import com.example.fitnationmembership.mapper.MembershipMapper;
 import com.example.fitnationmembership.mapper.MembershipTypeMapper;
 import com.example.fitnationmembership.model.Membership;
@@ -77,7 +78,7 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional
     public MembershipTypeResponse updateMembershipType(Long id, CreateMembershipTypeRequest request) {
         var entity = membershipTypeRepository.findById(id)
-                .orElseThrow(() -> new MembershipTypeNotFoundException("Membership type not found"));
+                .orElseThrow(() -> new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND));
         validateOptionalRefs(
                 request.nutritionPlanId(),
                 request.trainerId(),
@@ -90,12 +91,12 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional
     public void deleteMembershipType(Long id) {
         if (!membershipTypeRepository.existsById(id)) {
-            throw new MembershipTypeNotFoundException("Membership type not found");
+            throw new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND);
         }
         long inUse = membershipRepository.countByMembershipType_Id(id);
         if (inUse > 0) {
             throw new ForbiddenOperationException(
-                    "Cannot delete this plan: " + inUse + " subscription record(s) still reference it.");
+                    String.format(ApplicationConstants.MEMBERSHIP_TYPE_IN_USE, inUse));
         }
         membershipTypeRepository.deleteById(id);
     }
@@ -104,10 +105,10 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional
     public MembershipResponse purchaseMembership(String email, PurchaseMembershipRequest request) {
         var user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.USER_NOT_FOUND));
 
         var type = membershipTypeRepository.findById(request.membershipTypeId())
-                .orElseThrow(() -> new MembershipTypeNotFoundException("Membership type not found"));
+                .orElseThrow(() -> new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND));
 
         var startDate = LocalDate.now();
         var endDate = startDate.plusDays(type.getDurationDays());
@@ -151,7 +152,7 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional(readOnly = true)
     public List<MembershipResponse> getUserMemberships(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.USER_NOT_FOUND));
 
         return membershipRepository.findAllByUserIdWithType(user.getId()).stream()
                 .map(membershipMapper::toResponse)
@@ -162,10 +163,10 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional
     public MembershipResponse cancelMembership(Long membershipId, User currentUser) {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
-                .orElseThrow(() -> new MembershipNotFoundException("Membership not found"));
+                .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
         if (!canManageMembership(currentUser, membership)) {
-            throw new ForbiddenOperationException("You cannot cancel this membership");
+            throw new ForbiddenOperationException(ApplicationConstants.CANNOT_CANCEL_MEMBERSHIP);
         }
 
         membership.markExpired();
@@ -177,44 +178,46 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional
     public MembershipResponse updateMembership(Long membershipId, UpdateMembershipRequest request, User currentUser) {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
-                .orElseThrow(() -> new MembershipNotFoundException("Membership not found"));
+                .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
         if (!canManageMembership(currentUser, membership)) {
-            throw new ForbiddenOperationException("You cannot update this membership");
+            throw new ForbiddenOperationException(ApplicationConstants.CANNOT_UPDATE_MEMBERSHIP);
         }
 
         if (request.endDate().isBefore(request.startDate())) {
-            throw new IllegalArgumentException("endDate must not be before startDate");
+            throw new IllegalArgumentException(ApplicationConstants.END_DATE_BEFORE_START_DATE);
         }
 
         var newType = membershipTypeRepository.findById(request.membershipTypeId())
-                .orElseThrow(() -> new MembershipTypeNotFoundException("Membership type not found"));
+                .orElseThrow(() -> new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND));
 
         validateOptionalRefs(
                 request.nutritionPlanId(),
                 request.trainerId(),
                 request.groupClassId());
 
-        membership.setMembershipType(newType);
-        membership.setStartDate(request.startDate());
-        membership.setEndDate(request.endDate());
-        membership.setStatus(request.status());
-        membership.setNutritionPlanId(request.nutritionPlanId());
-        membership.setTrainerId(request.trainerId());
-        membership.setGroupClassId(request.groupClassId());
+        membership.update(
+                newType,
+                request.startDate(),
+                request.endDate(),
+                request.status(),
+                request.nutritionPlanId(),
+                request.trainerId(),
+                request.groupClassId()
+        );
         membershipRepository.save(membership);
         return membershipMapper.toResponse(membership);
     }
 
     private void validateOptionalRefs(Long nutritionPlanId, Long trainerId, Long groupClassId) {
         if (nutritionPlanId != null && !nutritionPlanRepository.existsById(nutritionPlanId)) {
-            throw new NutritionPlanNotFoundException("Nutrition plan not found");
+            throw new NutritionPlanNotFoundException(ApplicationConstants.NUTRITION_PLAN_NOT_FOUND);
         }
         if (trainerId != null && !trainerRepository.existsById(trainerId)) {
-            throw new TrainerNotFoundException("Trainer not found");
+            throw new TrainerNotFoundException(ApplicationConstants.TRAINER_NOT_FOUND);
         }
         if (groupClassId != null && !groupClassRepository.existsById(groupClassId)) {
-            throw new GroupClassNotFoundException("Group class not found");
+            throw new GroupClassNotFoundException(ApplicationConstants.GROUP_CLASS_NOT_FOUND);
         }
     }
 

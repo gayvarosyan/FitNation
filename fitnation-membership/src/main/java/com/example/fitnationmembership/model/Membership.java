@@ -64,4 +64,20 @@ public class Membership {
     public void markExpired() {
         this.status = MembershipStatus.EXPIRED;
     }
+
+    public void update(MembershipType membershipType,
+                       LocalDate startDate,
+                       LocalDate endDate,
+                       MembershipStatus status,
+                       Long nutritionPlanId,
+                       Long trainerId,
+                       Long groupClassId) {
+        this.membershipType = membershipType;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = status;
+        this.nutritionPlanId = nutritionPlanId;
+        this.trainerId = trainerId;
+        this.groupClassId = groupClassId;
+    }
 }
