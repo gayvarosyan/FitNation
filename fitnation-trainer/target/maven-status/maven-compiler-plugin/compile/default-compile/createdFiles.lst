@@ -1,7 +1,0 @@
-com\example\fitnationtrainer\service\impl\TrainerRegistrationServiceImpl.class
-com\example\fitnationtrainer\service\TrainerManagementService.class
-com\example\fitnationtrainer\service\TrainerRegistrationService.class
-com\example\fitnationtrainer\entity\Trainer.class
-com\example\fitnationtrainer\repository\TrainerRepository.class
-com\example\fitnationtrainer\mapper\TrainerMapper.class
-com\example\fitnationtrainer\service\impl\TrainerManagementServiceImpl.class

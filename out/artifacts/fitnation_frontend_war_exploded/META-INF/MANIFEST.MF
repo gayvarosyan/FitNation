@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Created-By: IntelliJ IDEA
-Built-By: ADMIN
-Build-Jdk: Oracle OpenJDK 25.0.1
-Implementation-Title: fitnation-frontend
-Implementation-Version: 0.0.1-SNAPSHOT
-Implementation-Vendor-Id: com.example
-Main-Class: ${start-class}
-
