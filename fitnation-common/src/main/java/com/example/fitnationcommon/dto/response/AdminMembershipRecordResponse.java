@@ -1,12 +1,20 @@
 package com.example.fitnationcommon.dto.response;
 
 import com.example.fitnationcommon.enums.MembershipStatus;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record MembershipResponse(
+public record AdminMembershipRecordResponse(
         Long id,
-        String membershipType,
+        Long userId,
+        String userFirstName,
+        String userLastName,
+        String userEmail,
         Long membershipTypeId,
+        String membershipTypeName,
+        Integer membershipTypeDurationDays,
+        BigDecimal membershipTypePrice,
         LocalDate startDate,
         LocalDate endDate,
         MembershipStatus status,

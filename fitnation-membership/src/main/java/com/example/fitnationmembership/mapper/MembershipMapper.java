@@ -9,5 +9,6 @@ import org.mapstruct.Mapping;
 public interface MembershipMapper {
 
     @Mapping(target = "membershipType", source = "membershipType.name")
+    @Mapping(target = "membershipTypeId", source = "membershipType.id")
     MembershipResponse toResponse(Membership membership);
 }

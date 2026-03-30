@@ -72,5 +72,11 @@ public class AdminClassController {
     public List<ClassScheduleItemResponse> getAllSchedules() {
         return groupClassService.getAllSchedules();
     }
+
+    @GetMapping("/admin/group-classes")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public List<GroupClassResponse> listGroupClasses() {
+        return groupClassService.listAllGroupClasses();
+    }
 }
 

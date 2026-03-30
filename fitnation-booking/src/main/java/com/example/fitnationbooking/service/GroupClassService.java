@@ -96,4 +96,11 @@ public class GroupClassService {
                 .map(groupClassMapper::toScheduleItemResponse)
                 .toList();
     }
+
+    @Transactional
+    public List<GroupClassResponse> listAllGroupClasses() {
+        return groupClassRepository.findAllWithTrainer().stream()
+                .map(groupClassMapper::toGroupClassResponse)
+                .toList();
+    }
 }

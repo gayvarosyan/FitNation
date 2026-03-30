@@ -52,7 +52,32 @@ public class Membership {
     @Column(name = "status", nullable = false)
     private MembershipStatus status;
 
+    @Column(name = "nutrition_plan_id")
+    private Long nutritionPlanId;
+
+    @Column(name = "trainer_id")
+    private Long trainerId;
+
+    @Column(name = "group_class_id")
+    private Long groupClassId;
+
     public void markExpired() {
         this.status = MembershipStatus.EXPIRED;
+    }
+
+    public void update(MembershipType membershipType,
+                       LocalDate startDate,
+                       LocalDate endDate,
+                       MembershipStatus status,
+                       Long nutritionPlanId,
+                       Long trainerId,
+                       Long groupClassId) {
+        this.membershipType = membershipType;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = status;
+        this.nutritionPlanId = nutritionPlanId;
+        this.trainerId = trainerId;
+        this.groupClassId = groupClassId;
     }
 }

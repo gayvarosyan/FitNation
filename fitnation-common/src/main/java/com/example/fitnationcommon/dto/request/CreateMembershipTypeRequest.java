@@ -6,5 +6,8 @@ public record CreateMembershipTypeRequest(
         String name,
         Integer durationDays,
         BigDecimal price,
-        String description
+        String description,
+        Long nutritionPlanId,
+        Long trainerId,
+        Long groupClassId
 ) {}
