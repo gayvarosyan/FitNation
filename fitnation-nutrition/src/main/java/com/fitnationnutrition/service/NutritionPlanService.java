@@ -19,5 +19,12 @@ public interface NutritionPlanService {
 
     NutritionPlanCatalogItemDto updatePlan(Long id, CreateNutritionPlanRequest request);
 
+    default NutritionPlanCatalogItemDto savePlan(Long id, CreateNutritionPlanRequest request) {
+        if (id == null) {
+            return createPlan(request);
+        }
+        return updatePlan(id, request);
+    }
+
     void deletePlan(Long id);
 }

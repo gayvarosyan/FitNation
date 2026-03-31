@@ -1,0 +1,35 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+<aside class="fn-admin-sidebar">
+  <div class="fn-admin-brand">
+    <div class="fn-admin-brand-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2 4.86l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43L22 19.14l-1.43-1.43L22 16.29z"/>
+      </svg>
+    </div>
+    <span class="fn-admin-brand-text">FitNation</span>
+  </div>
+  <nav class="fn-admin-nav" aria-label="Admin navigation">
+    <a href="${ctx}/admin/trainers" class="fn-admin-nav-item ${navSection == 'trainers' ? 'active' : ''}">
+      <span class="fn-admin-nav-icon" aria-hidden="true">💪</span>
+      <span class="fn-admin-nav-label">Trainers</span>
+    </a>
+    <a href="${ctx}/admin/classes" class="fn-admin-nav-item ${navSection == 'classes' ? 'active' : ''}">
+      <span class="fn-admin-nav-icon" aria-hidden="true">🗓️</span>
+      <span class="fn-admin-nav-label">Classes</span>
+    </a>
+    <a href="${ctx}/admin/nutrition" class="fn-admin-nav-item ${navSection == 'nutrition' ? 'active' : ''}">
+      <span class="fn-admin-nav-icon" aria-hidden="true">🍎</span>
+      <span class="fn-admin-nav-label">Nutrition</span>
+    </a>
+    <a href="${ctx}/admin/subscriptions" class="fn-admin-nav-item ${navSection == 'subscriptions' ? 'active' : ''}">
+      <span class="fn-admin-nav-icon" aria-hidden="true">💳</span>
+      <span class="fn-admin-nav-label">Subscriptions</span>
+    </a>
+  </nav>
+  <div class="fn-admin-sidebar-footer">
+    <form method="post" action="${ctx}/logout" class="d-inline">
+      <button type="submit" class="fn-admin-logout-btn">Logout</button>
+    </form>
+  </div>
+</aside>

@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi;
+package com.example.fitnationweb;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
-        "com.example.fitnationrestapi",
         "com.example.fitnationweb",
         "com.example.fitnationuser",
         "com.example.fitnationmembership",
@@ -29,9 +28,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.example.fitnationtrainer.repository",
         "com.example.fitnationbooking.repository",
         "com.fitnationnutrition.repository"})
-public class FitnationRestApiApplication {
+public class FitnationWebApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FitnationRestApiApplication.class, args);
+        SpringApplication.run(FitnationWebApplication.class, args);
     }
 }
