@@ -1,29 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
-    <changeSet id="027-create-group-classes" author="Gayane">
-        <createTable tableName="group_classes">
+    <changeSet id="030-fix-group-classes-trainer-fk-to-user-id" author="fitnation">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="group_classes"/>
+            <tableExists tableName="trainers"/>
+            <columnExists tableName="group_classes" columnName="trainer_id"/>
+            <columnExists tableName="trainers" columnName="user_id"/>
+        </preConditions>
 
-            <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true"/>
-            </column>
-
-            <column name="name" type="VARCHAR(255)"/>
-            <column name="description" type="TEXT"/>
-            <column name="capacity" type="INT"/>
-
-            <column name="trainer_id" type="BIGINT"/>
-
-        </createTable>
+        <sql>
+            ALTER TABLE group_classes DROP CONSTRAINT IF EXISTS fk_group_classes_trainer;
+        </sql>
 
         <addForeignKeyConstraint
                 baseTableName="group_classes"
                 baseColumnNames="trainer_id"
                 referencedTableName="trainers"
-                referencedColumnNames="id"
+                referencedColumnNames="user_id"
                 constraintName="fk_group_classes_trainer"/>
     </changeSet>
 </databaseChangeLog>
