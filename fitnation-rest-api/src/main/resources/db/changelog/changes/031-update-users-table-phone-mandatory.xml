@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="031-update-users-table-phone-mandatory" author="MariamHovhannisyan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="0">SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'phone' AND is_nullable = 'YES'</sqlCheck>
+            </not>
+        </preConditions>
+        
+        <update tableName="users">
+            <column name="phone" value="0000000000"/>
+            <where>phone IS NULL</where>
+        </update>
+        
+        <addNotNullConstraint
+            tableName="users" 
+            columnName="phone"
+            columnDataType="VARCHAR(50)"
+            defaultNullValue="0000000000"/>
+    </changeSet>
+
+    <changeSet id="032-add-assigned-trainer-nutrition-columns" author="MariamHovhannisyan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users" columnName="assigned_trainer_id"/>
+            </not>
+        </preConditions>
+        
+        <addColumn tableName="users">
+            <column name="assigned_trainer_id" type="BIGINT"/>
+        </addColumn>
+        
+        <addForeignKeyConstraint
+            baseTableName="users"
+            baseColumnNames="assigned_trainer_id"
+            referencedTableName="trainers"
+            referencedColumnNames="user_id"
+            constraintName="fk_users_assigned_trainer"
+            onDelete="SET NULL"/>
+    </changeSet>
+
+    <changeSet id="033-add-assigned-nutrition-plan-column" author="MariamHovhannisyan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users" columnName="assigned_nutrition_plan_id"/>
+            </not>
+        </preConditions>
+        
+        <addColumn tableName="users">
+            <column name="assigned_nutrition_plan_id" type="BIGINT"/>
+        </addColumn>
+        
+        <addForeignKeyConstraint
+            baseTableName="users"
+            baseColumnNames="assigned_nutrition_plan_id"
+            referencedTableName="nutrition_plans"
+            referencedColumnNames="id"
+            constraintName="fk_users_assigned_nutrition_plan"
+            onDelete="SET NULL"/>
+    </changeSet>
+
+</databaseChangeLog>

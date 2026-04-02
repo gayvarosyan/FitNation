@@ -18,6 +18,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table(name = "users")
@@ -43,12 +45,37 @@ public class User {
     @NotBlank
     private String password;
 
+    @NotBlank
     @Size(max = ApplicationConstants.SMALL_TEXT)
+    @Column(name = "phone", nullable = false)
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole role = UserRole.CLIENT;
 
     @Enumerated(EnumType.STRING)
-    private UserStatus status = UserStatus.INACTIVE;
+    private UserStatus status = UserStatus.ACTIVE;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "assigned_trainer_id")
+    private Long assignedTrainerId;
+
+    @Column(name = "assigned_nutrition_plan_id")
+    private Long assignedNutritionPlanId;
+
+    @jakarta.persistence.PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @jakarta.persistence.PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

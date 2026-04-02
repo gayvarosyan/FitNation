@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/register").permitAll()
                         .requestMatchers("/*.html", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/admin/users/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/trainers/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/analytics/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers("/api/bookings/**").hasAnyRole("CLIENT", "TRAINER", "ADMIN")
