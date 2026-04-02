@@ -1,0 +1,49 @@
+services:
+
+  postgres:
+    image: postgres:16.3-alpine
+    container_name: fitnation-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB}
+      POSTGRES_USER:     ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fitnation-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: fitnation-rest-api/Dockerfile
+    container_name: fitnation-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL:      ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET:                 ${JWT_SECRET}
+      JWT_EXPIRATION:             ${JWT_EXPIRATION}
+      JWT_REFRESH_EXPIRATION:     ${JWT_REFRESH_EXPIRATION}
+    ports:
+      - "8080:8080"
+    networks:
+      - fitnation-net
+
+volumes:
+  postgres_data:
+    name: fitnation-postgres-data
+
+networks:
+  fitnation-net:
+    name: fitnation-network

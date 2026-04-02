@@ -9,14 +9,14 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: public
   datasource:
-    url: jdbc:postgresql://localhost:5432/fitnation
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/fitnation}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.xml
 jwt:
-  secret: fitnation-super-secret-key-must-be-at-least-32-characters-long
-  expiration: 3600
-  refresh-expiration: 604800
+  secret: ${JWT_SECRET:fitnation-super-secret-key-must-be-at-least-32-characters-long}
+  expiration: ${JWT_EXPIRATION:3600}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}
