@@ -27,8 +27,12 @@ public class UserAuthService {
 
         userStatusUtil.ensureActive(user);
 
-        user.setStatus(UserStatus.ACTIVE);
-        return userRepository.save(user);
+        if (user.getStatus() == UserStatus.PENDING) {
+            user.setStatus(UserStatus.ACTIVE);
+            return userRepository.save(user);
+        }
+        
+        return user;
     }
 
     public User findByEmail(String email) {

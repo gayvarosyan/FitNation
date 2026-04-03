@@ -100,14 +100,29 @@
                 </td>
                 <td><span class="fn-admin-status fn-admin-status-${fn:toLowerCase(t.status.name())}"><span class="fn-admin-status-dot"></span>${t.status}</span></td>
                 <td class="fn-admin-actions-cell">
-                  <button type="button" class="fn-admin-action-btn fn-admin-action-edit fn-edit-trainer"
-                    data-id="${t.trainerId}"
-                    data-first="${fn:escapeXml(t.firstName)}"
-                    data-last="${fn:escapeXml(t.lastName)}"
-                    data-phone="${fn:escapeXml(t.phone)}"
-                    data-status="${t.status}"
-                    data-spec="${fn:escapeXml(t.specialization)}"
-                    data-bio="${fn:escapeXml(t.bio)}">Edit</button>
+                  <c:if test="${t.status.name() == 'PENDING'}">
+                    <form method="post" action="${ctx}/admin/trainers/resend-invitation" style="display:inline">
+                      <input type="hidden" name="trainerId" value="${t.trainerId}" />
+                      <button type="submit" class="fn-admin-action-btn fn-admin-action-edit">
+                        ${t.invitationDeliveryFailed ? 'Retry Invite' : 'Resend Invite'}
+                      </button>
+                    </form>
+                  </c:if>
+                  <c:choose>
+                    <c:when test="${t.status.name() == 'PENDING'}">
+                      <button type="button" class="fn-admin-action-btn fn-admin-action-edit" disabled>Edit</button>
+                    </c:when>
+                    <c:otherwise>
+                      <button type="button" class="fn-admin-action-btn fn-admin-action-edit fn-edit-trainer"
+                        data-id="${t.trainerId}"
+                        data-first="${fn:escapeXml(t.firstName)}"
+                        data-last="${fn:escapeXml(t.lastName)}"
+                        data-phone="${fn:escapeXml(t.phone)}"
+                        data-status="${t.status}"
+                        data-spec="${fn:escapeXml(t.specialization)}"
+                        data-bio="${fn:escapeXml(t.bio)}">Edit</button>
+                    </c:otherwise>
+                  </c:choose>
                   <form method="post" action="${ctx}/admin/trainers/delete" style="display:inline" onsubmit="return confirm('Delete this trainer?');">
                     <input type="hidden" name="trainerId" value="${t.trainerId}" />
                     <button type="submit" class="fn-admin-action-btn fn-admin-action-delete">Delete</button>
@@ -149,10 +164,6 @@
             <input type="email" id="addEmail" name="email" class="fn-input" required>
           </div>
           <div class="fn-form-group">
-            <label class="fn-label" for="addPassword">Password</label>
-            <input type="password" id="addPassword" name="password" class="fn-input" required minlength="8">
-          </div>
-          <div class="fn-form-group">
             <label class="fn-label" for="addPhone">Phone</label>
             <input type="tel" id="addPhone" name="phone" class="fn-input" required maxlength="50">
           </div>
@@ -164,6 +175,7 @@
             <label class="fn-label" for="addBio">Bio</label>
             <textarea id="addBio" name="bio" class="fn-input" rows="3" maxlength="250"></textarea>
           </div>
+          <p class="fn-admin-section-subtitle">A temporary password will be generated automatically and sent by email. Trainers stay pending until first login.</p>
         </div>
         <div class="modal-footer fn-admin-modal-footer">
           <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>
