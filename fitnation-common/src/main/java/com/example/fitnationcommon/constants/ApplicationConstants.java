@@ -25,4 +25,26 @@ public final class ApplicationConstants {
         public static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         public static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&._\\-#+])[A-Za-z\\d@$!%*?&._\\-#+]{8,}$";
 
+        public static final int NAME_MAX_SIZE = 50;
+        public static final int PHONE_MAX_LENGTH = 50;
+
+        public static final String FIRST_NAME_REQUIRED = "First name is required";
+        public static final String FIRST_NAME_MAX_SIZE = "First name must not exceed " + NAME_MAX_SIZE + " characters";
+
+        public static final String LAST_NAME_REQUIRED = "Last name is required";
+        public static final String LAST_NAME_MAX_SIZE = "Last name must not exceed " + NAME_MAX_SIZE + " characters";
+
+        public static final String EMAIL_REQUIRED = "Email is required";
+        public static final String EMAIL_VALID = "Email should be valid";
+
+        public static final String PHONE_REQUIRED = "Phone is required";
+        public static final String PHONE_MAX_SIZE = "Phone must not exceed " + PHONE_MAX_LENGTH + " characters";
+
+        public static final String PASSWORD_REQUIRED = "Password is required";
+
+        public static final String NAME_REQUIRED = " is required";
+        public static final String NAME_MAX_SIZE_EXCEEDED = " must not exceed " + NAME_MAX_SIZE + " characters";
+        public static final String NAME_INVALID_CHARS = " can only contain letters, spaces and hyphens";
+
+        public static final String PASSWORD_INVALID = "Password must contain at least one uppercase letter, one digit and one special character";
 }

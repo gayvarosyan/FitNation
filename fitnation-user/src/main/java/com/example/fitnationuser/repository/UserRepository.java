@@ -17,8 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByRoleAndStatus(UserRole role, UserStatus status);
 
-    Page<User> findByRoleAndStatusContaining(UserRole role, UserStatus status, Pageable pageable);
-
     @Query("SELECT u FROM User u WHERE u.role = :role AND " +
            "(LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -44,4 +42,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role AND u.status = :blockedStatus")
     long countBlockedMembers(@Param("role") UserRole role, @Param("blockedStatus") UserStatus blockedStatus);
+
+    Page<User> findByRole(UserRole role, Pageable pageable);
+
+    Page<User> findByRoleAndStatus(UserRole role, UserStatus status, Pageable pageable);
 }

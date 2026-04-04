@@ -1,10 +1,12 @@
 package com.example.fitnationcommon.dto.response;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 public class MemberListResponse {
 
     private Long id;

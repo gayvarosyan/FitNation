@@ -3,10 +3,18 @@ package com.example.fitnationcommon.validation;
 import com.example.fitnationcommon.dto.request.CreateMemberRequest;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
+
+import static com.example.fitnationcommon.constants.ApplicationConstants.NAME_INVALID_CHARS;
+import static com.example.fitnationcommon.constants.ApplicationConstants.NAME_MAX_SIZE_EXCEEDED;
+import static com.example.fitnationcommon.constants.ApplicationConstants.NAME_REQUIRED;
+import static com.example.fitnationcommon.constants.ApplicationConstants.PASSWORD_INVALID;
+import static com.example.fitnationcommon.constants.ApplicationConstants.PASSWORD_REGEX;
+import static com.example.fitnationcommon.constants.ApplicationConstants.PASSWORD_REQUIRED;
 
 @Component
 @Slf4j
@@ -43,13 +51,13 @@ public class MemberValidator {
 
     private void validateName(String name, String fieldName) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException(fieldName + " is required");
+            throw new ValidationException(fieldName + NAME_REQUIRED);
         }
-        if (name.length() > ApplicationConstants.SMALL_TEXT) {
-            throw new IllegalArgumentException(fieldName + " must not exceed " + ApplicationConstants.SMALL_TEXT + " characters");
+        if (name.length() > ApplicationConstants.NAME_MAX_SIZE) {
+            throw new ValidationException(fieldName + NAME_MAX_SIZE_EXCEEDED);
         }
         if (!name.matches("^[a-zA-Z\\s'-]+$")) {
-            throw new IllegalArgumentException(fieldName + " can only contain letters, spaces, hyphens, and apostrophes");
+            throw new ValidationException(fieldName + NAME_INVALID_CHARS);
         }
     }
 
@@ -73,10 +81,10 @@ public class MemberValidator {
 
     private void validatePassword(String password) {
         if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("Password is required");
+            throw new ValidationException(PASSWORD_REQUIRED);
         }
-        if (!Pattern.matches(ApplicationConstants.PASSWORD_REGEX, password)) {
-            throw new IllegalArgumentException(ApplicationConstants.VALID_PASSWORD_MESSAGE);
+        if (!Pattern.matches(PASSWORD_REGEX, password)) {
+            throw new ValidationException(PASSWORD_INVALID);
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.example.fitnationuser.service;
 
 import com.example.fitnationcommon.dto.request.CreateMemberRequest;
-import com.example.fitnationcommon.dto.request.MemberSearchRequest;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
 import com.example.fitnationcommon.dto.response.AdminMemberStatsResponse;
 import com.example.fitnationcommon.dto.response.MemberDetailResponse;
@@ -31,164 +30,143 @@ public class AdminMemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberValidator memberValidator;
 
-    public AdminMemberStatsResponse getMemberStats() {
-        try {
-            AdminMemberStatsResponse stats = new AdminMemberStatsResponse();
-            
-            long totalActiveUsers = userRepository.countByRoleAndStatus(UserRole.CLIENT, UserStatus.ACTIVE);
-            stats.setTotalActiveUsers(totalActiveUsers);
-            
-            long usersWithActiveSubscription = userRepository.countActiveUsersWithActiveMembership(UserRole.CLIENT, UserStatus.ACTIVE);
-            stats.setUsersWithActiveSubscription(usersWithActiveSubscription);
-            
+
+        public AdminMemberStatsResponse getMemberStats() {
             long totalMembers = userRepository.countTotalMembers(UserRole.CLIENT);
-            stats.setTotalMembers(totalMembers);
-            
+            long totalActiveUsers = userRepository.countByRoleAndStatus(UserRole.CLIENT, UserStatus.ACTIVE);
+            long usersWithActiveSubscription = userRepository.countActiveUsersWithActiveMembership(UserRole.CLIENT, UserStatus.ACTIVE);
             long blockedMembers = userRepository.countBlockedMembers(UserRole.CLIENT, UserStatus.BLOCKED);
-            stats.setBlockedMembers(blockedMembers);
-            
-            if (totalActiveUsers > 0) {
-                stats.setPremiumTierPercent(0.0);
+
+            return AdminMemberStatsResponse.builder()
+                    .totalMembers(totalMembers)
+                    .totalActiveUsers(totalActiveUsers)
+                    .usersWithActiveSubscription(usersWithActiveSubscription)
+                    .blockedMembers(blockedMembers)
+                    .premiumTierPercent(0.0)
+                    .build();
+        }
+
+        public Page<MemberListResponse> getMembers(Integer page, Integer size, String search, String status) {
+            Pageable pageable = PageRequest.of(page, size);
+            UserStatus userStatus = status != null ? UserStatus.valueOf(status.toUpperCase()) : null;
+            boolean hasSearch = search != null && !search.trim().isEmpty();
+
+            Page<User> userPage;
+            if (hasSearch && userStatus != null) {
+                userPage = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, search, pageable);
+            } else if (hasSearch) {
+                userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, search, pageable);
+            } else if (userStatus != null) {
+                userPage = userRepository.findByRoleAndStatus(UserRole.CLIENT, userStatus, pageable);
             } else {
-                stats.setPremiumTierPercent(0.0);
+                userPage = userRepository.findByRole(UserRole.CLIENT, pageable);
             }
-            
-            return stats;
-        } catch (Exception e) {
-            log.error("Error calculating member stats", e);
-            return AdminMemberStatsResponse.empty();
+
+            return userPage.map(this::convertToMemberListResponse);
         }
-    }
 
-    public Page<MemberListResponse> getMembers(MemberSearchRequest searchRequest) {
-        Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize());
-        Page<User> userPage;
-        
-        if (searchRequest.getSearch() != null && !searchRequest.getSearch().trim().isEmpty()) {
-            if (searchRequest.getStatus() != null) {
-                userPage = userRepository.findByRoleAndStatusAndSearch(
-                    UserRole.CLIENT, searchRequest.getStatus(), searchRequest.getSearch(), pageable);
-            } else {
-                userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, searchRequest.getSearch(), pageable);
-            }
-        } else if (searchRequest.getStatus() != null) {
-            userPage = userRepository.findByRoleAndStatusContaining(UserRole.CLIENT, searchRequest.getStatus(), pageable);
-        } else {
-            userPage = userRepository.findAll(pageable);
+        public MemberDetailResponse getMemberById(Long id) {
+            User user = userRepository.findById(id)
+                    .filter(u -> u.getRole() == UserRole.CLIENT)
+                    .orElseThrow(() -> new RuntimeException("Member not found with id: " + id));
+
+            return convertToMemberDetailResponse(user);
         }
-        
-        return userPage.map(this::convertToMemberListResponse);
-    }
 
-    public MemberDetailResponse getMemberById(Long id) {
-        User user = userRepository.findById(id)
-            .filter(u -> u.getRole() == UserRole.CLIENT)
-            .orElseThrow(() -> new RuntimeException("Member not found with id: " + id));
-        
-        return convertToMemberDetailResponse(user);
-    }
+        public MemberDetailResponse createMember(CreateMemberRequest request) {
+            memberValidator.validateCreateMemberRequest(request);
 
-    public MemberDetailResponse createMember(CreateMemberRequest request) {
-        memberValidator.validateCreateMemberRequest(request);
-        
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists: " + request.getEmail());
-        }
-        
-        User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(UserRole.CLIENT);
-        user.setStatus(UserStatus.ACTIVE);
-        user.setAssignedTrainerId(request.getAssignedTrainerId());
-        user.setAssignedNutritionPlanId(request.getAssignedNutritionPlanId());
-        
-        User savedUser = userRepository.save(user);
-        log.info("Created new member with id: {}", savedUser.getId());
-        
-        return convertToMemberDetailResponse(savedUser);
-    }
-
-    public MemberDetailResponse updateMember(Long id, UpdateMemberRequest request) {
-        memberValidator.validateUpdateMemberRequest(request);
-        
-        User user = userRepository.findById(id)
-            .filter(u -> u.getRole() == UserRole.CLIENT)
-            .orElseThrow(() -> new RuntimeException("Member not found with id: " + id));
-        
-        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             if (userRepository.findByEmail(request.getEmail()).isPresent()) {
                 throw new RuntimeException("Email already exists: " + request.getEmail());
             }
-            user.setEmail(request.getEmail());
-        }
-        
-        if (request.getFirstName() != null) {
-            user.setFirstName(request.getFirstName());
-        }
-        if (request.getLastName() != null) {
-            user.setLastName(request.getLastName());
-        }
-        if (request.getPhone() != null) {
-            user.setPhone(request.getPhone());
-        }
-        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
-        
-        user.setAssignedTrainerId(request.getAssignedTrainerId());
-        user.setAssignedNutritionPlanId(request.getAssignedNutritionPlanId());
-        
-        User updatedUser = userRepository.save(user);
-        log.info("Updated member with id: {}", updatedUser.getId());
-        
-        return convertToMemberDetailResponse(updatedUser);
-    }
 
-    public void deleteMember(Long id) {
-        User user = userRepository.findById(id)
-            .filter(u -> u.getRole() == UserRole.CLIENT)
-            .orElseThrow(() -> new RuntimeException("Member not found with id: " + id));
-        
-        user.setStatus(UserStatus.BLOCKED);
-        user.setEmail("deleted-user-" + id + "@deleted.com");
-        user.setFirstName("Deleted");
-        user.setLastName("User");
-        user.setPhone("0000000000");
-        
-        userRepository.save(user);
-        log.info("Soft deleted member with id: {}", id);
-    }
+            User user = User.builder()
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .phone(request.getPhone())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(UserRole.CLIENT)
+                    .status(UserStatus.ACTIVE)
+                    .assignedTrainerId(request.getAssignedTrainerId())
+                    .assignedNutritionPlanId(request.getAssignedNutritionPlanId())
+                    .build();
 
-    private MemberListResponse convertToMemberListResponse(User user) {
-        MemberListResponse response = new MemberListResponse();
-        response.setId(user.getId());
-        response.setFormattedId("USR-" + user.getId());
-        response.setFirstName(user.getFirstName());
-        response.setLastName(user.getLastName());
-        response.setEmail(user.getEmail());
-        response.setPhone(user.getPhone());
-        response.setJoinDate(user.getCreatedAt());
-        response.setUserStatus(user.getStatus().toString());
-        
-        return response;
-    }
+            User savedUser = userRepository.save(user);
+            log.info("Created new member with id: {}", savedUser.getId());
 
-    private MemberDetailResponse convertToMemberDetailResponse(User user) {
-        MemberDetailResponse response = new MemberDetailResponse();
-        response.setId(user.getId());
-        response.setFormattedId("USR-" + user.getId());
-        response.setFirstName(user.getFirstName());
-        response.setLastName(user.getLastName());
-        response.setEmail(user.getEmail());
-        response.setPhone(user.getPhone());
-        response.setUserStatus(user.getStatus().toString());
-        response.setJoinDate(user.getCreatedAt());
-        response.setUpdatedAt(user.getUpdatedAt());
-        
-        return response;
+            return convertToMemberDetailResponse(savedUser);
+        }
+
+        public MemberDetailResponse updateMember(Long id, UpdateMemberRequest request) {
+            memberValidator.validateUpdateMemberRequest(request);
+
+            User user = userRepository.findById(id)
+                    .filter(u -> u.getRole() == UserRole.CLIENT)
+                    .orElseThrow(() -> new RuntimeException("Member not found with id: " + id));
+
+            if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+                if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+                    throw new RuntimeException("Email already exists: " + request.getEmail());
+                }
+                user.setEmail(request.getEmail());
+            }
+
+            if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
+            if (request.getLastName() != null) user.setLastName(request.getLastName());
+            if (request.getPhone() != null) user.setPhone(request.getPhone());
+            if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+            }
+
+            user.setAssignedTrainerId(request.getAssignedTrainerId());
+            user.setAssignedNutritionPlanId(request.getAssignedNutritionPlanId());
+
+            User updatedUser = userRepository.save(user);
+            log.info("Updated member with id: {}", updatedUser.getId());
+
+            return convertToMemberDetailResponse(updatedUser);
+        }
+
+        public void deleteMember(Long id) {
+            User user = userRepository.findById(id)
+                    .filter(u -> u.getRole() == UserRole.CLIENT)
+                    .orElseThrow(() -> new RuntimeException("Member not found with id: " + id));
+
+            user.setStatus(UserStatus.BLOCKED);
+            user.setEmail("deleted-user-" + id + "@deleted.com");
+            user.setFirstName("Deleted");
+            user.setLastName("User");
+            user.setPhone("0000000000");
+
+            userRepository.save(user);
+            log.info("Soft deleted member with id: {}", id);
+        }
+
+        private MemberListResponse convertToMemberListResponse(User user) {
+            return MemberListResponse.builder()
+                    .id(user.getId())
+                    .formattedId("USR-" + user.getId())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .email(user.getEmail())
+                    .phone(user.getPhone())
+                    .joinDate(user.getCreatedAt())
+                    .userStatus(user.getStatus().toString())
+                    .build();
+        }
+
+        private MemberDetailResponse convertToMemberDetailResponse(User user) {
+            return MemberDetailResponse.builder()
+                    .id(user.getId())
+                    .formattedId("USR-" + user.getId())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .email(user.getEmail())
+                    .phone(user.getPhone())
+                    .userStatus(user.getStatus().toString())
+                    .joinDate(user.getCreatedAt())
+                    .updatedAt(user.getUpdatedAt())
+                    .build();
+        }
     }
-}

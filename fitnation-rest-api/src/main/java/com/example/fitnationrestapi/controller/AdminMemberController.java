@@ -1,7 +1,6 @@
 package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.request.CreateMemberRequest;
-import com.example.fitnationcommon.dto.request.MemberSearchRequest;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
 import com.example.fitnationcommon.dto.response.AdminMemberStatsResponse;
 import com.example.fitnationcommon.dto.response.MemberDetailResponse;
@@ -35,108 +34,50 @@ public class AdminMemberController {
     @GetMapping("/stats")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<AdminMemberStatsResponse> getMemberStats() {
-        try {
-            AdminMemberStatsResponse stats = adminMemberService.getMemberStats();
-            return ResponseEntity.ok(stats);
-        } catch (Exception e) {
-            log.error("Error fetching member stats", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(AdminMemberStatsResponse.empty());
-        }
+
+        return ResponseEntity.ok(adminMemberService.getMemberStats());
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Page<MemberListResponse>> getMembers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status) {
-        
-        try {
-            MemberSearchRequest searchRequest = new MemberSearchRequest();
-            searchRequest.setPage(page);
-            searchRequest.setSize(size);
-            searchRequest.setSearch(search);
-            
-            if (status != null) {
-                try {
-                    searchRequest.setStatus(com.example.fitnationcommon.enums.UserStatus.valueOf(status.toUpperCase()));
-                } catch (IllegalArgumentException e) {
-                    log.warn("Invalid status parameter: {}", status);
-                }
-            }
-            
-            Page<MemberListResponse> members = adminMemberService.getMembers(searchRequest);
-            return ResponseEntity.ok(members);
-        } catch (Exception e) {
-            log.error("Error fetching members", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        return ResponseEntity.ok(adminMemberService.getMembers(page, size, search, status));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<MemberDetailResponse> getMemberById(@PathVariable Long id) {
-        try {
-            MemberDetailResponse member = adminMemberService.getMemberById(id);
-            return ResponseEntity.ok(member);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return ResponseEntity.notFound().build();
-            }
-            log.error("Error fetching member with id: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(adminMemberService.getMemberById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-    public ResponseEntity<MemberDetailResponse> createMember(@Valid @RequestBody CreateMemberRequest request) {
-        try {
-            MemberDetailResponse createdMember = adminMemberService.createMember(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdMember);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("already exists")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            log.error("Error creating member", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<MemberDetailResponse> createMember(
+            @Valid @RequestBody CreateMemberRequest request) {
+
+        MemberDetailResponse createdMember = adminMemberService.createMember(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdMember);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<MemberDetailResponse> updateMember(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @Valid @RequestBody UpdateMemberRequest request) {
-        try {
-            MemberDetailResponse updatedMember = adminMemberService.updateMember(id, request);
-            return ResponseEntity.ok(updatedMember);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return ResponseEntity.notFound().build();
-            }
-            if (e.getMessage().contains("already exists")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            log.error("Error updating member with id: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        MemberDetailResponse updatedMember = adminMemberService.updateMember(id, request);
+        return ResponseEntity.ok(updatedMember);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
-        try {
-            adminMemberService.deleteMember(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return ResponseEntity.notFound().build();
-            }
-            log.error("Error deleting member with id: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        adminMemberService.deleteMember(id);
+        return ResponseEntity.noContent().build();
     }
 }
