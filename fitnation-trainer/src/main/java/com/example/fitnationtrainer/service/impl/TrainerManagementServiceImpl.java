@@ -1,5 +1,6 @@
 package com.example.fitnationtrainer.service.impl;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
 import com.example.fitnationcommon.dto.request.EditTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
@@ -18,6 +19,7 @@ import com.example.fitnationcommon.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,9 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
     private final TrainerMapper trainerMapper;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+
+    @Value("${fitnation.app.login-url:http://localhost:8080/login}")
+    private String loginUrl;
 
     @Override
     @Transactional(readOnly = true)
@@ -69,16 +74,16 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
         trainer.setRole(UserRole.CLIENT);
         trainer.setStatus(UserStatus.PENDING);
         trainer = trainerRepository.save(trainer);
-        log.info("Trainer created: id={}, email={}, status={}", trainer.getId(), trainer.getEmail(), trainer.getStatus());
-        
-        try {
-            String loginUrl = "http://localhost:8080/login";
-            emailService.sendInvitationEmail(trainer.getEmail(), adminPassword, loginUrl);
-            log.info("Invitation email sent to: {}", trainer.getEmail());
-        } catch (Exception e) {
-            log.error("Failed to send invitation email to: {}", trainer.getEmail(), e);
+        log.info(
+                ApplicationConstants.LOG_TRAINER_CREATED,
+                trainer.getId(),
+                trainer.getEmail(),
+                trainer.getStatus());
+
+        if (emailService.sendInvitationEmail(trainer.getEmail(), adminPassword, loginUrl)) {
+            log.info(ApplicationConstants.LOG_TRAINER_INVITATION_EMAIL_SENT, trainer.getEmail());
         }
-        
+
         return trainerMapper.toDirectoryItem(trainer);
     }
 

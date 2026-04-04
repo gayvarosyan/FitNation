@@ -35,3 +35,7 @@ jwt:
   secret: fitnation-super-secret-key-must-be-at-least-32-characters-long
   expiration: 3600
   refresh-expiration: 604800
+
+fitnation:
+  app:
+    login-url: http://localhost:8080/login

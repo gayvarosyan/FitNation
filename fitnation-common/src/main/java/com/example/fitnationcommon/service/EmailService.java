@@ -1,7 +1,11 @@
 package com.example.fitnationcommon.service;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -9,8 +13,15 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 @Service
 public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+
+    private static final String TEMPLATE_PATH = "static/email/trainer-invitation.html";
 
     @Autowired
     private JavaMailSender mailSender;
@@ -18,60 +29,50 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendInvitationEmail(String toEmail, String password, String loginUrl) {
+    public boolean sendInvitationEmail(String toEmail, String password, String loginUrl) {
+        String htmlContent;
+        try {
+            htmlContent = buildInvitationEmailContent(toEmail, password, loginUrl);
+        } catch (IOException e) {
+            log.error(ApplicationConstants.LOG_EMAIL_INVITATION_TEMPLATE_LOAD_FAILED, e);
+            return false;
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
 
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
-            helper.setSubject("Welcome to FitNation - Your Account Invitation");
+            helper.setSubject(ApplicationConstants.EMAIL_SUBJECT_TRAINER_INVITATION);
 
-            String htmlContent = buildInvitationEmailContent(password, loginUrl);
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
+            return true;
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send invitation email to " + toEmail, e);
+            log.error(ApplicationConstants.LOG_EMAIL_INVITATION_SEND_FAILED, toEmail, e);
+            return false;
         }
     }
 
-    private String buildInvitationEmailContent(String password, String loginUrl) {
-        return "<!DOCTYPE html>"
-                + "<html>"
-                + "<head>"
-                + "<meta charset='UTF-8'>"
-                + "<title>Welcome to FitNation</title>"
-                + "<style>"
-                + "body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }"
-                + ".container { max-width: 600px; margin: 0 auto; padding: 20px; }"
-                + ".header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }"
-                + ".content { padding: 20px; background-color: #f9f9f9; }"
-                + ".credentials { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 20px 0; }"
-                + ".login-btn { display: inline-block; background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }"
-                + "</style>"
-                + "</head>"
-                + "<body>"
-                + "<div class='container'>"
-                + "<div class='header'>"
-                + "<h1>Welcome to FitNation!</h1>"
-                + "</div>"
-                + "<div class='content'>"
-                + "<h2>Your Account is Ready</h2>"
-                + "<p>You have been invited to join FitNation. Your account has been created and you can now log in using the credentials below.</p>"
-                + "<div class='credentials'>"
-                + "<h3>Your Login Credentials:</h3>"
-                + "<p><strong>Email:</strong> " + loginUrl + "</p>"
-                + "<p><strong>Password:</strong> " + password + "</p>"
-                + "</div>"
-                + "<p><strong>Important:</strong> Please change your password after your first login for security reasons.</p>"
-                + "<a href='" + loginUrl + "' class='login-btn'>Sign In to Your Account</a>"
-                + "<p>If the button above doesn't work, you can copy and paste this URL into your browser:</p>"
-                + "<p>" + loginUrl + "</p>"
-                + "<p>We look forward to seeing you at FitNation!</p>"
-                + "</div>"
-                + "</div>"
-                + "</body>"
-                + "</html>";
+    private String buildInvitationEmailContent(String toEmail, String password, String loginUrl)
+            throws IOException {
+        ClassPathResource resource = new ClassPathResource(TEMPLATE_PATH);
+        String template = new String(resource.getContentAsByteArray(), StandardCharsets.UTF_8);
+        return template
+                .replace("{{email}}", htmlEscape(toEmail))
+                .replace("{{password}}", htmlEscape(password))
+                .replace("{{loginUrl}}", htmlEscape(loginUrl));
+    }
+
+    private static String htmlEscape(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
     }
 }
