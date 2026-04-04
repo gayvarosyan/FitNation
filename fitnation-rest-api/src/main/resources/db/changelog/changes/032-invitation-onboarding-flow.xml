@@ -1,0 +1,28 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+    <changeSet id="032-extend-user-status-and-invitation-tracking" author="Gayane">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">
+
+                SELECT COUNT(*) FROM pg_type WHERE typname = 'user_status'
+
+            </sqlCheck>
+        </preConditions>
+        <sql splitStatements="false">
+
+            ALTER TYPE user_status ADD VALUE IF NOT EXISTS 'PENDING';
+
+        </sql>
+
+        <addColumn tableName="users">
+            <column name="invitation_sent_at" type="TIMESTAMP"/>
+            <column name="invitation_failed_at" type="TIMESTAMP"/>
+            <column name="last_login_at" type="TIMESTAMP"/>
+
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

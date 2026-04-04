@@ -1,6 +1,7 @@
 package com.example.fitnationbooking.service;
 
 import com.example.fitnationbooking.mapper.GroupClassMapper;
+import com.example.fitnationbooking.repository.ClassBookingRepository;
 import com.example.fitnationbooking.repository.ClassScheduleRepository;
 import com.example.fitnationbooking.repository.GroupClassRepository;
 import com.example.fitnationcommon.constants.ApplicationConstants;
@@ -13,6 +14,7 @@ import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.GroupClassNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationtrainer.repository.TrainerRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,11 @@ import java.util.List;
 public class GroupClassService {
 
     private final GroupClassRepository groupClassRepository;
+    private final ClassBookingRepository classBookingRepository;
     private final ClassScheduleRepository classScheduleRepository;
     private final TrainerRepository trainerRepository;
     private final GroupClassMapper groupClassMapper;
+    private final EntityManager entityManager;
 
     @Transactional
     public GroupClassResponse createClass(CreateGroupClassRequest request) {
@@ -102,5 +106,17 @@ public class GroupClassService {
         return groupClassRepository.findAllWithTrainer().stream()
                 .map(groupClassMapper::toGroupClassResponse)
                 .toList();
+    }
+
+    @Transactional
+    public void deleteAllByTrainerId(Long trainerId) {
+        classBookingRepository.deleteAllByTrainerId(trainerId);
+        entityManager.flush();
+
+        classScheduleRepository.deleteAllByTrainerId(trainerId);
+        entityManager.flush();
+
+        groupClassRepository.deleteAllByTrainerId(trainerId);
+        entityManager.flush();
     }
 }

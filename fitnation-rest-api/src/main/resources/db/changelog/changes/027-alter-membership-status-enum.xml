@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="027-alter-membership-status-enum" author="cursor-agent">
+    <changeSet id="027-alter-membership-status-enum" author="Meri">
         <sql>ALTER TYPE membership_status ADD VALUE IF NOT EXISTS 'CANCELLED';</sql>
         <sql>ALTER TYPE membership_status ADD VALUE IF NOT EXISTS 'PAST_DUE';</sql>
         <rollback>

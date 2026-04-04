@@ -6,6 +6,7 @@
         <groupId>com.example</groupId>
         <artifactId>FitNation</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>fitnation-rest-api</artifactId>
     <name>fitnation-rest-api</name>
@@ -27,6 +28,11 @@
         <java.version>25</java.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>fitnation-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.example</groupId>
             <artifactId>fitnation-common</artifactId>
@@ -125,7 +131,7 @@
                 <directory>src/main/resources</directory>
             </resource>
             <resource>
-                <directory>${project.basedir}/../fitnation-frontend/static</directory>
+                <directory>${project.basedir}/../fitnation-web/static</directory>
                 <targetPath>static</targetPath>
             </resource>
         </resources>

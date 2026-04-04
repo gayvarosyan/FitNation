@@ -5,6 +5,12 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <changeSet id="028-create-class-schedule" author="Gayane">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="class_schedule"/>
+            </not>
+        </preConditions>
+
         <createTable tableName="class_schedule">
 
             <column name="id" type="BIGINT" autoIncrement="true">

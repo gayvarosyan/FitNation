@@ -6,6 +6,7 @@
         <groupId>com.example</groupId>
         <artifactId>FitNation</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>fitnation-user</artifactId>
     <name>fitnation-user</name>
@@ -20,7 +21,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>com.example</groupId>
