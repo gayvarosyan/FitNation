@@ -96,21 +96,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>fitnation-notification</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>fitnation-analytics</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>fitnation-admin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -9,6 +10,7 @@
                 <tableExists tableName="class_bookings"/>
             </not>
         </preConditions>
+
         <createTable tableName="class_bookings">
 
             <column name="id" type="BIGINT" autoIncrement="true">
