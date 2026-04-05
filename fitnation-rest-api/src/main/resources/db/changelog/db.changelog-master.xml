@@ -3,7 +3,7 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+                      https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <include file="db/changelog/changes/001-create-enums.xml"/>
     <include file="db/changelog/changes/002-create-users-table.xml"/>
@@ -35,6 +35,7 @@
     <include file="db/changelog/changes/028-membership-bundle-links.xml"/>
     <include file="db/changelog/changes/029-create-class-bookings.xml"/>
     <include file="db/changelog/changes/030-fix-group-classes-trainer-fk.xml"/>
+    <include file="db/changelog/changes/031-update-users-table-phone-mandatory.xml"/>
     <include file="db/changelog/changes/032-invitation-onboarding-flow.xml"/>
 
 </databaseChangeLog>
