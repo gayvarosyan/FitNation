@@ -4,6 +4,12 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
     <changeSet id="027-create-group-classes" author="Gayane">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="group_classes"/>
+            </not>
+        </preConditions>
+
         <createTable tableName="group_classes">
 
             <column name="id" type="BIGINT" autoIncrement="true">
