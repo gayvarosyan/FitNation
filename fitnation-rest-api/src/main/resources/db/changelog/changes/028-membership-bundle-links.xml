@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="028-membership-bundle-links" author="fitnation">
+    <changeSet id="028-membership-bundle-links" author="Meri">
         <addColumn tableName="membership_types">
             <column name="nutrition_plan_id" type="BIGINT"/>
             <column name="trainer_id" type="BIGINT"/>

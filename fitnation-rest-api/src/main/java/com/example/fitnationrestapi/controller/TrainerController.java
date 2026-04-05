@@ -1,5 +1,6 @@
 package com.example.fitnationrestapi.controller;
 
+import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
 import com.example.fitnationcommon.dto.request.EditTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
@@ -25,6 +26,7 @@ import java.util.List;
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class TrainerController {
 
+    private final GroupClassService groupClassService;
     private final TrainerManagementService trainerManagementService;
 
     @GetMapping("/stats")
@@ -51,6 +53,7 @@ public class TrainerController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
+        groupClassService.deleteAllByTrainerId(id);
         trainerManagementService.delete(id);
     }
 }

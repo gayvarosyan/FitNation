@@ -25,6 +25,14 @@ public final class ApplicationConstants {
         public static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         public static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&._\\-#+])[A-Za-z\\d@$!%*?&._\\-#+]{8,}$";
 
+        public static final String LOG_TRAINER_CREATED = "Trainer created: id={}, email={}, status={}";
+        public static final String LOG_TRAINER_INVITATION_EMAIL_SENT = "Invitation email sent to: {}";
+        public static final String LOG_EMAIL_INVITATION_SEND_FAILED = "Failed to send invitation email to: {}";
+        public static final String LOG_EMAIL_INVITATION_TEMPLATE_LOAD_FAILED =
+                "Failed to load trainer invitation email template";
+
+        public static final String EMAIL_SUBJECT_TRAINER_INVITATION = "Welcome to FitNation - Your Account Invitation";
+
         public static final int NAME_MAX_SIZE = 50;
         public static final int PHONE_MAX_LENGTH = 50;
 
