@@ -30,7 +30,6 @@ public final class ApplicationConstants {
         public static final String LOG_EMAIL_INVITATION_SEND_FAILED = "Failed to send invitation email to: {}";
         public static final String LOG_EMAIL_INVITATION_TEMPLATE_LOAD_FAILED =
                 "Failed to load trainer invitation email template";
-
         public static final String EMAIL_SUBJECT_TRAINER_INVITATION = "Welcome to FitNation - Your Account Invitation";
 
         public static final int NAME_MAX_SIZE = 50;
