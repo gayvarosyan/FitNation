@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsServiceImpl userDetailsService;
@@ -39,15 +39,8 @@ public class SecurityConfig {
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/login", "/register").permitAll()
-<<<<<<< HEAD:fitnation-rest-api/src/main/java/com/example/fitnationrestapi/config/SecurityConfig.java
                         .requestMatchers("/*.html", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/api/admin/users/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
-=======
-                        .requestMatchers("/logout").permitAll()
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/css/**", "/js/**").permitAll()
-                        .requestMatchers("/admin/**").authenticated()
->>>>>>> master:fitnation-web/src/main/java/com/example/fitnationweb/config/SecurityConfig.java
                         .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/trainers/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/analytics/**").hasAnyRole("TRAINER", "ADMIN")
