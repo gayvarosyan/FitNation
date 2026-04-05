@@ -1,5 +1,6 @@
 package com.example.fitnationtrainer.service.impl;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
 import com.example.fitnationcommon.dto.request.EditTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
@@ -8,14 +9,18 @@ import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
+import com.example.fitnationcommon.exception.UserPendingException;
 import com.example.fitnationtrainer.entity.Trainer;
 import com.example.fitnationtrainer.mapper.TrainerMapper;
 import com.example.fitnationtrainer.repository.TrainerRepository;
 import com.example.fitnationtrainer.service.TrainerManagementService;
 import com.example.fitnationuser.repository.UserRepository;
+import com.example.fitnationcommon.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +35,11 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
     private final TrainerRepository trainerRepository;
     private final UserRepository userRepository;
     private final TrainerMapper trainerMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+    @Value("${fitnation.app.login-url:http://localhost:8080/login}")
+    private String loginUrl;
 
     @Override
     @Transactional(readOnly = true)
@@ -58,9 +68,22 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
             throw new EmailAlreadyExistsException("Email already exists");
         }
         log.info("Creating trainer: email={}, firstName={}, lastName={}", request.email(), request.firstName(), request.lastName());
+        String adminPassword = request.password();
         Trainer trainer = trainerMapper.toTrainer(request);
+        trainer.setPassword(passwordEncoder.encode(adminPassword));
+        trainer.setRole(UserRole.CLIENT);
+        trainer.setStatus(UserStatus.PENDING);
         trainer = trainerRepository.save(trainer);
-        log.info("Trainer created: id={}, email={}", trainer.getId(), trainer.getEmail());
+        log.info(
+                ApplicationConstants.LOG_TRAINER_CREATED,
+                trainer.getId(),
+                trainer.getEmail(),
+                trainer.getStatus());
+
+        if (emailService.sendInvitationEmail(trainer.getEmail(), adminPassword, loginUrl)) {
+            log.info(ApplicationConstants.LOG_TRAINER_INVITATION_EMAIL_SENT, trainer.getEmail());
+        }
+
         return trainerMapper.toDirectoryItem(trainer);
     }
 
@@ -73,6 +96,11 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
                     log.warn("edit trainer failed: trainer not found, id={}", id);
                     return new TrainerNotFoundException("Trainer not found: " + id);
                 });
+
+        if (trainer.getStatus() == UserStatus.PENDING) {
+            log.warn("edit trainer failed: user is PENDING, id={}", id);
+            throw new UserPendingException("Cannot edit user while status is PENDING. User must login first.");
+        }
 
         trainerMapper.updateTrainer(trainer, request);
 

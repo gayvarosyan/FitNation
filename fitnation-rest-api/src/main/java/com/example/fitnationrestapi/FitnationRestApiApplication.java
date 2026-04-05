@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @ComponentScan(basePackages = {
         "com.example.fitnationrestapi",
+        "com.example.fitnationweb",
         "com.example.fitnationuser",
         "com.example.fitnationmembership",
         "com.example.fitnationtrainer",
