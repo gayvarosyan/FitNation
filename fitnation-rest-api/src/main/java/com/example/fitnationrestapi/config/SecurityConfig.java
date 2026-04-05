@@ -36,11 +36,10 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/login", "/register").permitAll()
                         .requestMatchers("/*.html", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/admin/users/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/trainers/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/api/analytics/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers("/api/bookings/**").hasAnyRole("CLIENT", "TRAINER", "ADMIN")
@@ -59,7 +58,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(new BCryptPasswordEncoder());
         return provider;
     }
 
