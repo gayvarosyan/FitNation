@@ -5,37 +5,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <include file="db/changelog/changes/001-create-enums.xml"/>
-    <include file="db/changelog/changes/002-create-users-table.xml"/>
-    <include file="db/changelog/changes/003-create-blacklist-table.xml"/>
-    <include file="db/changelog/changes/004-create-membership-types-table.xml"/>
-    <include file="db/changelog/changes/005-create-promotions-table.xml"/>
-    <include file="db/changelog/changes/006-create-memberships-table.xml"/>
-    <include file="db/changelog/changes/007-create-membership-freeze-requests-table.xml"/>
-    <include file="db/changelog/changes/008-create-trainers-table.xml"/>
-    <include file="db/changelog/changes/009-create-trainer-schedule-table.xml"/>
-    <include file="db/changelog/changes/010-create-trainer-income-table.xml"/>
-    <include file="db/changelog/changes/011-create-group-classes-table.xml"/>
-    <include file="db/changelog/changes/012-create-class-schedule-table.xml"/>
-    <include file="db/changelog/changes/013-create-class-bookings-table.xml"/>
-    <include file="db/changelog/changes/014-create-personal-training-sessions-table.xml"/>
-    <include file="db/changelog/changes/015-create-workout-plans-table.xml"/>
-    <include file="db/changelog/changes/016-create-nutrition-plans-table.xml"/>
-    <include file="db/changelog/changes/017-create-user-nutrition-plans-table.xml"/>
-    <include file="db/changelog/changes/018-create-progress-tracking-table.xml"/>
-    <include file="db/changelog/changes/019-create-progress-notes-table.xml"/>
-    <include file="db/changelog/changes/020-create-ratings-table.xml"/>
-    <include file="db/changelog/changes/021-create-favorites-table.xml"/>
-    <include file="db/changelog/changes/022-create-payments-table.xml"/>
-    <include file="db/changelog/changes/023-add-admin-to-users-table.xml"/>
-    <include file="db/changelog/changes/024-alter-users-role-status-to-varchar.xml"/>
-    <include file="db/changelog/changes/025-nutrition-plans-add-category-status.xml"/>
-    <include file="db/changelog/changes/026-ratings-add-nutrition-plan-id.xml"/>
-    <include file="db/changelog/changes/027-alter-membership-status-enum.xml"/>
-    <include file="db/changelog/changes/028-membership-bundle-links.xml"/>
-    <include file="db/changelog/changes/029-create-class-bookings.xml"/>
-    <include file="db/changelog/changes/030-fix-group-classes-trainer-fk.xml"/>
-    <include file="db/changelog/changes/031-update-users-table-phone-mandatory.xml"/>
-    <include file="db/changelog/changes/032-invitation-onboarding-flow.xml"/>
+    <includeAll path="db/changelog/changes"/>
 
 </databaseChangeLog>

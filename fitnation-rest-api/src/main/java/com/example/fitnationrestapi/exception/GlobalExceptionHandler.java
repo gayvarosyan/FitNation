@@ -12,6 +12,8 @@ import com.example.fitnationcommon.exception.InvalidRoleException;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
 import com.example.fitnationcommon.exception.GroupClassNotFoundException;
 import com.example.fitnationcommon.exception.MembershipNotFoundException;
+import com.example.fitnationcommon.exception.MembershipRequestConflictException;
+import com.example.fitnationcommon.exception.MembershipRequestNotFoundException;
 import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
 import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
@@ -128,7 +130,6 @@ public class GlobalExceptionHandler {
                 ex.getMessage(), request, null);
     }
 
-
     @ExceptionHandler({UserNotFoundException.class, TrainerNotFoundException.class,
             MembershipNotFoundException.class, MembershipTypeNotFoundException.class,
             NutritionPlanNotFoundException.class, ClassScheduleNotFoundException.class,
@@ -147,6 +148,25 @@ public class GlobalExceptionHandler {
 
         return build(HttpStatus.CONFLICT, ErrorCode.CONFLICT,
                 ex.getMessage(), request, null);
+      
+    @ExceptionHandler({MembershipNotFoundException.class, MembershipTypeNotFoundException.class,
+            NutritionPlanNotFoundException.class, MembershipRequestNotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleMembershipNotFound(RuntimeException ex) {
+        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(MembershipRequestConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleMembershipRequestConflict(MembershipRequestConflictException ex) {
+        return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex) {
+        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+
     }
 
     @ExceptionHandler(Exception.class)
