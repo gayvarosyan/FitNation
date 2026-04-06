@@ -11,10 +11,15 @@ public class UserStatusUtil {
 
     public boolean isBlockedOrInactive(User user) {
         return user.getStatus() == UserStatus.BLOCKED
-                || user.getStatus() == UserStatus.INACTIVE;
+                || user.getStatus() == UserStatus.INACTIVE
+                || user.getStatus() == UserStatus.DELETED
+                || user.getDeletedAt() != null;
     }
 
     public void ensureActive(User user) {
+        if (user.getStatus() == UserStatus.DELETED || user.getDeletedAt() != null) {
+            throw new UserBlockedException("User is deleted");
+        }
         if (user.getStatus() == UserStatus.BLOCKED) {
             throw new UserBlockedException("User is blocked");
         }

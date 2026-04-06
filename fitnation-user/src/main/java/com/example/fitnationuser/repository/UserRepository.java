@@ -13,9 +13,13 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    Optional<User> findByEmailAndDeletedAtIsNull(String email);
+
     Optional<User> findByEmail(String email);
 
     long countByRoleAndStatus(UserRole role, UserStatus status);
+
+    Optional<User> findByIdAndDeletedAtIsNotNull(Long id);
 
     @Query("SELECT u FROM User u WHERE u.role = :role AND " +
            "(LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -31,7 +35,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "u.phone LIKE CONCAT('%', :search, '%') OR " +
            "CAST(u.id AS STRING) LIKE CONCAT('%', :search, '%'))")
-    Page<User> findByRoleAndStatusAndSearch(@Param("role") UserRole role, @Param("status") UserStatus status, 
+    Page<User> findByRoleAndStatusAndSearch(@Param("role") UserRole role, @Param("status") UserStatus status,
                                            @Param("search") String search, Pageable pageable);
 
     @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role AND u.status = :status")

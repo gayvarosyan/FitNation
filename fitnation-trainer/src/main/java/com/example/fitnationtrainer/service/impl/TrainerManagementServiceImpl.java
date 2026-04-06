@@ -1,3 +1,4 @@
+
 package com.example.fitnationtrainer.service.impl;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
@@ -24,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -53,7 +55,7 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
     @Override
     @Transactional(readOnly = true)
     public List<TrainerDirectoryItem> getDirectory() {
-        List<TrainerDirectoryItem> items = trainerRepository.findAll().stream()
+        List<TrainerDirectoryItem> items = trainerRepository.findAllByDeletedAtIsNull().stream()
                 .map(trainerMapper::toDirectoryItem)
                 .toList();
         log.debug("getDirectory: returned {} trainer(s)", items.size());
@@ -112,14 +114,17 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
     @Override
     @Transactional
     public void delete(Long id) {
-        log.debug("Deleting trainer: id={}", id);
+        log.debug("Soft deleting trainer: id={}", id);
         Trainer trainer = trainerRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("delete trainer failed: trainer not found, id={}", id);
                     return new TrainerNotFoundException("Trainer not found: " + id);
                 });
-        trainerRepository.delete(trainer);
-        userRepository.delete(trainer);
-        log.info("Trainer deleted: id={}, email={}", trainer.getId(), trainer.getEmail());
+
+        trainer.setDeletedAt(LocalDateTime.now());
+        trainer.setStatus(UserStatus.DELETED);
+        trainerRepository.save(trainer);
+
+        log.info("Trainer soft deleted: id={}, email={}", trainer.getId(), trainer.getEmail());
     }
 }

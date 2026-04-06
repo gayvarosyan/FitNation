@@ -4,5 +4,6 @@ public enum UserStatus {
     PENDING,
     INACTIVE,
     ACTIVE,
-    BLOCKED
+    BLOCKED,
+    DELETED
 }
