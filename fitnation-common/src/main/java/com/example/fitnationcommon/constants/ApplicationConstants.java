@@ -64,11 +64,12 @@ public final class ApplicationConstants {
         public static final String USER_PENDING_CANNOT_EDIT = "Cannot edit user while status is PENDING. User must login first.";
 
         public static final String MEMBER_NOT_FOUND = "Member not found with id: ";
-        public static final String DELETED_MEMBER_EMAIL_FORMAT = "deleted-user-%d@deleted.com";
-        public static final String DELETED_MEMBER_FIRST_NAME = "Deleted";
-        public static final String DELETED_MEMBER_LAST_NAME = "User";
-        public static final String DELETED_MEMBER_PHONE = "0000000000";
 
         public static final String USER_BLOCKED = "User is blocked";
         public static final String USER_INACTIVE = "User is inactive";
+
+        public static final String REQUIRED_PARAM_MISSING = "Required request parameter is missing.";
+
+        public static final String BODY_NOT_READABLE = "Request body could not be parsed.";
+
 }

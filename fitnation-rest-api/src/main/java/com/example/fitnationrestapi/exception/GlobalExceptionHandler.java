@@ -1,5 +1,6 @@
 package com.example.fitnationrestapi.exception;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.response.ErrorResponse;
 import com.example.fitnationcommon.dto.response.ValidationErrorDetail;
 import com.example.fitnationcommon.enums.ErrorCode;
@@ -73,7 +74,7 @@ public class GlobalExceptionHandler {
                 new ValidationErrorDetail(ex.getParameterName(), null, "Required parameter is missing."));
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
-                "Required request parameter is missing.", request, fieldErrors);
+                ApplicationConstants.REQUIRED_PARAM_MISSING, request, fieldErrors);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -81,7 +82,7 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException ignored, HttpServletRequest request) {
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_ARGUMENT,
-                "Request body could not be parsed.", request, null);
+                ApplicationConstants.BODY_NOT_READABLE, request, null);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

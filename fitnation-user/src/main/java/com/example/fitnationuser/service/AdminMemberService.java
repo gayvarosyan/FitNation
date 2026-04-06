@@ -8,6 +8,8 @@ import com.example.fitnationcommon.dto.response.MemberDetailResponse;
 import com.example.fitnationcommon.dto.response.MemberListResponse;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
+import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
+import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.validation.MemberValidator;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
@@ -81,7 +83,7 @@ public class AdminMemberService {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             log.warn("createMember failed: email already exists, email={}", request.getEmail());
-            throw new RuntimeException(ApplicationConstants.EMAIL_ALREADY_EXISTS + request.getEmail());
+            throw new EmailAlreadyExistsException(ApplicationConstants.EMAIL_ALREADY_EXISTS + request.getEmail());
         }
 
         User user = User.builder()
@@ -141,18 +143,10 @@ public class AdminMemberService {
                 .filter(u -> u.getRole() == UserRole.CLIENT)
                 .orElseThrow(() -> {
                     log.warn("deleteMember failed: member not found, id={}", id);
-                    return new RuntimeException(ApplicationConstants.MEMBER_NOT_FOUND + id);
+                    return new UserNotFoundException(ApplicationConstants.MEMBER_NOT_FOUND + id);
                 });
 
-        // Soft delete
-        user.setStatus(UserStatus.BLOCKED);
-        user.setEmail(String.format(ApplicationConstants.DELETED_MEMBER_EMAIL_FORMAT, id));
-        user.setFirstName(ApplicationConstants.DELETED_MEMBER_FIRST_NAME);
-        user.setLastName(ApplicationConstants.DELETED_MEMBER_LAST_NAME);
-        user.setPhone(ApplicationConstants.DELETED_MEMBER_PHONE);
-
-        userRepository.save(user);
-        log.info("Soft deleted member with id: {}", id);
+        userRepository.delete(user);
     }
 
     private MemberListResponse convertToMemberListResponse(User user) {
