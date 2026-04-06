@@ -54,4 +54,21 @@ public final class ApplicationConstants {
         public static final String NAME_INVALID_CHARS = " can only contain letters, spaces and hyphens";
 
         public static final String PASSWORD_INVALID = "Password must contain at least one uppercase letter, one digit and one special character";
+
+        public static final String NUTRITION_PLAN_NOT_FOUND = "Nutrition plan not found: ";
+
+        public static final String INVALID_ROLE = "Invalid role";
+        public static final String INVALID_REFRESH_TOKEN = "Invalid refresh token";
+
+        public static final String EMAIL_ALREADY_EXISTS = "Email already exists";
+        public static final String USER_PENDING_CANNOT_EDIT = "Cannot edit user while status is PENDING. User must login first.";
+
+        public static final String MEMBER_NOT_FOUND = "Member not found with id: ";
+        public static final String DELETED_MEMBER_EMAIL_FORMAT = "deleted-user-%d@deleted.com";
+        public static final String DELETED_MEMBER_FIRST_NAME = "Deleted";
+        public static final String DELETED_MEMBER_LAST_NAME = "User";
+        public static final String DELETED_MEMBER_PHONE = "0000000000";
+
+        public static final String USER_BLOCKED = "User is blocked";
+        public static final String USER_INACTIVE = "User is inactive";
 }

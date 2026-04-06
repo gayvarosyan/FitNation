@@ -1,8 +1,10 @@
 package com.fitnationnutrition.service.Impl;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.CreateNutritionPlanRequest;
 import com.example.fitnationcommon.dto.response.NutritionPlanCatalogItemDto;
 import com.example.fitnationcommon.dto.response.NutritionStatsResponse;
+import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.fitnationnutrition.mapper.NutritionPlanMapper;
 import com.fitnationnutrition.model.NutritionPlan;
 import com.fitnationnutrition.repository.NutritionPlanRepository;
@@ -51,7 +53,9 @@ public class NutritionPlanServiceImpl implements NutritionPlanService {
     @Override
     public NutritionPlanCatalogItemDto updatePlan(Long id, CreateNutritionPlanRequest request) {
         NutritionPlan existing = planRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Nutrition plan not found: " + id));
+                .orElseThrow(() -> new NutritionPlanNotFoundException(
+                        ApplicationConstants.NUTRITION_PLAN_NOT_FOUND + id));
+
         existing.setPlanName(request.getPlanName());
         existing.setCategory(request.getCategory());
         existing.setDescription(request.getDescription());
@@ -67,7 +71,8 @@ public class NutritionPlanServiceImpl implements NutritionPlanService {
     @Override
     public void deletePlan(Long id) {
         if (!planRepo.existsById(id)) {
-            throw new RuntimeException("Nutrition plan not found: " + id);
+            throw new NutritionPlanNotFoundException(
+                    ApplicationConstants.NUTRITION_PLAN_NOT_FOUND + id);
         }
         planRepo.deleteById(id);
     }
