@@ -1,0 +1,5 @@
+package com.example.fitnationcommon.dto.request;
+
+public record RejectMembershipRequest(
+        String reason
+) {}
