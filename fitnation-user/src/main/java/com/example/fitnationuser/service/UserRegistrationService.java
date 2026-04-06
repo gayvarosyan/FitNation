@@ -21,4 +21,5 @@ public class UserRegistrationService {
         }
         return userRepository.save(userMapper.toUser(request));
     }
-}
+    }
+

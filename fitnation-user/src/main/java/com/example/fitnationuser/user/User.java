@@ -17,12 +17,19 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import java.time.LocalDateTime;
+
+
 
 @Data
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class User {
+
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,4 +58,6 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.INACTIVE;
+
+
 }

@@ -18,7 +18,7 @@ public class UserAuthService {
     private final UserStatusUtil userStatusUtil;
 
     public User login(String email, String rawPassword) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
@@ -31,12 +31,12 @@ public class UserAuthService {
             user.setStatus(UserStatus.ACTIVE);
             return userRepository.save(user);
         }
-        
+
         return user;
     }
 
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }

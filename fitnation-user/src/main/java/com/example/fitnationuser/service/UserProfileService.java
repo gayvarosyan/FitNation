@@ -14,7 +14,7 @@ public class UserProfileService {
     private final UserRepository userRepository;
 
     public UserProfileResponse getProfile(String email) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         return new UserProfileResponse(

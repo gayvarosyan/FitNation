@@ -36,5 +36,6 @@
     <include file="db/changelog/changes/029-create-class-bookings.xml"/>
     <include file="db/changelog/changes/030-fix-group-classes-trainer-fk.xml"/>
     <include file="db/changelog/changes/032-invitation-onboarding-flow.xml"/>
+    <include file="db/changelog/changes/033-soft-delete-users.xml"/>
 
 </databaseChangeLog>
