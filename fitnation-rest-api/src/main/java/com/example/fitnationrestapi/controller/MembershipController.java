@@ -2,11 +2,13 @@ package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.request.CreateMembershipTypeRequest;
 import com.example.fitnationcommon.dto.request.PurchaseMembershipRequest;
+import com.example.fitnationcommon.dto.request.SubmitMembershipRequest;
 import com.example.fitnationcommon.dto.request.UpdateMembershipRequest;
 import com.example.fitnationcommon.dto.response.AdminMembershipRecordResponse;
 import com.example.fitnationcommon.dto.response.AdminMembershipStatsResponse;
 import com.example.fitnationcommon.dto.response.MembershipResponse;
 import com.example.fitnationcommon.dto.response.MembershipTypeResponse;
+import com.example.fitnationcommon.dto.response.UserMembershipRequestResponse;
 import com.example.fitnationmembership.service.MembershipService;
 import com.example.fitnationuser.user.User;
 import jakarta.validation.Valid;
@@ -72,6 +74,20 @@ public class MembershipController {
             @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(
                 membershipService.getUserMemberships(user.getEmail()));
+    }
+
+    @PostMapping("/api/users/membership-requests")
+    public ResponseEntity<UserMembershipRequestResponse> submitMembershipRequest(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody SubmitMembershipRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(membershipService.submitMembershipRequest(user.getEmail(), request));
+    }
+
+    @GetMapping("/api/users/membership-requests")
+    public ResponseEntity<List<UserMembershipRequestResponse>> getUserMembershipRequests(
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(membershipService.getUserMembershipRequests(user.getEmail()));
     }
 
     @GetMapping("/api/admin/memberships")

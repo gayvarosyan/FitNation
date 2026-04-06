@@ -9,6 +9,8 @@ import com.example.fitnationcommon.exception.InvalidRoleException;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
 import com.example.fitnationcommon.exception.GroupClassNotFoundException;
 import com.example.fitnationcommon.exception.MembershipNotFoundException;
+import com.example.fitnationcommon.exception.MembershipRequestConflictException;
+import com.example.fitnationcommon.exception.MembershipRequestNotFoundException;
 import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
 import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
@@ -70,10 +72,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({MembershipNotFoundException.class, MembershipTypeNotFoundException.class,
-            NutritionPlanNotFoundException.class})
+            NutritionPlanNotFoundException.class, MembershipRequestNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleMembershipNotFound(RuntimeException ex) {
         return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+    }
+
+    @ExceptionHandler(MembershipRequestConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleMembershipRequestConflict(MembershipRequestConflictException ex) {
+        return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
