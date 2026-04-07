@@ -45,6 +45,8 @@ public final class ApplicationConstants {
         public static final String EMAIL_VALID = "Email should be valid";
 
         public static final String PHONE_REQUIRED = "Phone is required";
+        public static final String PHONE_INVALID_FORMAT =
+                "Phone must be a valid phone number (10-15 digits, optional + prefix).";
         public static final String PHONE_MAX_SIZE = "Phone must not exceed " + PHONE_MAX_LENGTH + " characters";
 
         public static final String PASSWORD_REQUIRED = "Password is required";
@@ -54,4 +56,30 @@ public final class ApplicationConstants {
         public static final String NAME_INVALID_CHARS = " can only contain letters, spaces and hyphens";
 
         public static final String PASSWORD_INVALID = "Password must contain at least one uppercase letter, one digit and one special character";
+
+        public static final String NUTRITION_PLAN_NOT_FOUND = "Nutrition plan not found: ";
+
+        public static final String INVALID_ROLE = "Invalid role";
+        public static final String INVALID_REFRESH_TOKEN = "Invalid refresh token";
+
+        public static final String EMAIL_ALREADY_EXISTS = "Email already exists";
+        public static final String USER_PENDING_CANNOT_EDIT = "Cannot edit user while status is PENDING. User must login first.";
+
+        public static final String MEMBER_NOT_FOUND = "Member not found with id: ";
+
+        public static final String USER_BLOCKED = "User is blocked";
+        public static final String USER_INACTIVE = "User is inactive";
+
+        public static final String REQUIRED_PARAM_MISSING = "Required request parameter is missing.";
+
+        public static final String BODY_NOT_READABLE = "Request body could not be parsed.";
+
+        public static final String VALIDATION_REQUEST_FAILED = "Request validation failed.";
+
+        /** Generic message when JWT/session principal is not the expected type (no sensitive data). */
+        public static final String UNEXPECTED_AUTHENTICATION = "Unexpected authentication state.";
+
+        public static final String CLASS_SCHEDULE_FULL = "No seats available for this class.";
+        public static final String CLASS_ALREADY_BOOKED = "You already booked this class.";
+
 }

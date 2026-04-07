@@ -1,5 +1,6 @@
 package com.example.fitnationweb.controller;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.LoginRequest;
 import com.example.fitnationcommon.dto.request.RegisterRequest;
 import com.example.fitnationcommon.dto.response.AuthResponse;
@@ -111,7 +112,7 @@ public class AuthMvcController {
 
     private void register(RegisterRequest request) {
         if (request.role() != UserRole.CLIENT && request.role() != UserRole.TRAINER) {
-            throw new InvalidRoleException("Invalid role");
+            throw new InvalidRoleException(ApplicationConstants.INVALID_ROLE);
         }
         if (request.role() == UserRole.CLIENT) {
             userRegistrationService.register(request);

@@ -1,6 +1,7 @@
 package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationbooking.service.ClassBookingService;
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class UserBookingController {
         if (principal instanceof User user) {
             return user.getId();
         }
-        throw new IllegalStateException("Unexpected principal type: " + principal);
+        throw new IllegalStateException(ApplicationConstants.UNEXPECTED_AUTHENTICATION);
     }
 
     @PostMapping("/classes/{scheduleId}/book")

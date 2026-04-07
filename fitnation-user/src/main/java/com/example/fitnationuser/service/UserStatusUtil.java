@@ -1,5 +1,6 @@
 package com.example.fitnationuser.service;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.UserBlockedException;
 import com.example.fitnationcommon.exception.UserInactiveException;
@@ -21,11 +22,10 @@ public class UserStatusUtil {
             throw new UserBlockedException("User is deleted");
         }
         if (user.getStatus() == UserStatus.BLOCKED) {
-            throw new UserBlockedException("User is blocked");
+            throw new UserBlockedException(ApplicationConstants.USER_BLOCKED);
         }
         if (user.getStatus() == UserStatus.INACTIVE) {
-            throw new UserInactiveException("User is inactive");
+            throw new UserInactiveException(ApplicationConstants.USER_INACTIVE);
         }
     }
 }
-

@@ -67,7 +67,7 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
     public TrainerDirectoryItem create(CreateTrainerRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
             log.warn("create trainer failed: email already exists, email={}", request.email());
-            throw new EmailAlreadyExistsException("Email already exists");
+            throw new EmailAlreadyExistsException(ApplicationConstants.EMAIL_ALREADY_EXISTS);
         }
         log.info("Creating trainer: email={}, firstName={}, lastName={}", request.email(), request.firstName(), request.lastName());
         String adminPassword = request.password();
@@ -96,12 +96,12 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
         Trainer trainer = trainerRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("edit trainer failed: trainer not found, id={}", id);
-                    return new TrainerNotFoundException("Trainer not found: " + id);
+                    return new TrainerNotFoundException(ApplicationConstants.MSG_TRAINER_NOT_FOUND + id);
                 });
 
         if (trainer.getStatus() == UserStatus.PENDING) {
             log.warn("edit trainer failed: user is PENDING, id={}", id);
-            throw new UserPendingException("Cannot edit user while status is PENDING. User must login first.");
+            throw new UserPendingException(ApplicationConstants.USER_PENDING_CANNOT_EDIT);
         }
 
         trainerMapper.updateTrainer(trainer, request);
@@ -118,7 +118,7 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
         Trainer trainer = trainerRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("delete trainer failed: trainer not found, id={}", id);
-                    return new TrainerNotFoundException("Trainer not found: " + id);
+                    return new TrainerNotFoundException(ApplicationConstants.MSG_TRAINER_NOT_FOUND + id);
                 });
 
         trainer.setDeletedAt(LocalDateTime.now());
