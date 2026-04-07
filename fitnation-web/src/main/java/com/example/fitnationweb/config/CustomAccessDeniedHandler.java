@@ -23,9 +23,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json");
 
-        ErrorResponse body = new ErrorResponse(
-                HttpServletResponse.SC_FORBIDDEN,
-                "Access denied"
+        ErrorResponse body = new ErrorResponse(401, "UNAUTHORIZED", "Authentication required", null, null, null, null
         );
 
         objectMapper.writeValue(response.getOutputStream(), body);

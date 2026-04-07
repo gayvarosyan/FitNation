@@ -1,5 +1,6 @@
 package com.example.fitnationrestapi.service;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.RegisterRequest;
 import com.example.fitnationcommon.dto.response.AuthResponse;
 import com.example.fitnationcommon.enums.UserRole;
@@ -39,7 +40,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (request.role() != UserRole.CLIENT && request.role() != UserRole.TRAINER) {
-            throw new InvalidRoleException("Invalid role");
+            throw new InvalidRoleException(ApplicationConstants.INVALID_ROLE);
         }
         User user = request.role() == UserRole.CLIENT
                 ? userRegistrationService.register(request)
@@ -62,7 +63,7 @@ public class AuthService {
 
     public AuthResponse refresh(String refreshToken) {
         if (!jwtService.isRefreshTokenValid(refreshToken)) {
-            throw new InvalidTokenException("Invalid refresh token");
+            throw new InvalidTokenException(ApplicationConstants.INVALID_REFRESH_TOKEN);
         }
         String email = jwtService.extractEmail(refreshToken);
         var user = userAuthService.findByEmail(email);

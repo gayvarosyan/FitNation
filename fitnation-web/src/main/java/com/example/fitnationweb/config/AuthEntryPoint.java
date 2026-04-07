@@ -24,7 +24,8 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
 
-        ErrorResponse body = new ErrorResponse(401, "Authentication required");
+        ErrorResponse body = new ErrorResponse(401, "UNAUTHORIZED", "Authentication required", null, null, null, null
+        );
 
         objectMapper.writeValue(response.getOutputStream(), body);
     }

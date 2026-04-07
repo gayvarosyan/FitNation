@@ -1,5 +1,6 @@
 package com.example.fitnationuser.service;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.response.UserProfileResponse;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationuser.repository.UserRepository;
@@ -15,7 +16,7 @@ public class UserProfileService {
 
     public UserProfileResponse getProfile(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MSG_USER_NOT_FOUND));
 
         return new UserProfileResponse(
                 user.getId(),

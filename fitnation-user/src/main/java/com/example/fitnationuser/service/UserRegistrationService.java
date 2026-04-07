@@ -1,5 +1,6 @@
 package com.example.fitnationuser.service;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.RegisterRequest;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationuser.mapper.UserMapper;
@@ -17,7 +18,7 @@ public class UserRegistrationService {
 
     public User register(RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email already exists");
+            throw new EmailAlreadyExistsException(ApplicationConstants.EMAIL_ALREADY_EXISTS + request.email());
         }
         return userRepository.save(userMapper.toUser(request));
     }
