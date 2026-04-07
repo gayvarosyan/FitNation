@@ -45,6 +45,8 @@ public final class ApplicationConstants {
         public static final String EMAIL_VALID = "Email should be valid";
 
         public static final String PHONE_REQUIRED = "Phone is required";
+        public static final String PHONE_INVALID_FORMAT =
+                "Phone must be a valid phone number (10-15 digits, optional + prefix).";
         public static final String PHONE_MAX_SIZE = "Phone must not exceed " + PHONE_MAX_LENGTH + " characters";
 
         public static final String PASSWORD_REQUIRED = "Password is required";
@@ -71,5 +73,13 @@ public final class ApplicationConstants {
         public static final String REQUIRED_PARAM_MISSING = "Required request parameter is missing.";
 
         public static final String BODY_NOT_READABLE = "Request body could not be parsed.";
+
+        public static final String VALIDATION_REQUEST_FAILED = "Request validation failed.";
+
+        /** Generic message when JWT/session principal is not the expected type (no sensitive data). */
+        public static final String UNEXPECTED_AUTHENTICATION = "Unexpected authentication state.";
+
+        public static final String CLASS_SCHEDULE_FULL = "No seats available for this class.";
+        public static final String CLASS_ALREADY_BOOKED = "You already booked this class.";
 
 }

@@ -2,7 +2,9 @@ package com.example.fitnationbooking.validation;
 
 import com.example.fitnationbooking.entity.ClassSchedule;
 import com.example.fitnationbooking.repository.ClassBookingRepository;
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
+import com.example.fitnationcommon.exception.ClassBookingConflictException;
 import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,13 +24,13 @@ public class ClassBookingValidator {
         long bookedCount = classBookingRepository.countByScheduleAndStatus(schedule, ClassBookingStatus.BOOKED);
         Integer capacity = schedule.getGroupClass().getCapacity();
         if (capacity != null && bookedCount >= capacity) {
-            throw new IllegalStateException("Class is full");
+            throw new ClassBookingConflictException(ApplicationConstants.CLASS_SCHEDULE_FULL);
         }
     }
 
     private void validateNoDuplicateBooking(ClassSchedule schedule, User user) {
         if (classBookingRepository.existsByScheduleAndUserAndStatus(schedule, user, ClassBookingStatus.BOOKED)) {
-            throw new IllegalStateException("You already booked this class");
+            throw new ClassBookingConflictException(ApplicationConstants.CLASS_ALREADY_BOOKED);
         }
     }
 }

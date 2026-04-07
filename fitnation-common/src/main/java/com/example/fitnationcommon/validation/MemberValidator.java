@@ -63,7 +63,7 @@ public class MemberValidator {
 
     private void validateEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email is required");
+            throw new IllegalArgumentException(ApplicationConstants.EMAIL_REQUIRED);
         }
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             throw new IllegalArgumentException(ApplicationConstants.VALID_EMAIL_MESSAGE);
@@ -72,10 +72,10 @@ public class MemberValidator {
 
     private void validatePhone(String phone) {
         if (phone == null || phone.trim().isEmpty()) {
-            throw new IllegalArgumentException("Phone is required");
+            throw new IllegalArgumentException(ApplicationConstants.PHONE_REQUIRED);
         }
         if (!PHONE_PATTERN.matcher(phone.replaceAll("[\\s\\-()]", "")).matches()) {
-            throw new IllegalArgumentException("Phone must be a valid phone number (10-15 digits, optional + prefix)");
+            throw new IllegalArgumentException(ApplicationConstants.PHONE_INVALID_FORMAT);
         }
     }
 

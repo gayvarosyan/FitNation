@@ -1,5 +1,6 @@
 package com.example.fitnationweb.config;
 
+import com.example.fitnationcommon.api.StandardErrorResponses;
 import com.example.fitnationcommon.dto.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,10 +22,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException accessDeniedException) throws IOException {
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.setContentType("application/json");
+        response.setContentType("application/json;charset=UTF-8");
 
-        ErrorResponse body = new ErrorResponse(401, "UNAUTHORIZED", "Authentication required", null, null, null, null
-        );
+        ErrorResponse body = StandardErrorResponses.accessForbidden(request.getRequestURI());
 
         objectMapper.writeValue(response.getOutputStream(), body);
     }

@@ -4,6 +4,7 @@ import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.response.ErrorResponse;
 import com.example.fitnationcommon.dto.response.ValidationErrorDetail;
 import com.example.fitnationcommon.enums.ErrorCode;
+import com.example.fitnationcommon.exception.ClassBookingConflictException;
 import com.example.fitnationcommon.exception.ClassBookingNotFoundException;
 import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
@@ -21,8 +22,10 @@ import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.exception.UserBlockedException;
 import com.example.fitnationcommon.exception.UserInactiveException;
 import com.example.fitnationcommon.exception.UserPendingException;
+import com.example.fitnationcommon.exception.InvalidTokenException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import jakarta.validation.Path;
@@ -50,7 +53,7 @@ public class GlobalExceptionHandler {
                 .toList();
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
-                "Request validation failed.", request, fieldErrors);
+                ApplicationConstants.VALIDATION_REQUEST_FAILED, request, fieldErrors);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -65,7 +68,15 @@ public class GlobalExceptionHandler {
                 .toList();
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
-                "Request validation failed.", request, fieldErrors);
+                ApplicationConstants.VALIDATION_REQUEST_FAILED, request, fieldErrors);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleJakartaValidation(
+            ValidationException ex, HttpServletRequest request) {
+        log.debug("Validation failed [{}]: {}", request.getRequestURI(), ex.getMessage());
+        return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
+                ex.getMessage(), request, null);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -73,7 +84,7 @@ public class GlobalExceptionHandler {
             MissingServletRequestParameterException ex, HttpServletRequest request) {
 
         List<ValidationErrorDetail> fieldErrors = List.of(
-                new ValidationErrorDetail(ex.getParameterName(), null, "Required parameter is missing."));
+                new ValidationErrorDetail(ex.getParameterName(), null, ApplicationConstants.REQUIRED_PARAM_MISSING));
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
                 ApplicationConstants.REQUIRED_PARAM_MISSING, request, fieldErrors);
@@ -112,6 +123,13 @@ public class GlobalExceptionHandler {
                 ex.getMessage(), request, null);
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(
+            InvalidTokenException ex, HttpServletRequest request) {
+        log.warn("Invalid token [{}]: {}", request.getRequestURI(), ex.getMessage());
+        return build(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED,
+                ex.getMessage(), request, null);
+    }
 
     @ExceptionHandler({UserBlockedException.class, UserInactiveException.class,
             ForbiddenOperationException.class})
@@ -133,7 +151,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({UserNotFoundException.class, TrainerNotFoundException.class,
             MembershipNotFoundException.class, MembershipTypeNotFoundException.class,
             NutritionPlanNotFoundException.class, ClassScheduleNotFoundException.class,
-            ClassBookingNotFoundException.class, GroupClassNotFoundException.class})
+            ClassBookingNotFoundException.class, GroupClassNotFoundException.class,
+            MembershipRequestNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException ex, HttpServletRequest request) {
 
@@ -142,31 +161,13 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler({EmailAlreadyExistsException.class, UserPendingException.class})
+    @ExceptionHandler({EmailAlreadyExistsException.class, UserPendingException.class,
+            MembershipRequestConflictException.class, ClassBookingConflictException.class})
     public ResponseEntity<ErrorResponse> handleConflict(
             RuntimeException ex, HttpServletRequest request) {
 
         return build(HttpStatus.CONFLICT, ErrorCode.CONFLICT,
                 ex.getMessage(), request, null);
-      
-    @ExceptionHandler({MembershipNotFoundException.class, MembershipTypeNotFoundException.class,
-            NutritionPlanNotFoundException.class, MembershipRequestNotFoundException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleMembershipNotFound(RuntimeException ex) {
-        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
-    }
-
-    @ExceptionHandler(MembershipRequestConflictException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleMembershipRequestConflict(MembershipRequestConflictException ex) {
-        return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex) {
-        return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
-
     }
 
     @ExceptionHandler(Exception.class)

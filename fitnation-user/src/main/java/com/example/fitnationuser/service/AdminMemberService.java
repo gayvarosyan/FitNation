@@ -72,7 +72,7 @@ public class AdminMemberService {
                 .filter(u -> u.getRole() == UserRole.CLIENT)
                 .orElseThrow(() -> {
                     log.warn("getMemberById failed: member not found, id={}", id);
-                    return new RuntimeException(ApplicationConstants.MEMBER_NOT_FOUND + id);
+                    return new UserNotFoundException(ApplicationConstants.MEMBER_NOT_FOUND + id);
                 });
 
         return convertToMemberDetailResponse(user);
@@ -111,13 +111,13 @@ public class AdminMemberService {
                 .filter(u -> u.getRole() == UserRole.CLIENT)
                 .orElseThrow(() -> {
                     log.warn("updateMember failed: member not found, id={}", id);
-                    return new RuntimeException(ApplicationConstants.MEMBER_NOT_FOUND + id);
+                    return new UserNotFoundException(ApplicationConstants.MEMBER_NOT_FOUND + id);
                 });
 
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             if (userRepository.findByEmail(request.getEmail()).isPresent()) {
                 log.warn("updateMember failed: email already exists, email={}", request.getEmail());
-                throw new RuntimeException(ApplicationConstants.EMAIL_ALREADY_EXISTS + request.getEmail());
+                throw new EmailAlreadyExistsException(ApplicationConstants.EMAIL_ALREADY_EXISTS + request.getEmail());
             }
             user.setEmail(request.getEmail());
         }
