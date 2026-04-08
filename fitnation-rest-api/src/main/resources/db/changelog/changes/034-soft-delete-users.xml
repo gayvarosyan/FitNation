@@ -5,14 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="033-1-add-deleted-to-user-status-enum" author="dev">
+    <changeSet id="034-soft-delete-users" author="Meri">
         <sql>ALTER TYPE user_status ADD VALUE IF NOT EXISTS 'DELETED';</sql>
-        <rollback>
-            <!-- PostgreSQL-ում enum value-ն հնարավոր չէ հեռացնել rollback-ով -->
-        </rollback>
-    </changeSet>
-
-    <changeSet id="033-2-add-deleted-at-to-users" author="dev">
         <addColumn tableName="users">
             <column name="deleted_at" type="TIMESTAMP" defaultValue="null">
                 <constraints nullable="true"/>
