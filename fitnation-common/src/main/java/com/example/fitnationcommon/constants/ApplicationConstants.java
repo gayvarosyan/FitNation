@@ -76,10 +76,14 @@ public final class ApplicationConstants {
 
         public static final String VALIDATION_REQUEST_FAILED = "Request validation failed.";
 
-        /** Generic message when JWT/session principal is not the expected type (no sensitive data). */
         public static final String UNEXPECTED_AUTHENTICATION = "Unexpected authentication state.";
 
         public static final String CLASS_SCHEDULE_FULL = "No seats available for this class.";
         public static final String CLASS_ALREADY_BOOKED = "You already booked this class.";
+
+        public static final String USER_NOT_FOUND = "User not found: ";
+        public static final String INVALID_CREDENTIALS = "Invalid credentials";
+
+
 
 }

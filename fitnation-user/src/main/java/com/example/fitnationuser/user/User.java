@@ -19,9 +19,11 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import java.time.LocalDateTime;
+
+
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -31,6 +33,10 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class User {
+
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,7 +57,6 @@ public class User {
     @NotBlank
     private String password;
 
-    @NotBlank
     @Size(max = ApplicationConstants.SMALL_TEXT)
     @Column(name = "phone", nullable = false)
     private String phone;
@@ -60,7 +65,7 @@ public class User {
     private UserRole role = UserRole.CLIENT;
 
     @Enumerated(EnumType.STRING)
-    private UserStatus status = UserStatus.ACTIVE;
+    private UserStatus status;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

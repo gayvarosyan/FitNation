@@ -74,7 +74,7 @@ public class AdminMemberController {
         return ResponseEntity.ok(updatedMember);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/admin/members/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
         adminMemberService.deleteMember(id);
