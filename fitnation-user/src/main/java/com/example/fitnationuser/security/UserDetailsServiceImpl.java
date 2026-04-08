@@ -1,5 +1,6 @@
 package com.example.fitnationuser.security;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
@@ -18,10 +19,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmailAndDeletedAtIsNull(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException(ApplicationConstants.USER_NOT_FOUND + email));
 
         if (user.getStatus() == UserStatus.DELETED || user.getDeletedAt() != null) {
-            throw new UsernameNotFoundException("Invalid credentials");
+            throw new UsernameNotFoundException(ApplicationConstants.INVALID_CREDENTIALS);
         }
 
         return new org.springframework.security.core.userdetails.User(
@@ -31,5 +32,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         );
     }
 
-    }
+}
 
