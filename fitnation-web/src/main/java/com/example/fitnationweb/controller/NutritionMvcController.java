@@ -25,7 +25,7 @@ public class NutritionMvcController {
     private final NutritionPlanService nutritionPlanService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public String page(Model model) {
         model.addAttribute("stats", nutritionPlanService.getStats());
         model.addAttribute("plans", nutritionPlanService.getPlanCatalog());

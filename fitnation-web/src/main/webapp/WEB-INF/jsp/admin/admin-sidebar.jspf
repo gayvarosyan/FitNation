@@ -26,6 +26,10 @@
       <span class="fn-admin-nav-icon" aria-hidden="true">💳</span>
       <span class="fn-admin-nav-label">Subscriptions</span>
     </a>
+    <a href="${ctx}/admin/subscription-requests" class="fn-admin-nav-item ${navSection == 'subscription-requests' ? 'active' : ''}">
+      <span class="fn-admin-nav-icon" aria-hidden="true">✅</span>
+      <span class="fn-admin-nav-label">Request approvals</span>
+    </a>
   </nav>
   <div class="fn-admin-sidebar-footer">
     <form method="post" action="${ctx}/logout" class="d-inline">
