@@ -164,6 +164,13 @@
             <input type="email" id="addEmail" name="email" class="fn-input" required>
           </div>
           <div class="fn-form-group">
+            <label class="fn-label" for="addPassword">Password</label>
+            <input type="password" id="addPassword" name="password" class="fn-input" required minlength="8"
+                   autocomplete="new-password"
+                   title="At least 8 characters, one uppercase letter, one number, and one special character">
+            <p class="fn-admin-section-subtitle" style="margin-top:0.35rem;margin-bottom:0;">Use at least 8 characters with one uppercase letter, one number, and one special character (e.g. @$!%*?&amp;._-#+). This is the trainer’s first-login password; it is also sent in the invitation email.</p>
+          </div>
+          <div class="fn-form-group">
             <label class="fn-label" for="addPhone">Phone</label>
             <input type="tel" id="addPhone" name="phone" class="fn-input" required maxlength="50">
           </div>
@@ -175,7 +182,7 @@
             <label class="fn-label" for="addBio">Bio</label>
             <textarea id="addBio" name="bio" class="fn-input" rows="3" maxlength="250"></textarea>
           </div>
-          <p class="fn-admin-section-subtitle">A temporary password will be generated automatically and sent by email. Trainers stay pending until first login.</p>
+          <p class="fn-admin-section-subtitle">Trainers stay pending until first login.</p>
         </div>
         <div class="modal-footer fn-admin-modal-footer">
           <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>

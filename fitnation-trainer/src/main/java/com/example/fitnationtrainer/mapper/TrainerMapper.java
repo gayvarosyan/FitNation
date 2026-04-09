@@ -68,7 +68,8 @@ public class TrainerMapper {
                 trainer.getBio() != null ? trainer.getBio() : "",
                 trainer.getEmail(),
                 trainer.getPhone() != null ? trainer.getPhone() : "",
-                trainer.getStatus()
+                trainer.getStatus(),
+                false
         );
     }
 }
