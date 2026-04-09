@@ -31,11 +31,11 @@ spring:
           auth: true
           starttls:
             enable: true
+
 jwt:
   secret: ${JWT_SECRET:fitnation-super-secret-key-must-be-at-least-32-characters-long}
   expiration: ${JWT_EXPIRATION:3600}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}
 
-fitnation:
-  app:
-    login-url: http://localhost:8080/login
+app:
+  login-url: http://localhost:8080/login
