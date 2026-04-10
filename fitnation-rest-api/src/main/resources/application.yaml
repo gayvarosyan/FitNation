@@ -37,5 +37,6 @@ jwt:
   expiration: ${JWT_EXPIRATION:3600}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}
 
-app:
-  login-url: http://localhost:8080/login
+fitnation:
+  app:
+    login-url: http://localhost:8080/login
