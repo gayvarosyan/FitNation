@@ -9,19 +9,21 @@ import com.example.fitnationcommon.dto.response.MemberListResponse;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
+import com.example.fitnationcommon.exception.ForbiddenOperationException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
+import com.example.fitnationcommon.service.EmailService;
 import com.example.fitnationcommon.validation.MemberValidator;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,10 @@ public class AdminMemberService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MemberValidator memberValidator;
+    private final EmailService emailService;
+
+    @Value("${app.login-url}")
+    private String loginUrl;
 
     public AdminMemberStatsResponse getMemberStats() {
         long totalMembers = userRepository.countTotalMembers(UserRole.CLIENT);
@@ -104,6 +110,36 @@ public class AdminMemberService {
         return convertToMemberDetailResponse(savedUser);
     }
 
+    public MemberDetailResponse inviteMember(CreateMemberRequest request) {
+        memberValidator.validateCreateMemberRequest(request);
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            log.warn("inviteMember failed: email already exists, email={}", request.getEmail());
+            throw new EmailAlreadyExistsException(ApplicationConstants.EMAIL_ALREADY_EXISTS + request.getEmail());
+        }
+
+        String rawPassword = request.getPassword();
+
+        User user = User.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .password(passwordEncoder.encode(rawPassword))
+                .role(UserRole.CLIENT)
+                .status(UserStatus.PENDING)
+                .assignedTrainerId(request.getAssignedTrainerId())
+                .assignedNutritionPlanId(request.getAssignedNutritionPlanId())
+                .build();
+
+        User savedUser = userRepository.save(user);
+        log.info("Invited new member with id: {}", savedUser.getId());
+
+        emailService.sendInvitationEmail(savedUser.getEmail(), rawPassword, loginUrl);
+
+        return convertToMemberDetailResponse(savedUser);
+    }
+
     public MemberDetailResponse updateMember(Long id, UpdateMemberRequest request) {
         memberValidator.validateUpdateMemberRequest(request);
 
@@ -113,6 +149,10 @@ public class AdminMemberService {
                     log.warn("updateMember failed: member not found, id={}", id);
                     return new UserNotFoundException(ApplicationConstants.MEMBER_NOT_FOUND + id);
                 });
+
+        if (user.getStatus() == UserStatus.PENDING) {
+            throw new ForbiddenOperationException("Cannot edit a PENDING member until they log in for the first time.");
+        }
 
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             if (userRepository.findByEmail(request.getEmail()).isPresent()) {
