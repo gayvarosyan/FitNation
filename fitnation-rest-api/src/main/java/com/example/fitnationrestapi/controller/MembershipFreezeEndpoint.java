@@ -59,7 +59,7 @@ public class MembershipFreezeEndpoint {
     }
 
     @GetMapping("/api/admin/membership-freeze-requests")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<Page<AdminFreezeRequestResponse>> listFreezeRequests(
             @RequestParam(required = false) FreezeRequestStatus status,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -67,7 +67,7 @@ public class MembershipFreezeEndpoint {
     }
 
     @PostMapping("/api/admin/membership-freeze-requests/{requestId}/approve")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<AdminFreezeRequestResponse> approveFreezeRequest(
             @PathVariable Long requestId,
             @AuthenticationPrincipal User admin) {
@@ -75,7 +75,7 @@ public class MembershipFreezeEndpoint {
     }
 
     @PostMapping("/api/admin/membership-freeze-requests/{requestId}/reject")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<AdminFreezeRequestResponse> rejectFreezeRequest(
             @PathVariable Long requestId,
             @AuthenticationPrincipal User admin,
