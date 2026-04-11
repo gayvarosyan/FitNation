@@ -84,6 +84,18 @@ public final class ApplicationConstants {
         public static final String USER_NOT_FOUND = "User not found: ";
         public static final String INVALID_CREDENTIALS = "Invalid credentials";
 
+        public static final String FREEZE_NOT_OWNER = "You can only manage freeze requests for your own membership.";
+        public static final String FREEZE_MEMBERSHIP_NOT_FOUND = "Membership not found.";
+        public static final String FREEZE_REQUEST_NOT_FOUND = "Freeze request not found.";
+        public static final String FREEZE_INVALID_STATUS = "Only ACTIVE memberships can be frozen.";
+        public static final String FREEZE_END_BEFORE_START = "freezeEnd must be on or after freezeStart.";
+        public static final String FREEZE_MAX_DAYS_EXCEEDED = "Freeze period cannot exceed 90 days.";
+        public static final String FREEZE_MIN_NOTICE_DAYS = "Freeze must start at least 1 day from today.";
+        public static final String FREEZE_OVERLAP_EXISTS = "A pending or approved freeze request already overlaps the requested period.";
+        public static final String FREEZE_ALREADY_REVIEWED = "This freeze request has already been reviewed.";
+        public static final String RENEW_NOT_OWNER = "You can only renew your own membership.";
+        public static final String RENEW_INVALID_STATUS = "EXPIRED or CANCELLED memberships cannot be renewed. Use re-purchase instead.";
 
-
+        public static final int MAX_FREEZE_DAYS = 90;
+        public static final int MIN_NOTICE_DAYS = 1;
 }
