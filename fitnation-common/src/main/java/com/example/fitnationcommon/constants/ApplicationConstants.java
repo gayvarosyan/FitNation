@@ -98,5 +98,4 @@ public final class ApplicationConstants {
 
         public static final int MAX_FREEZE_DAYS = 90;
         public static final int MIN_NOTICE_DAYS = 1;
-
 }
