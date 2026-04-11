@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trainer Management – FitNation Admin</title>
+  <title>Client Management – FitNation Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
 </head>
@@ -18,12 +18,12 @@
   <main class="fn-admin-main">
     <header class="fn-admin-header">
       <div>
-        <h1 class="fn-admin-title">Trainer Management</h1>
-        <p class="fn-admin-subtitle">Onboard and manage your professional coaching staff.</p>
+        <h1 class="fn-admin-title">Client Management</h1>
+        <p class="fn-admin-subtitle">Onboard and manage your gym members.</p>
       </div>
-      <button class="fn-admin-add-btn" type="button" data-bs-toggle="modal" data-bs-target="#addTrainerModal">
+      <button class="fn-admin-add-btn" type="button" data-bs-toggle="modal" data-bs-target="#addClientModal">
         <span class="fn-admin-add-icon">+</span>
-        <span>Add New Trainer</span>
+        <span>Invite New Client</span>
       </button>
     </header>
 
@@ -39,15 +39,29 @@
         <div class="fn-admin-stat-card">
           <div class="fn-admin-stat-icon" aria-hidden="true">👥</div>
           <div>
-            <div class="fn-admin-stat-meta">Total Trainers</div>
-            <div class="fn-admin-stat-value">${stats.totalTrainers}</div>
+            <div class="fn-admin-stat-meta">Total Clients</div>
+            <div class="fn-admin-stat-value">${stats.totalMembers}</div>
           </div>
         </div>
         <div class="fn-admin-stat-card">
           <div class="fn-admin-stat-icon" aria-hidden="true">✅</div>
           <div>
             <div class="fn-admin-stat-meta">Currently Active</div>
-            <div class="fn-admin-stat-value">${stats.currentlyActive}</div>
+            <div class="fn-admin-stat-value">${stats.totalActiveUsers}</div>
+          </div>
+        </div>
+        <div class="fn-admin-stat-card">
+          <div class="fn-admin-stat-icon" aria-hidden="true">💳</div>
+          <div>
+            <div class="fn-admin-stat-meta">Active Subscriptions</div>
+            <div class="fn-admin-stat-value">${stats.usersWithActiveSubscription}</div>
+          </div>
+        </div>
+        <div class="fn-admin-stat-card">
+          <div class="fn-admin-stat-icon" aria-hidden="true">🚫</div>
+          <div>
+            <div class="fn-admin-stat-meta">Blocked</div>
+            <div class="fn-admin-stat-value">${stats.blockedMembers}</div>
           </div>
         </div>
       </div>
@@ -56,31 +70,31 @@
     <section class="fn-admin-section">
       <div class="fn-admin-section-header">
         <div>
-          <h2 class="fn-admin-section-title">Staff Directory</h2>
-          <p class="fn-admin-section-subtitle">All trainers in the system.</p>
+          <h2 class="fn-admin-section-title">Client Directory</h2>
+          <p class="fn-admin-section-subtitle">All clients in the system.</p>
         </div>
       </div>
       <div class="fn-admin-table-wrapper">
-        <table class="fn-admin-table" aria-label="Trainer staff directory">
+        <table class="fn-admin-table" aria-label="Client directory">
           <thead>
             <tr>
               <th scope="col">ID</th>
-              <th scope="col">Trainer</th>
-              <th scope="col">Specialization</th>
+              <th scope="col">Client</th>
               <th scope="col">Contact</th>
+              <th scope="col">Join Date</th>
               <th scope="col">Status</th>
               <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <c:forEach var="t" items="${trainers}">
+            <c:forEach var="c" items="${clients}">
               <tr>
-                <td>${t.trainerId}</td>
+                <td>${c.formattedId}</td>
                 <td>
                   <div class="fn-admin-trainer-cell">
                     <div class="fn-admin-avatar">
-                      <c:set var="fn0" value="${t.firstName}" />
-                      <c:set var="ln0" value="${t.lastName}" />
+                      <c:set var="fn0" value="${c.firstName}" />
+                      <c:set var="ln0" value="${c.lastName}" />
                       <c:choose>
                         <c:when test="${fn:length(fn0) > 0}">${fn:substring(fn0,0,1)}</c:when>
                         <c:otherwise>?</c:otherwise>
@@ -88,50 +102,52 @@
                       <c:if test="${fn:length(ln0) > 0}">${fn:substring(ln0,0,1)}</c:if>
                     </div>
                     <div class="fn-admin-trainer-main">
-                      <div class="fn-admin-trainer-name">${t.firstName} ${t.lastName}</div>
-                      <c:if test="${not empty t.bio}"><div class="fn-admin-trainer-bio">${t.bio}</div></c:if>
+                      <div class="fn-admin-trainer-name">${c.firstName} ${c.lastName}</div>
                     </div>
                   </div>
                 </td>
-                <td><span class="fn-admin-pill"><span class="fn-admin-pill-icon">🏷️</span> ${empty t.specialization ? '—' : t.specialization}</span></td>
                 <td class="fn-admin-contact">
-                  <span><span>✉️</span><span>${t.email}</span></span><br/>
-                  <span><span>📞</span><span>${empty t.phone ? '—' : t.phone}</span></span>
+                  <span><span>✉️</span><span>${c.email}</span></span><br/>
+                  <span><span>📞</span><span>${empty c.phone ? '—' : c.phone}</span></span>
                 </td>
-                <td><span class="fn-admin-status fn-admin-status-${fn:toLowerCase(t.status.name())}"><span class="fn-admin-status-dot"></span>${t.status}</span></td>
+                <td><span class="fn-admin-pill"><span class="fn-admin-pill-icon">📅</span> ${c.joinDate}</span></td>
+                <td><span class="fn-admin-status fn-admin-status-${fn:toLowerCase(c.userStatus)}"><span class="fn-admin-status-dot"></span>${c.userStatus}</span></td>
                 <td class="fn-admin-actions-cell">
-                  <c:if test="${t.status.name() == 'PENDING'}">
-                    <form method="post" action="${ctx}/admin/trainers/resend-invitation" style="display:inline">
-                      <input type="hidden" name="trainerId" value="${t.trainerId}" />
+                  <c:if test="${c.userStatus == 'PENDING'}">
+                    <form method="post" action="${ctx}/admin/clients/invite" style="display:inline">
+                      <input type="hidden" name="firstName" value="${c.firstName}" />
+                      <input type="hidden" name="lastName" value="${c.lastName}" />
+                      <input type="hidden" name="email" value="${c.email}" />
+                      <input type="hidden" name="phone" value="${c.phone}" />
+                      <input type="hidden" name="password" value="TempPassword123!" />
                       <button type="submit" class="fn-admin-action-btn fn-admin-action-edit">
-                        ${t.invitationDeliveryFailed ? 'Retry Invite' : 'Resend Invite'}
+                        Resend Invite
                       </button>
                     </form>
                   </c:if>
                   <c:choose>
-                    <c:when test="${t.status.name() == 'PENDING'}">
+                    <c:when test="${c.userStatus == 'PENDING'}">
                       <button type="button" class="fn-admin-action-btn fn-admin-action-edit" disabled>Edit</button>
                     </c:when>
                     <c:otherwise>
-                      <button type="button" class="fn-admin-action-btn fn-admin-action-edit fn-edit-trainer"
-                        data-id="${t.trainerId}"
-                        data-first="${fn:escapeXml(t.firstName)}"
-                        data-last="${fn:escapeXml(t.lastName)}"
-                        data-phone="${fn:escapeXml(t.phone)}"
-                        data-status="${t.status}"
-                        data-spec="${fn:escapeXml(t.specialization)}"
-                        data-bio="${fn:escapeXml(t.bio)}">Edit</button>
+                      <button type="button" class="fn-admin-action-btn fn-admin-action-edit fn-edit-client"
+                        data-id="${c.id}"
+                        data-first="${fn:escapeXml(c.firstName)}"
+                        data-last="${fn:escapeXml(c.lastName)}"
+                        data-email="${fn:escapeXml(c.email)}"
+                        data-phone="${fn:escapeXml(c.phone)}"
+                        data-status="${c.userStatus}">Edit</button>
                     </c:otherwise>
                   </c:choose>
-                  <form method="post" action="${ctx}/admin/trainers/delete" style="display:inline" onsubmit="return confirm('Delete this trainer?');">
-                    <input type="hidden" name="trainerId" value="${t.trainerId}" />
+                  <form method="post" action="${ctx}/admin/clients/delete" style="display:inline" onsubmit="return confirm('Delete this client?');">
+                    <input type="hidden" name="clientId" value="${c.id}" />
                     <button type="submit" class="fn-admin-action-btn fn-admin-action-delete">Delete</button>
                   </form>
                 </td>
               </tr>
             </c:forEach>
-            <c:if test="${empty trainers}">
-              <tr><td colspan="6" style="text-align:center;padding:1.25rem;color:var(--fn-text-muted);">No trainers found.</td></tr>
+            <c:if test="${empty clients}">
+              <tr><td colspan="6" style="text-align:center;padding:1.25rem;color:var(--fn-text-muted);">No clients found.</td></tr>
             </c:if>
           </tbody>
         </table>
@@ -140,14 +156,14 @@
   </main>
 </div>
 
-<div class="modal fade" id="addTrainerModal" tabindex="-1">
+<div class="modal fade" id="addClientModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content fn-admin-modal">
       <div class="modal-header fn-admin-modal-header">
-        <h2 class="modal-title fs-5">Add New Trainer</h2>
+        <h2 class="modal-title fs-5">Invite New Client</h2>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="post" action="${ctx}/admin/trainers/create">
+      <form method="post" action="${ctx}/admin/clients/create">
         <div class="modal-body fn-admin-modal-body">
           <div class="row g-2">
             <div class="col-6">
@@ -168,40 +184,32 @@
             <input type="password" id="addPassword" name="password" class="fn-input" required minlength="8"
                    autocomplete="new-password"
                    title="At least 8 characters, one uppercase letter, one number, and one special character">
-            <p class="fn-admin-section-subtitle" style="margin-top:0.35rem;margin-bottom:0;">Use at least 8 characters with one uppercase letter, one number, and one special character (e.g. @$!%*?&amp;._-#+). This is the trainer’s first-login password; it is also sent in the invitation email.</p>
+            <p class="fn-admin-section-subtitle" style="margin-top:0.35rem;margin-bottom:0;">Use at least 8 characters with one uppercase letter, one number, and one special character (e.g. @$!%*?&amp;._-#+). This is the client's first-login password; it is also sent in the invitation email.</p>
           </div>
           <div class="fn-form-group">
             <label class="fn-label" for="addPhone">Phone</label>
             <input type="tel" id="addPhone" name="phone" class="fn-input" required maxlength="50">
           </div>
-          <div class="fn-form-group">
-            <label class="fn-label" for="addSpecialization">Specialization</label>
-            <input type="text" id="addSpecialization" name="specialization" class="fn-input" maxlength="50">
-          </div>
-          <div class="fn-form-group">
-            <label class="fn-label" for="addBio">Bio</label>
-            <textarea id="addBio" name="bio" class="fn-input" rows="3" maxlength="250"></textarea>
-          </div>
-          <p class="fn-admin-section-subtitle">Trainers stay pending until first login.</p>
+          <p class="fn-admin-section-subtitle">Clients stay pending until first login.</p>
         </div>
         <div class="modal-footer fn-admin-modal-footer">
           <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="fn-admin-add-btn">Add Trainer</button>
+          <button type="submit" class="fn-admin-add-btn">Invite Client</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<div class="modal fade" id="editTrainerModal" tabindex="-1">
+<div class="modal fade" id="editClientModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content fn-admin-modal">
       <div class="modal-header fn-admin-modal-header">
-        <h2 class="modal-title fs-5">Edit Trainer</h2>
+        <h2 class="modal-title fs-5">Edit Client</h2>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <form method="post" action="${ctx}/admin/trainers/edit" id="editTrainerForm">
-        <input type="hidden" name="trainerId" id="editTrainerId" />
+      <form method="post" action="${ctx}/admin/clients/edit" id="editClientForm">
+        <input type="hidden" name="clientId" id="editClientId" />
         <div class="modal-body fn-admin-modal-body">
           <div class="row g-2">
             <div class="col-6">
@@ -212,6 +220,10 @@
               <label class="fn-label" for="editLastName">Last name</label>
               <input type="text" id="editLastName" name="lastName" class="fn-input" required maxlength="50">
             </div>
+          </div>
+          <div class="fn-form-group">
+            <label class="fn-label" for="editEmail">Email</label>
+            <input type="email" id="editEmail" name="email" class="fn-input" maxlength="100">
           </div>
           <div class="fn-form-group">
             <label class="fn-label" for="editPassword">New password</label>
@@ -229,14 +241,6 @@
               <option value="BLOCKED">Blocked</option>
             </select>
           </div>
-          <div class="fn-form-group">
-            <label class="fn-label" for="editSpecialization">Specialization</label>
-            <input type="text" id="editSpecialization" name="specialization" class="fn-input" maxlength="50">
-          </div>
-          <div class="fn-form-group">
-            <label class="fn-label" for="editBio">Bio</label>
-            <textarea id="editBio" name="bio" class="fn-input" rows="3" maxlength="250"></textarea>
-          </div>
         </div>
         <div class="modal-footer fn-admin-modal-footer">
           <button type="button" class="fn-admin-btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -248,6 +252,24 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="${ctx}/js/admin-trainers.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editButtons = document.querySelectorAll('.fn-edit-client');
+    const editModal = document.getElementById('editClientModal');
+    
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('editClientId').value = this.dataset.id;
+            document.getElementById('editFirstName').value = this.dataset.first;
+            document.getElementById('editLastName').value = this.dataset.last;
+            document.getElementById('editEmail').value = this.dataset.email;
+            document.getElementById('editPhone').value = this.dataset.phone;
+            document.getElementById('editStatus').value = this.dataset.status;
+            
+            new bootstrap.Modal(editModal).show();
+        });
+    });
+});
+</script>
 </body>
 </html>
