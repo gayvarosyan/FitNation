@@ -44,7 +44,7 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
     private final MembershipFreezeRequestRepository freezeRequestRepository;
     private final PaymentRepository paymentRepository;
     private final MembershipMapper membershipMapper;
-    private final MembershipFreezeMapper freezeMapper;
+    private final MembershipFreezeMapper membershipFreezeMapper;
 
     @Override
     @Transactional
@@ -60,7 +60,7 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
                         .status(FreezeRequestStatus.PENDING)
                         .createdAt(Instant.now())
                         .build());
-        return freezeMapper.toUserResponse(saved);
+        return membershipFreezeMapper.toUserResponse(saved);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
         Membership membership = requireMembership(membershipId);
         assertOwner(currentUser, membership, ApplicationConstants.FREEZE_NOT_OWNER);
         return freezeRequestRepository.findAllByMembershipId(membershipId).stream()
-                .map(freezeMapper::toUserResponse).toList();
+                .map(membershipFreezeMapper::toUserResponse).toList();
     }
 
     @Override
@@ -96,7 +96,7 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
         Page<MembershipFreezeRequests> page = status == null
                 ? freezeRequestRepository.findAllWithDetails(pageable)
                 : freezeRequestRepository.findAllWithDetailsByStatus(status, pageable);
-        return page.map(freezeMapper::toAdminResponse);
+        return page.map(membershipFreezeMapper::toAdminResponse);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
         assertPending(freezeRequest);
         applyFreeze(freezeRequest);
         finalizeReview(freezeRequest, reviewer, FreezeRequestStatus.APPROVED, null);
-        return freezeMapper.toAdminResponse(freezeRequest);
+        return membershipFreezeMapper.toAdminResponse(freezeRequest);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
         MembershipFreezeRequests freezeRequest = requireFreezeRequest(requestId);
         assertPending(freezeRequest);
         finalizeReview(freezeRequest, reviewer, FreezeRequestStatus.REJECTED, body != null ? body.reason() : null);
-        return freezeMapper.toAdminResponse(freezeRequest);
+        return membershipFreezeMapper.toAdminResponse(freezeRequest);
     }
 
     private void validateFreezeRequest(Membership membership, Long membershipId, SubmitFreezeRequest req) {
