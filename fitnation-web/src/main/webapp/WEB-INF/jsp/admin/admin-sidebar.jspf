@@ -10,6 +10,10 @@
     <span class="fn-admin-brand-text">FitNation</span>
   </div>
   <nav class="fn-admin-nav" aria-label="Admin navigation">
+    <a href="${ctx}/admin/clients" class="fn-admin-nav-item ${navSection == 'clients' ? 'active' : ''}">
+      <span class="fn-admin-nav-icon" aria-hidden="true">👥</span>
+      <span class="fn-admin-nav-label">Clients</span>
+    </a>
     <a href="${ctx}/admin/trainers" class="fn-admin-nav-item ${navSection == 'trainers' ? 'active' : ''}">
       <span class="fn-admin-nav-icon" aria-hidden="true">💪</span>
       <span class="fn-admin-nav-label">Trainers</span>

@@ -36,7 +36,7 @@ public class AdminMemberService {
     private final MemberValidator memberValidator;
     private final EmailService emailService;
 
-    @Value("${app.login-url}")
+    @Value("${fitnation.app.login-url}")
     private String loginUrl;
 
     public AdminMemberStatsResponse getMemberStats() {
