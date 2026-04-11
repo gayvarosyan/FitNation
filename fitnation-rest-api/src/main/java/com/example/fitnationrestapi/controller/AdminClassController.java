@@ -74,7 +74,7 @@ public class AdminClassController {
     }
 
     @GetMapping("/admin/group-classes")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<GroupClassResponse> listGroupClasses() {
         return groupClassService.listAllGroupClasses();
     }

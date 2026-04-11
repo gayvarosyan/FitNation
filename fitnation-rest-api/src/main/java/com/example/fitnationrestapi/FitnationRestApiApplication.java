@@ -4,10 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {
+@ComponentScan(
+        basePackages = {
         "com.example.fitnationrestapi",
         "com.example.fitnationweb",
         "com.example.fitnationuser",
@@ -15,7 +17,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.example.fitnationtrainer",
         "com.example.fitnationbooking",
         "com.example.fitnationcommon",
-        "com.fitnationnutrition"})
+        "com.fitnationnutrition"},
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.REGEX,
+                pattern = "com\\.example\\.fitnationweb\\.FitnationWebApplication"))
 @EntityScan(basePackages = {
         "com.example.fitnationuser",
         "com.example.fitnationmembership.model",

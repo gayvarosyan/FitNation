@@ -192,7 +192,7 @@ public class MembershipServiceImpl implements MembershipService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AdminMembershipRequestResponse> listMembershipRequestsForSuperAdmin(
+    public Page<AdminMembershipRequestResponse> listMembershipRequestsForAdmin(
             MembershipRequestStatus statusFilter,
             Pageable pageable) {
         Page<MembershipRequest> page = statusFilter == null
@@ -435,7 +435,7 @@ public class MembershipServiceImpl implements MembershipService {
     }
 
     private boolean canManageMembership(User currentUser, Membership membership) {
-        if (currentUser.getRole() == UserRole.ADMIN || currentUser.getRole() == UserRole.SUPER_ADMIN) {
+        if (currentUser.getRole() == UserRole.ADMIN) {
             return true;
         }
         return membership.getUser().getId().equals(currentUser.getId());
