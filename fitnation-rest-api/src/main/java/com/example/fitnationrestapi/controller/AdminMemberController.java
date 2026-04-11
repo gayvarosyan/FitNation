@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/admin/users")
+@RequestMapping("/api/admin/members")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminMemberController {
@@ -64,6 +64,15 @@ public class AdminMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMember);
     }
 
+    @PostMapping("/invite")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<MemberDetailResponse> inviteMember(
+            @Valid @RequestBody CreateMemberRequest request) {
+
+        MemberDetailResponse invited = adminMemberService.inviteMember(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(invited);
+    }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> updateMember(
@@ -74,8 +83,8 @@ public class AdminMemberController {
         return ResponseEntity.ok(updatedMember);
     }
 
-    @DeleteMapping("/api/admin/members/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
         adminMemberService.deleteMember(id);
         return ResponseEntity.noContent().build();

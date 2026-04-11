@@ -31,6 +31,7 @@ spring:
           auth: true
           starttls:
             enable: true
+
 jwt:
   secret: ${JWT_SECRET:fitnation-super-secret-key-must-be-at-least-32-characters-long}
   expiration: ${JWT_EXPIRATION:3600}
