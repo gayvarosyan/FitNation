@@ -28,6 +28,7 @@ class SecurityConfig {
     private final AuthEntryPoint authEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -46,6 +47,7 @@ class SecurityConfig {
                         .requestMatchers("/api/analytics/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers("/api/bookings/**").hasAnyRole("CLIENT", "TRAINER", "ADMIN")
                         .requestMatchers("/api/notifications/**").hasAnyRole("CLIENT", "TRAINER", "ADMIN")
+                        .requestMatchers("/api/conversations/**").hasAnyRole("CLIENT", "TRAINER")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

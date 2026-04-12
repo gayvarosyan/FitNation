@@ -7,6 +7,7 @@ import com.example.fitnationcommon.enums.ErrorCode;
 import com.example.fitnationcommon.exception.ClassBookingConflictException;
 import com.example.fitnationcommon.exception.ClassBookingNotFoundException;
 import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
+import com.example.fitnationcommon.exception.ConversationNotFoundException;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationcommon.exception.InvalidPasswordException;
 import com.example.fitnationcommon.exception.InvalidRoleException;
@@ -36,7 +37,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.time.Instant;
 import java.util.List;
 
@@ -69,6 +69,7 @@ public class GlobalExceptionHandler {
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
                 ApplicationConstants.VALIDATION_REQUEST_FAILED, request, fieldErrors);
+
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -140,6 +141,8 @@ public class GlobalExceptionHandler {
                 ex.getMessage(), request, null);
     }
 
+
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(
             AccessDeniedException ex, HttpServletRequest request) {
@@ -152,7 +155,8 @@ public class GlobalExceptionHandler {
             MembershipNotFoundException.class, MembershipTypeNotFoundException.class,
             NutritionPlanNotFoundException.class, ClassScheduleNotFoundException.class,
             ClassBookingNotFoundException.class, GroupClassNotFoundException.class,
-            MembershipRequestNotFoundException.class})
+            MembershipRequestNotFoundException.class, ConversationNotFoundException.class})
+
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException ex, HttpServletRequest request) {
 

@@ -84,6 +84,10 @@ public final class ApplicationConstants {
         public static final String USER_NOT_FOUND = "User not found: ";
         public static final String INVALID_CREDENTIALS = "Invalid credentials";
 
+        public static final String MSG_CONVERSATION_NOT_FOUND = "Conversation not found: ";
+        public static final String MSG_NOT_CONVERSATION_PARTICIPANT = "You are not a participant of this conversation";
+        public static final int CHAT_MESSAGE_MAX_LENGTH = 8000;
+
 
 
 }
