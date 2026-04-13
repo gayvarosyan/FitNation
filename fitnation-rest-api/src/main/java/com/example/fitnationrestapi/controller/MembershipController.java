@@ -39,7 +39,7 @@ public class MembershipController {
     }
 
     @PostMapping("/api/admin/membership-types")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MembershipTypeResponse> createMembershipType(
             @RequestBody CreateMembershipTypeRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -47,7 +47,7 @@ public class MembershipController {
     }
 
     @PutMapping("/api/admin/membership-types/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MembershipTypeResponse> updateMembershipType(
             @PathVariable Long id,
             @RequestBody CreateMembershipTypeRequest request) {
@@ -55,7 +55,7 @@ public class MembershipController {
     }
 
     @DeleteMapping("/api/admin/membership-types/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteMembershipType(@PathVariable Long id) {
         membershipService.deleteMembershipType(id);
         return ResponseEntity.noContent().build();
@@ -91,13 +91,13 @@ public class MembershipController {
     }
 
     @GetMapping("/api/admin/memberships")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminMembershipRecordResponse>> getAdminMemberships() {
         return ResponseEntity.ok(membershipService.getAdminMemberships());
     }
 
     @GetMapping("/api/admin/memberships/stats")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminMembershipStatsResponse> getAdminMembershipStats() {
         return ResponseEntity.ok(membershipService.getAdminMembershipStats());
     }

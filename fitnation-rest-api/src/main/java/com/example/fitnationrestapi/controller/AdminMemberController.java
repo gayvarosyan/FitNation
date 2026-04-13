@@ -32,13 +32,14 @@ public class AdminMemberController {
     private final AdminMemberService adminMemberService;
 
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminMemberStatsResponse> getMemberStats() {
+
         return ResponseEntity.ok(adminMemberService.getMemberStats());
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<MemberListResponse>> getMembers(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
@@ -49,13 +50,13 @@ public class AdminMemberController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> getMemberById(@PathVariable Long id) {
         return ResponseEntity.ok(adminMemberService.getMemberById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> createMember(
             @Valid @RequestBody CreateMemberRequest request) {
 
@@ -64,7 +65,7 @@ public class AdminMemberController {
     }
 
     @PostMapping("/invite")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> inviteMember(
             @Valid @RequestBody CreateMemberRequest request) {
 
@@ -73,7 +74,7 @@ public class AdminMemberController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> updateMember(
             @PathVariable Long id,
             @Valid @RequestBody UpdateMemberRequest request) {
@@ -83,7 +84,7 @@ public class AdminMemberController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
         adminMemberService.deleteMember(id);
         return ResponseEntity.noContent().build();

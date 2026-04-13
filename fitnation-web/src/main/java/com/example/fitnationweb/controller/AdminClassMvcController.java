@@ -38,7 +38,7 @@ public class AdminClassMvcController {
     private final TrainerManagementService trainerManagementService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public String page(Model model) {
         List<ClassScheduleItemResponse> schedules = groupClassService.getAllSchedules();
         List<ClassScheduleView> rows = new ArrayList<>();
