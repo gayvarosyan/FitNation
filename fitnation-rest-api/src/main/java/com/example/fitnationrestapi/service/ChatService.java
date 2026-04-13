@@ -26,8 +26,8 @@ import java.util.Objects;
 @Transactional
 public class ChatService {
 
-    private final ChatConversationRepository conversationRepo;
-    private final ChatMessageRepository messageRepo;
+    private final ChatConversationRepository conversationRepository;
+    private final ChatMessageRepository messageRepository;
     private final UserRepository userRepo;
 
     public ConversationResponse openOrGet(Long currentUserId, UserRole role,
@@ -42,39 +42,39 @@ public class ChatService {
             clientId  = Objects.requireNonNull(req.clientId(), "clientId is required");
         }
 
-        ChatConversation conv = conversationRepo
+        ChatConversation conversation = conversationRepository
                 .findByClientIdAndTrainerId(clientId, trainerId)
                 .orElseGet(() -> {
                     User client  = userRepo.getReferenceById(clientId);
                     User trainer = userRepo.getReferenceById(trainerId);
-                    ChatConversation c = new ChatConversation();
-                    c.setClient(client);
-                    c.setTrainer(trainer);
-                    return conversationRepo.save(c);
+                    ChatConversation newConversation = new ChatConversation();
+                    newConversation.setClient(client);
+                    newConversation.setTrainer(trainer);
+                    return conversationRepository.save(newConversation);
                 });
 
-        return toConvResponse(conv, null);
+        return toConvResponse(conversation, null);
     }
 
     @Transactional(readOnly = true)
     public Page<ConversationResponse> listConversations(Long userId, Pageable pageable) {
-        return conversationRepo.findAllByUserId(userId, pageable)
-                .map(c -> {
-                    Page<ChatMessage> last = messageRepo
-                            .findByConversationIdOrderByCreatedAtDesc(c.getId(), PageRequest.of(0, 1));
+        return conversationRepository.findAllByUserId(userId, pageable)
+                .map(conversation -> {
+                    Page<ChatMessage> last = messageRepository
+                            .findByConversationIdOrderByCreatedAtDesc(conversation.getId(), PageRequest.of(0, 1));
                     MessageResponse lastMsg = last.isEmpty() ? null
                             : toMsgResponse(last.getContent().get(0));
-                    return toConvResponse(c, lastMsg);
+                    return toConvResponse(conversation, lastMsg);
                 });
     }
 
     @Transactional(readOnly = true)
     public Page<MessageResponse> getMessages(Long userId, Long conversationId, Pageable pageable) {
-        ChatConversation conv = conversationRepo.findById(conversationId)
+        ChatConversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new ConversationNotFoundException(
                         ApplicationConstants.MSG_CONVERSATION_NOT_FOUND + conversationId));
-        assertParticipant(userId, conv);
-        return messageRepo
+        assertParticipant(userId, conversation);
+        return messageRepository
                 .findByConversationIdOrderByCreatedAtDesc(conversationId, pageable)
                 .map(this::toMsgResponse);
     }
@@ -83,31 +83,31 @@ public class ChatService {
         if (body == null || body.isBlank() || body.length() > ApplicationConstants.CHAT_MESSAGE_MAX_LENGTH)
             throw new IllegalArgumentException("Invalid message body");
 
-        ChatConversation conv = conversationRepo.findById(conversationId)
+        ChatConversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new ConversationNotFoundException(
                         ApplicationConstants.MSG_CONVERSATION_NOT_FOUND + conversationId));
-        assertParticipant(senderId, conv);
+        assertParticipant(senderId, conversation);
 
         User sender = userRepo.getReferenceById(senderId);
         ChatMessage msg = new ChatMessage();
-        msg.setConversation(conv);
+        msg.setConversation(conversation);
         msg.setSender(sender);
         msg.setBody(body);
-        ChatMessage saved = messageRepo.save(msg);
+        ChatMessage saved = messageRepository.save(msg);
 
-        conv.setLastMessageAt(saved.getCreatedAt());
+        conversation.setLastMessageAt(saved.getCreatedAt());
         return toMsgResponse(saved);
     }
 
-    private void assertParticipant(Long userId, ChatConversation conv) {
-        boolean ok = conv.getClient().getId().equals(userId)
-                || conv.getTrainer().getId().equals(userId);
+    private void assertParticipant(Long userId, ChatConversation conversation) {
+        boolean ok = conversation.getClient().getId().equals(userId)
+                || conversation.getTrainer().getId().equals(userId);
         if (!ok) throw new AccessDeniedException(ApplicationConstants.MSG_NOT_CONVERSATION_PARTICIPANT);
     }
 
-    private ConversationResponse toConvResponse(ChatConversation c, MessageResponse last) {
-        return new ConversationResponse(c.getId(), c.getClient().getId(),
-                c.getTrainer().getId(), c.getLastMessageAt(), last);
+    private ConversationResponse toConvResponse(ChatConversation conversation, MessageResponse last) {
+        return new ConversationResponse(conversation.getId(), conversation.getClient().getId(),
+                conversation.getTrainer().getId(), conversation.getLastMessageAt(), last);
     }
 
     private MessageResponse toMsgResponse(ChatMessage m) {

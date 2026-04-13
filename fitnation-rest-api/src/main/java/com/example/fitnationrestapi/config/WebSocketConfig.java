@@ -1,5 +1,6 @@
 package com.example.fitnationrestapi.config;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationuser.security.JwtService;
 import com.example.fitnationuser.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.security.access.AccessDeniedException;
 
 @Slf4j
 @Configuration
@@ -66,7 +68,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                                 new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
                         accessor.setUser(auth);
                     } else {
-                        throw new org.springframework.security.access.AccessDeniedException("Invalid token");
+                        throw new AccessDeniedException(ApplicationConstants.INVALID_TOKEN);
                     }
                 }
                 return message;

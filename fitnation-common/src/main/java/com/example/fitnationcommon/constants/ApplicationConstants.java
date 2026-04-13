@@ -98,6 +98,9 @@ public final class ApplicationConstants {
         public static final String MSG_CONVERSATION_NOT_FOUND = "Conversation not found: ";
         public static final String MSG_NOT_CONVERSATION_PARTICIPANT = "You are not a participant of this conversation";
         public static final int CHAT_MESSAGE_MAX_LENGTH = 8000;
+        public static final String MESSAGE_BODY_NOT_BLANK = "Message body cannot be blank";
+        public static final String MESSAGE_TOO_LONG = "Message too long";
+        public static final String INVALID_TOKEN = "Invalid token";
 
 
         public static final int MAX_FREEZE_DAYS = 90;
