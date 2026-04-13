@@ -95,6 +95,13 @@ public final class ApplicationConstants {
         public static final String FREEZE_ALREADY_REVIEWED = "This freeze request has already been reviewed.";
         public static final String RENEW_NOT_OWNER = "You can only renew your own membership.";
         public static final String RENEW_INVALID_STATUS = "EXPIRED or CANCELLED memberships cannot be renewed. Use re-purchase instead.";
+        public static final String MSG_CONVERSATION_NOT_FOUND = "Conversation not found: ";
+        public static final String MSG_NOT_CONVERSATION_PARTICIPANT = "You are not a participant of this conversation";
+        public static final int CHAT_MESSAGE_MAX_LENGTH = 8000;
+        public static final String MESSAGE_BODY_NOT_BLANK = "Message body cannot be blank";
+        public static final String MESSAGE_TOO_LONG = "Message too long";
+        public static final String INVALID_TOKEN = "Invalid token";
+
 
         public static final int MAX_FREEZE_DAYS = 90;
         public static final int MIN_NOTICE_DAYS = 1;
