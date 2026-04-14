@@ -10,5 +10,6 @@ public record TrainerDirectoryItem(
         String bio,
         String email,
         String phone,
-        UserStatus status
+        UserStatus status,
+        boolean invitationDeliveryFailed
 ) {}

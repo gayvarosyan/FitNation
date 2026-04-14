@@ -20,28 +20,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/super-admin")
+@RequestMapping("/api/admin/membership-requests")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-public class SuperAdminMembershipController {
+@PreAuthorize("hasRole('ADMIN')")
+public class AdminMembershipRequestController {
 
     private final MembershipService membershipService;
 
-    @GetMapping("/membership-requests")
+    @GetMapping
     public Page<AdminMembershipRequestResponse> listMembershipRequests(
             @RequestParam(required = false) MembershipRequestStatus status,
             @PageableDefault(size = 20) Pageable pageable) {
-        return membershipService.listMembershipRequestsForSuperAdmin(status, pageable);
+        return membershipService.listMembershipRequestsForAdmin(status, pageable);
     }
 
-    @PutMapping("/membership-requests/{id}/approve")
+    @PutMapping("/{id}/approve")
     public AdminMembershipRequestResponse approveMembershipRequest(
             @PathVariable Long id,
             @AuthenticationPrincipal User reviewer) {
         return membershipService.approveMembershipRequest(id, reviewer);
     }
 
-    @PutMapping("/membership-requests/{id}/reject")
+    @PutMapping("/{id}/reject")
     public AdminMembershipRequestResponse rejectMembershipRequest(
             @PathVariable Long id,
             @AuthenticationPrincipal User reviewer,

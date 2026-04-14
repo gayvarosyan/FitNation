@@ -1,18 +1,12 @@
 package com.example.fitnationweb.controller;
 
-import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.LoginRequest;
 import com.example.fitnationcommon.dto.request.RegisterRequest;
-import com.example.fitnationcommon.dto.response.AuthResponse;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.exception.InvalidPasswordException;
-import com.example.fitnationcommon.exception.InvalidRoleException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
-import com.example.fitnationtrainer.service.TrainerRegistrationService;
-import com.example.fitnationuser.security.JwtService;
 import com.example.fitnationuser.security.JwtSessionConstants;
-import com.example.fitnationuser.service.UserAuthService;
-import com.example.fitnationuser.service.UserRegistrationService;
+import com.example.fitnationweb.service.AuthWebService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -29,10 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequiredArgsConstructor
 public class AuthMvcController {
 
-    private final UserRegistrationService userRegistrationService;
-    private final TrainerRegistrationService trainerRegistrationService;
-    private final UserAuthService userAuthService;
-    private final JwtService jwtService;
+    private final AuthWebService authWebService;
 
     @GetMapping("/login")
     public String loginForm(@ModelAttribute("loginRequest") LoginRequest loginRequest) {
@@ -49,7 +40,7 @@ public class AuthMvcController {
             return "redirect:/login";
         }
         try {
-            var auth = loginAndBuildResponse(loginRequest.email(), loginRequest.password());
+            var auth = authWebService.login(loginRequest.email(), loginRequest.password());
             HttpSession session = request.getSession(true);
             session.setAttribute(JwtSessionConstants.ACCESS_TOKEN, auth.accessToken());
             return redirectPathAfterLogin(auth.role());
@@ -76,7 +67,16 @@ public class AuthMvcController {
             @RequestParam(required = false) String bio,
             RedirectAttributes redirectAttributes) {
         try {
-            register(buildRegisterRequest(firstName, lastName, email, password, phone, role, specialization, bio));
+            authWebService.register(new RegisterRequest(
+                    firstName.trim(),
+                    lastName.trim(),
+                    email.trim(),
+                    password,
+                    phone.trim(),
+                    role,
+                    specialization != null ? specialization.trim() : null,
+                    bio != null ? bio.trim() : null
+            ));
             redirectAttributes.addFlashAttribute("message", "Registration successful. You can log in now.");
             return "redirect:/login";
         } catch (Exception e) {
@@ -94,58 +94,11 @@ public class AuthMvcController {
         return "redirect:/login";
     }
 
-    private AuthResponse loginAndBuildResponse(String email, String rawPassword) {
-        var user = userAuthService.login(email, rawPassword);
-        String accessToken = jwtService.generateAccessToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
-        return new AuthResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getRole().name(),
-                user.getStatus().name(),
-                accessToken,
-                refreshToken,
-                "Bearer",
-                jwtService.getExpiration()
-        );
-    }
-
-    private void register(RegisterRequest request) {
-        if (request.role() != UserRole.CLIENT && request.role() != UserRole.TRAINER) {
-            throw new InvalidRoleException(ApplicationConstants.INVALID_ROLE);
-        }
-        if (request.role() == UserRole.CLIENT) {
-            userRegistrationService.register(request);
-            return;
-        }
-        trainerRegistrationService.register(request);
-    }
-
     private static String redirectPathAfterLogin(String role) {
-        if ("ADMIN".equals(role) || "SUPER_ADMIN".equals(role)) {
-            return "redirect:/admin/trainers";
-        }
-        return "redirect:/";
-    }
-
-    private static RegisterRequest buildRegisterRequest(
-            String firstName,
-            String lastName,
-            String email,
-            String password,
-            String phone,
-            UserRole role,
-            String specialization,
-            String bio) {
-        return new RegisterRequest(
-                firstName.trim(),
-                lastName.trim(),
-                email.trim(),
-                password,
-                phone.trim(),
-                role,
-                specialization != null ? specialization.trim() : null,
-                bio != null ? bio.trim() : null
-        );
+        return switch (role) {
+            case "ADMIN" -> "redirect:/admin/trainers";
+            case "CLIENT", "TRAINER" -> "redirect:/portal";
+            default -> "redirect:/portal";
+        };
     }
 }

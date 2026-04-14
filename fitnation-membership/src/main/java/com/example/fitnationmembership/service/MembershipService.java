@@ -36,7 +36,7 @@ public interface MembershipService {
 
     List<UserMembershipRequestResponse> getUserMembershipRequests(String userEmail);
 
-    Page<AdminMembershipRequestResponse> listMembershipRequestsForSuperAdmin(
+    Page<AdminMembershipRequestResponse> listMembershipRequestsForAdmin(
             MembershipRequestStatus statusFilter,
             Pageable pageable);
 
