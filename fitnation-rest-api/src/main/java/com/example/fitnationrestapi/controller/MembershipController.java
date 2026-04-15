@@ -11,6 +11,10 @@ import com.example.fitnationcommon.dto.response.MembershipTypeResponse;
 import com.example.fitnationcommon.dto.response.UserMembershipRequestResponse;
 import com.example.fitnationmembership.service.MembershipService;
 import com.example.fitnationuser.user.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,10 +33,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Memberships", description = "Membership types, purchases, requests, and admin membership management")
 public class MembershipController {
 
     private final MembershipService membershipService;
 
+    @Operation(summary = "List membership types", description = "Catalog of available membership plans (authenticated).")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Membership types returned"))
     @GetMapping("/api/membership-types")
     public ResponseEntity<List<MembershipTypeResponse>> getMembershipTypes() {
         return ResponseEntity.ok(membershipService.getAllMembershipTypes());
@@ -61,6 +68,11 @@ public class MembershipController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Purchase membership", description = "Creates an active membership for the authenticated user.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Membership created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request or business rule violation")
+    })
     @PostMapping("/api/users/memberships")
     public ResponseEntity<MembershipResponse> purchaseMembership(
             @AuthenticationPrincipal User user,
@@ -69,6 +81,8 @@ public class MembershipController {
                 .body(membershipService.purchaseMembership(user.getEmail(), request));
     }
 
+    @Operation(summary = "List current user's memberships")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Memberships returned"))
     @GetMapping("/api/users/memberships")
     public ResponseEntity<List<MembershipResponse>> getUserMemberships(
             @AuthenticationPrincipal User user) {

@@ -6,6 +6,10 @@ import com.example.fitnationcommon.dto.request.EditTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
 import com.example.fitnationtrainer.service.TrainerManagementService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +28,7 @@ import java.util.List;
 @RequestMapping("/api/trainers")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "Trainers (admin)", description = "Trainer directory and lifecycle (ADMIN only)")
 public class TrainerController {
 
     private final GroupClassService groupClassService;
@@ -34,11 +39,18 @@ public class TrainerController {
         return trainerManagementService.getStats();
     }
 
+    @Operation(summary = "Trainer directory")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Trainers returned"))
     @GetMapping
     public List<TrainerDirectoryItem> getDirectory() {
         return trainerManagementService.getDirectory();
     }
 
+    @Operation(summary = "Create trainer")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Trainer created"),
+            @ApiResponse(responseCode = "400", description = "Validation error")
+    })
     @PostMapping
     public TrainerDirectoryItem create(@Valid @RequestBody CreateTrainerRequest request) {
         return trainerManagementService.create(request);
