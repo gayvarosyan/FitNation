@@ -3,6 +3,7 @@ package com.example.fitnationcommon.validation;
 import com.example.fitnationcommon.dto.request.CreateMemberRequest;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.enums.UserStatus;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,15 @@ public class MemberValidator {
         }
         if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
             validatePassword(request.getPassword());
+        }
+        if (request.getStatus() != null) {
+            validateMemberUpdateStatus(request.getStatus());
+        }
+    }
+
+    private void validateMemberUpdateStatus(UserStatus status) {
+        if (status == UserStatus.PENDING || status == UserStatus.DELETED) {
+            throw new ValidationException("Status cannot be set to " + status + " via member update.");
         }
     }
 
