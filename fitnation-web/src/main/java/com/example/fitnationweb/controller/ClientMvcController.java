@@ -103,11 +103,12 @@ public class ClientMvcController {
         try {
             String pwd = password != null && !password.isBlank() ? password : null;
             UpdateMemberRequest request = new UpdateMemberRequest();
-            request.setFirstName(firstName.trim());
-            request.setLastName(lastName.trim());
+            request.setFirstName(firstName != null ? firstName.trim() : null);
+            request.setLastName(lastName != null ? lastName.trim() : null);
             request.setEmail(email != null && !email.isBlank() ? email.trim() : null);
-            request.setPhone(phone.trim());
+            request.setPhone(phone != null ? phone.trim() : null);
             request.setPassword(pwd);
+            request.setStatus(status);
             request.setAssignedTrainerId(assignedTrainerId);
             request.setAssignedNutritionPlanId(assignedNutritionPlanId);
             clientManagementService.edit(clientId, request);

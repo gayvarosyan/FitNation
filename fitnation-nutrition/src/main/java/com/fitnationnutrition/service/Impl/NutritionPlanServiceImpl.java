@@ -1,4 +1,4 @@
-package com.fitnationnutrition.service.Impl;
+package com.fitnationnutrition.service.impl;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.CreateNutritionPlanRequest;

@@ -169,8 +169,15 @@ public class AdminMemberService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
-        user.setAssignedTrainerId(request.getAssignedTrainerId());
-        user.setAssignedNutritionPlanId(request.getAssignedNutritionPlanId());
+        if (request.getAssignedTrainerId() != null) {
+            user.setAssignedTrainerId(request.getAssignedTrainerId());
+        }
+        if (request.getAssignedNutritionPlanId() != null) {
+            user.setAssignedNutritionPlanId(request.getAssignedNutritionPlanId());
+        }
+        if (request.getStatus() != null) {
+            user.setStatus(request.getStatus());
+        }
 
         User updatedUser = userRepository.save(user);
         log.info("Updated member with id: {}", updatedUser.getId());
