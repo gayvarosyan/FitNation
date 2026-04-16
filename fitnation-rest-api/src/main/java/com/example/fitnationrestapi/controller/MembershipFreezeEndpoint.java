@@ -9,6 +9,10 @@ import com.example.fitnationcommon.dto.response.MembershipResponse;
 import com.example.fitnationcommon.enums.FreezeRequestStatus;
 import com.example.fitnationmembership.service.MembershipFreezeService;
 import com.example.fitnationuser.user.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,10 +34,16 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Membership freeze", description = "Freeze requests, renewal, and admin review")
 public class MembershipFreezeEndpoint {
 
     private final MembershipFreezeService freezeService;
 
+    @Operation(summary = "Submit freeze request")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Request created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+    })
     @PostMapping("/api/users/memberships/{membershipId}/freeze-requests")
     public ResponseEntity<UserFreezeRequestResponse> submitFreezeRequest(
             @AuthenticationPrincipal User user,
@@ -43,6 +53,8 @@ public class MembershipFreezeEndpoint {
                 .body(freezeService.submitFreezeRequest(user, membershipId, request));
     }
 
+    @Operation(summary = "List freeze requests for membership")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Requests returned"))
     @GetMapping("/api/users/memberships/{membershipId}/freeze-requests")
     public ResponseEntity<List<UserFreezeRequestResponse>> getUserFreezeRequests(
             @AuthenticationPrincipal User user,
@@ -50,6 +62,11 @@ public class MembershipFreezeEndpoint {
         return ResponseEntity.ok(freezeService.getUserFreezeRequests(user, membershipId));
     }
 
+    @Operation(summary = "Renew membership", description = "Optional body for renewal parameters.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Membership renewed"),
+            @ApiResponse(responseCode = "400", description = "Cannot renew")
+    })
     @PostMapping("/api/users/memberships/{membershipId}/renew")
     public ResponseEntity<MembershipResponse> renewMembership(
             @AuthenticationPrincipal User user,
@@ -58,6 +75,8 @@ public class MembershipFreezeEndpoint {
         return ResponseEntity.ok(freezeService.renewMembership(user, membershipId, request));
     }
 
+    @Operation(summary = "List freeze requests (paged)", description = "ADMIN or CLIENT role per service rules.")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Page returned"))
     @GetMapping("/api/admin/membership-freeze-requests")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<Page<AdminFreezeRequestResponse>> listFreezeRequests(
@@ -66,6 +85,11 @@ public class MembershipFreezeEndpoint {
         return ResponseEntity.ok(freezeService.listFreezeRequests(status, pageable));
     }
 
+    @Operation(summary = "Approve freeze request")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Request approved"),
+            @ApiResponse(responseCode = "404", description = "Request not found")
+    })
     @PostMapping("/api/admin/membership-freeze-requests/{requestId}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<AdminFreezeRequestResponse> approveFreezeRequest(
@@ -74,6 +98,11 @@ public class MembershipFreezeEndpoint {
         return ResponseEntity.ok(freezeService.approveFreezeRequest(requestId, admin));
     }
 
+    @Operation(summary = "Reject freeze request", description = "Optional rejection body.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Request rejected"),
+            @ApiResponse(responseCode = "404", description = "Request not found")
+    })
     @PostMapping("/api/admin/membership-freeze-requests/{requestId}/reject")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
     public ResponseEntity<AdminFreezeRequestResponse> rejectFreezeRequest(
