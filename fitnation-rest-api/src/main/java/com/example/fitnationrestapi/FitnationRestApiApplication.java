@@ -6,6 +6,7 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @ComponentScan(
@@ -36,6 +37,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.example.fitnationbooking.repository",
         "com.fitnationnutrition.repository",
         "com.example.fitnationrestapi.repository"})
+@EnableScheduling
 public class FitnationRestApiApplication {
 
     public static void main(String[] args) {
