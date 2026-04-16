@@ -3,6 +3,7 @@ package com.example.fitnationrestapi.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.tags.Tag;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.OpenApiCustomizer;
@@ -35,7 +36,24 @@ public class OpenApiConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("JWT access token from `/api/auth/login` or `/api/auth/register`.")));
+                                        .description("JWT access token from `/api/auth/login` or `/api/auth/register`.")))
+                .addTagsItem(new Tag()
+                        .name("Chat WebSocket")
+                        .description("""
+                                **STOMP over WebSocket** (not HTTP). Implemented by `ChatWebSocketEndpont`.
+
+                                **SockJS / WebSocket endpoint:** `/ws/chat` (SockJS enabled on the same path).
+
+                                **Broker:** simple broker with prefix `/topic`. **Application destination prefix:** `/app`.
+
+                                **CONNECT (STOMP):** send a valid JWT either as STOMP connect header `Authorization: Bearer <token>` or as header `token: <raw-jwt>` (same token as REST).
+
+                                **Subscribe (STOMP):** destination `/topic/chat.{conversationId}` — server pushes `MessageResponse` JSON after sends.
+
+                                **Send message (STOMP):** destination `/app/chat.send.{conversationId}` with JSON body `{"body":"<message text>"}` (`SendMessageRequest`).
+
+                                **REST alternative:** `ChatEndpoint` under `/api/conversations` for HTTP chat APIs.
+                                """));
     }
 
     @Bean

@@ -6,6 +6,10 @@ import com.example.fitnationcommon.dto.response.AdminMemberStatsResponse;
 import com.example.fitnationcommon.dto.response.MemberDetailResponse;
 import com.example.fitnationcommon.dto.response.MemberListResponse;
 import com.example.fitnationuser.service.AdminMemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +31,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/members")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Admin members", description = "Member directory and lifecycle (ADMIN)")
 public class AdminMemberController {
 
     private final AdminMemberService adminMemberService;
 
+    @Operation(summary = "Member statistics")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Stats returned"))
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminMemberStatsResponse> getMemberStats() {
@@ -38,6 +45,8 @@ public class AdminMemberController {
         return ResponseEntity.ok(adminMemberService.getMemberStats());
     }
 
+    @Operation(summary = "List members (paged)")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Page returned"))
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<MemberListResponse>> getMembers(
@@ -49,12 +58,22 @@ public class AdminMemberController {
         return ResponseEntity.ok(adminMemberService.getMembers(page, size, search, status));
     }
 
+    @Operation(summary = "Get member by id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member returned"),
+            @ApiResponse(responseCode = "404", description = "Member not found")
+    })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> getMemberById(@PathVariable Long id) {
         return ResponseEntity.ok(adminMemberService.getMemberById(id));
     }
 
+    @Operation(summary = "Create member")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Member created"),
+            @ApiResponse(responseCode = "400", description = "Validation error")
+    })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> createMember(
@@ -64,6 +83,11 @@ public class AdminMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMember);
     }
 
+    @Operation(summary = "Invite member")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Invitation sent / member created"),
+            @ApiResponse(responseCode = "400", description = "Validation error")
+    })
     @PostMapping("/invite")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> inviteMember(
@@ -73,6 +97,11 @@ public class AdminMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(invited);
     }
 
+    @Operation(summary = "Update member")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member updated"),
+            @ApiResponse(responseCode = "404", description = "Member not found")
+    })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> updateMember(
@@ -83,6 +112,11 @@ public class AdminMemberController {
         return ResponseEntity.ok(updatedMember);
     }
 
+    @Operation(summary = "Delete member")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Member deleted"),
+            @ApiResponse(responseCode = "404", description = "Member not found")
+    })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {

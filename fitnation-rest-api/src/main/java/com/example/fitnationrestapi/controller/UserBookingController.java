@@ -52,6 +52,12 @@ public class UserBookingController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Cancel booking")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Booking cancelled"),
+            @ApiResponse(responseCode = "400", description = "Cannot cancel booking"),
+            @ApiResponse(responseCode = "404", description = "Booking not found")
+    })
     @PutMapping("/bookings/{id}/cancel")
     public ResponseEntity<Void> cancelBooking(@PathVariable Long id) {
         classBookingService.cancelBooking(id, currentUserId());

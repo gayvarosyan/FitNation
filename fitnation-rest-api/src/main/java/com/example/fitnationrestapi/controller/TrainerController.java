@@ -34,6 +34,8 @@ public class TrainerController {
     private final GroupClassService groupClassService;
     private final TrainerManagementService trainerManagementService;
 
+    @Operation(summary = "Trainer statistics")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Stats returned"))
     @GetMapping("/stats")
     public TrainerStatsResponse getStats() {
         return trainerManagementService.getStats();
@@ -56,6 +58,12 @@ public class TrainerController {
         return trainerManagementService.create(request);
     }
 
+    @Operation(summary = "Update trainer")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Trainer updated"),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "404", description = "Trainer not found")
+    })
     @PutMapping("/{id}")
     public TrainerDirectoryItem edit(
             @PathVariable Long id,
@@ -63,6 +71,11 @@ public class TrainerController {
         return trainerManagementService.edit(id, request);
     }
 
+    @Operation(summary = "Delete trainer", description = "Removes trainer and related group class data.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Trainer deleted"),
+            @ApiResponse(responseCode = "404", description = "Trainer not found")
+    })
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         groupClassService.deleteAllByTrainerId(id);
