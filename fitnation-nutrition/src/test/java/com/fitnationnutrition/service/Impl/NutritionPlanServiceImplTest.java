@@ -38,7 +38,7 @@ class NutritionPlanServiceImplTest {
     private NutritionPlanMapper mapper;
 
     @InjectMocks
-    private com.fitnationnutrition.service.impl.NutritionPlanServiceImpl nutritionPlanService;
+    private NutritionPlanServiceImpl nutritionPlanService;
 
     @Test
     void getStats_returnsTotalPlansAndActiveUsers() {
