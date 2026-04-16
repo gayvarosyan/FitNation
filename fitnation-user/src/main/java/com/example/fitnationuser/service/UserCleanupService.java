@@ -17,26 +17,39 @@ public class UserCleanupService {
 
     private final UserRepository userRepository;
 
-    @Scheduled(cron = "0 0 0 1/30 * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void cleanupSoftDeletedUsers() {
         log.info("Starting cleanup of soft-deleted users older than 30 days");
-        
+
         var cutoffDate = LocalDateTime.now().minusDays(30);
         var usersToDelete = userRepository.findUsersDeletedBefore(cutoffDate);
-        
+
         if (usersToDelete.isEmpty()) {
             log.info("No users found for permanent deletion");
             return;
         }
-        
+
         log.info("Found {} users for permanent deletion", usersToDelete.size());
-        
-        for (User user : usersToDelete) {
-            log.debug("Permanently deleting user: {} (ID: {})", user.getEmail(), user.getId());
-            userRepository.delete(user);
+
+        int deletedCount = 0;
+
+        try {
+            userRepository.deleteAll(usersToDelete);
+            deletedCount = usersToDelete.size();
+        } catch (Exception e) {
+            log.error("Batch delete failed, trying one by one", e);
+
+            for (User user : usersToDelete) {
+                try {
+                    userRepository.delete(user);
+                    deletedCount++;
+                } catch (Exception ex) {
+                    log.error("Failed to delete user {}", user.getId(), ex);
+                }
+            }
         }
-        
-        log.info("Completed cleanup of {} soft-deleted users", usersToDelete.size());
+
+        log.info("Completed cleanup of {} soft-deleted users", deletedCount);
     }
 }
