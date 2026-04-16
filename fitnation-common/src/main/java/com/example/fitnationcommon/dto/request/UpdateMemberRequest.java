@@ -1,5 +1,6 @@
 package com.example.fitnationcommon.dto.request;
 
+import com.example.fitnationcommon.enums.UserStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -31,4 +32,6 @@ public class UpdateMemberRequest {
     private Long assignedTrainerId;
 
     private Long assignedNutritionPlanId;
+
+    private UserStatus status;
 }
