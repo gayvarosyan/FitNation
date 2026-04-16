@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="036-create-device-login-sessions-table" author="dev">
+        <createTable tableName="device_login_sessions">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="initiator_user_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_device_session_user"
+                             references="users(id)"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="secret_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="consumed_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addDefaultValue tableName="device_login_sessions"
+                         columnName="status"
+                         defaultValue="PENDING"/>
+
+        <createIndex tableName="device_login_sessions"
+                     indexName="idx_device_login_sessions_user_id">
+            <column name="initiator_user_id"/>
+        </createIndex>
+
+        <createIndex tableName="device_login_sessions"
+                     indexName="idx_device_login_sessions_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -32,6 +32,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.example.fitnationuser.repository",
         "com.example.fitnationuser.payment",
         "com.example.fitnationmembership.repository",
+        "com.example.fitnationuser.device",
         "com.example.fitnationtrainer.repository",
         "com.example.fitnationbooking.repository",
         "com.fitnationnutrition.repository",

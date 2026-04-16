@@ -4,17 +4,17 @@ import com.example.fitnationcommon.dto.request.SendMessageRequest;
 import com.example.fitnationcommon.dto.response.MessageResponse;
 import com.example.fitnationrestapi.service.ChatService;
 import com.example.fitnationrestapi.support.CurrentUserHelper;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-public class ChatWebSocketEndpont {
+public class ChatWebSocketEndpoint {
 
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
