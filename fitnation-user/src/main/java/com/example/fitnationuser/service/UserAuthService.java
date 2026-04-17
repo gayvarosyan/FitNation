@@ -20,7 +20,7 @@ public class UserAuthService {
 
     public User login(String email, String rawPassword) {
         User user = userRepository.findByEmailAndDeletedAtIsNull(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MSG_USER_NOT_FOUND + email));
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new InvalidPasswordException(ApplicationConstants.PASSWORD_INVALID);
