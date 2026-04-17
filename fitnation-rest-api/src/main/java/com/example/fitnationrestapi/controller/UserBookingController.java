@@ -4,6 +4,10 @@ import com.example.fitnationbooking.service.ClassBookingService;
 import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationuser.user.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +27,7 @@ import java.util.List;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('CLIENT', 'TRAINER', 'ADMIN')")
+@Tag(name = "Bookings", description = "Class bookings for the authenticated user (CLIENT, TRAINER, or ADMIN)")
 public class UserBookingController {
 
     private final ClassBookingService classBookingService;
@@ -36,18 +41,31 @@ public class UserBookingController {
         throw new IllegalStateException(ApplicationConstants.UNEXPECTED_AUTHENTICATION);
     }
 
+    @Operation(summary = "Book a class", description = "Books the given schedule for the authenticated user.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Booking created"),
+            @ApiResponse(responseCode = "400", description = "Cannot book (e.g. full or invalid schedule)")
+    })
     @PostMapping("/classes/{scheduleId}/book")
     public ResponseEntity<Void> bookClass(@PathVariable Long scheduleId) {
         classBookingService.bookClass(scheduleId, currentUserId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Cancel booking")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Booking cancelled"),
+            @ApiResponse(responseCode = "400", description = "Cannot cancel booking"),
+            @ApiResponse(responseCode = "404", description = "Booking not found")
+    })
     @PutMapping("/bookings/{id}/cancel")
     public ResponseEntity<Void> cancelBooking(@PathVariable Long id) {
         classBookingService.cancelBooking(id, currentUserId());
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "List my bookings")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Bookings returned"))
     @GetMapping("/bookings")
     public List<UserBookingItemResponse> getUserBookings() {
         return classBookingService.getUserBookings(currentUserId());

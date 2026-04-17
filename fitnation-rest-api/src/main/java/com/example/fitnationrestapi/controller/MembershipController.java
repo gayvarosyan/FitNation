@@ -11,6 +11,10 @@ import com.example.fitnationcommon.dto.response.MembershipTypeResponse;
 import com.example.fitnationcommon.dto.response.UserMembershipRequestResponse;
 import com.example.fitnationmembership.service.MembershipService;
 import com.example.fitnationuser.user.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,15 +33,23 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Memberships", description = "Membership types, purchases, requests, and admin membership management")
 public class MembershipController {
 
     private final MembershipService membershipService;
 
+    @Operation(summary = "List membership types", description = "Catalog of available membership plans (authenticated).")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Membership types returned"))
     @GetMapping("/api/membership-types")
     public ResponseEntity<List<MembershipTypeResponse>> getMembershipTypes() {
         return ResponseEntity.ok(membershipService.getAllMembershipTypes());
     }
 
+    @Operation(summary = "Create membership type", description = "ADMIN: add a plan type.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Type created"),
+            @ApiResponse(responseCode = "400", description = "Validation error")
+    })
     @PostMapping("/api/admin/membership-types")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MembershipTypeResponse> createMembershipType(
@@ -46,6 +58,11 @@ public class MembershipController {
                 .body(membershipService.createMembershipType(request));
     }
 
+    @Operation(summary = "Update membership type", description = "ADMIN: update a plan type.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Type updated"),
+            @ApiResponse(responseCode = "404", description = "Type not found")
+    })
     @PutMapping("/api/admin/membership-types/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MembershipTypeResponse> updateMembershipType(
@@ -54,6 +71,11 @@ public class MembershipController {
         return ResponseEntity.ok(membershipService.updateMembershipType(id, request));
     }
 
+    @Operation(summary = "Delete membership type", description = "ADMIN: remove a plan type.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Type deleted"),
+            @ApiResponse(responseCode = "404", description = "Type not found")
+    })
     @DeleteMapping("/api/admin/membership-types/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteMembershipType(@PathVariable Long id) {
@@ -61,6 +83,11 @@ public class MembershipController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Purchase membership", description = "Creates an active membership for the authenticated user.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Membership created"),
+            @ApiResponse(responseCode = "400", description = "Invalid request or business rule violation")
+    })
     @PostMapping("/api/users/memberships")
     public ResponseEntity<MembershipResponse> purchaseMembership(
             @AuthenticationPrincipal User user,
@@ -69,6 +96,8 @@ public class MembershipController {
                 .body(membershipService.purchaseMembership(user.getEmail(), request));
     }
 
+    @Operation(summary = "List current user's memberships")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Memberships returned"))
     @GetMapping("/api/users/memberships")
     public ResponseEntity<List<MembershipResponse>> getUserMemberships(
             @AuthenticationPrincipal User user) {
@@ -76,6 +105,11 @@ public class MembershipController {
                 membershipService.getUserMemberships(user.getEmail()));
     }
 
+    @Operation(summary = "Submit membership request", description = "User requests a new membership plan change.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Request submitted"),
+            @ApiResponse(responseCode = "400", description = "Validation error")
+    })
     @PostMapping("/api/users/membership-requests")
     public ResponseEntity<UserMembershipRequestResponse> submitMembershipRequest(
             @AuthenticationPrincipal User user,
@@ -84,24 +118,36 @@ public class MembershipController {
                 .body(membershipService.submitMembershipRequest(user.getEmail(), request));
     }
 
+    @Operation(summary = "List my membership requests")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Requests returned"))
     @GetMapping("/api/users/membership-requests")
     public ResponseEntity<List<UserMembershipRequestResponse>> getUserMembershipRequests(
             @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(membershipService.getUserMembershipRequests(user.getEmail()));
     }
 
+    @Operation(summary = "List memberships (admin view)")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Records returned"))
     @GetMapping("/api/admin/memberships")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminMembershipRecordResponse>> getAdminMemberships() {
         return ResponseEntity.ok(membershipService.getAdminMemberships());
     }
 
+    @Operation(summary = "Membership statistics (admin)")
+    @ApiResponses(@ApiResponse(responseCode = "200", description = "Stats returned"))
     @GetMapping("/api/admin/memberships/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminMembershipStatsResponse> getAdminMembershipStats() {
         return ResponseEntity.ok(membershipService.getAdminMembershipStats());
     }
 
+    @Operation(summary = "Update membership", description = "Owner may update allowed fields on their membership.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Membership updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid update"),
+            @ApiResponse(responseCode = "404", description = "Membership not found")
+    })
     @PutMapping("/api/memberships/{id}")
     public ResponseEntity<MembershipResponse> updateMembership(
             @PathVariable Long id,
@@ -110,6 +156,11 @@ public class MembershipController {
         return ResponseEntity.ok(membershipService.updateMembership(id, request, user));
     }
 
+    @Operation(summary = "Cancel membership")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Membership cancelled"),
+            @ApiResponse(responseCode = "404", description = "Membership not found")
+    })
     @PutMapping("/api/memberships/{id}/cancel")
     public ResponseEntity<MembershipResponse> cancelMembership(
             @PathVariable Long id,
