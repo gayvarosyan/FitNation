@@ -1,4 +1,4 @@
-package com.example.fitnationuser.device;
+package com.example.fitnationuser.device.service.impl;
 
 import com.example.fitnationcommon.dto.response.CreateQrSessionResponse;
 import com.example.fitnationcommon.enums.DeviceSessionStatus;

@@ -10,7 +10,6 @@ import com.example.fitnationcommon.exception.QrSessionInvalidException;
 import com.example.fitnationcommon.exception.RateLimitExceededException;
 import com.example.fitnationuser.device.DeviceLoginSession;
 import com.example.fitnationuser.device.DeviceLoginSessionRepository;
-import com.example.fitnationuser.device.DeviceLoginSessionService;
 import com.example.fitnationuser.security.JwtService;
 import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
@@ -100,7 +99,6 @@ public class DeviceLoginSessionServiceImpl implements DeviceLoginSessionService 
 
         return session.getStatus();
     }
-
 
     private String[] parseQrPayload(String qrPayload) {
         var parts = qrPayload.split(":");
