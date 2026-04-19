@@ -21,8 +21,9 @@ import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 
 @Data
@@ -67,9 +68,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -78,15 +81,4 @@ public class User {
 
     @Column(name = "assigned_nutrition_plan_id")
     private Long assignedNutritionPlanId;
-
-    @jakarta.persistence.PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @jakarta.persistence.PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }
