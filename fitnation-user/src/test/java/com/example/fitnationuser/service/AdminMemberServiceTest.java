@@ -36,6 +36,8 @@ class AdminMemberServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private UserAdminService userAdminService;
+    @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
     private MemberValidator memberValidator;
