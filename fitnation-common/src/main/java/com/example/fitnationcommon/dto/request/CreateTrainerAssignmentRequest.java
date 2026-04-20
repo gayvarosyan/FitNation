@@ -17,7 +17,7 @@ public class CreateTrainerAssignmentRequest {
     @NotNull(message = ApplicationConstants.TRAINER_ID_REQUIRED)
     private Long trainerId;
 
-    @Size(max = 1000, message = ApplicationConstants.MESSAGE_MAX_SIZE)
+    @Size(max = ApplicationConstants.MESSAGE_MAX_LENGTH, message = ApplicationConstants.MESSAGE_MAX_SIZE)
     private String message;
 }
  

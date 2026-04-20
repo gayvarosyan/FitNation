@@ -115,5 +115,6 @@ public final class ApplicationConstants {
 
         public static final String REQUEST_ID_REQUIRED = "requestId is required";
         public static final String TRAINER_ID_REQUIRED = "trainerId is required";
+        public static final int MESSAGE_MAX_LENGTH = 1000;
         public static final String MESSAGE_MAX_SIZE = "Message must not exceed 1000 characters";
 }
