@@ -14,11 +14,13 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
 @Tag(name = "Chat WebSocket")
-public class ChatWebSocketEndpont {
+public class ChatWebSocketEndpoint {
 
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;

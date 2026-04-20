@@ -37,6 +37,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.example.fitnationcommon.exception.QrSessionExpiredException;
+import com.example.fitnationcommon.exception.QrSessionAlreadyUsedException;
+import com.example.fitnationcommon.exception.QrSessionInvalidException;
+import com.example.fitnationcommon.exception.RateLimitExceededException;
 import java.time.Instant;
 import java.util.List;
 
@@ -129,6 +133,34 @@ public class GlobalExceptionHandler {
             InvalidTokenException ex, HttpServletRequest request) {
         log.warn("Invalid token [{}]: {}", request.getRequestURI(), ex.getMessage());
         return build(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED,
+                ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(QrSessionExpiredException.class)
+    public ResponseEntity<ErrorResponse> handleQrExpired(
+            QrSessionExpiredException ex, HttpServletRequest request) {
+        return build(HttpStatus.GONE, ErrorCode.INVALID_ARGUMENT,
+                ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(QrSessionAlreadyUsedException.class)
+    public ResponseEntity<ErrorResponse> handleQrAlreadyUsed(
+            QrSessionAlreadyUsedException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, ErrorCode.CONFLICT,
+                ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(QrSessionInvalidException.class)
+    public ResponseEntity<ErrorResponse> handleQrInvalid(
+            QrSessionInvalidException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_ARGUMENT,
+                ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimit(
+            RateLimitExceededException ex, HttpServletRequest request) {
+        return build(HttpStatus.TOO_MANY_REQUESTS, ErrorCode.INVALID_ARGUMENT,
                 ex.getMessage(), request, null);
     }
 

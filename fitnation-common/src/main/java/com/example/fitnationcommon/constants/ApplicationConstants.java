@@ -101,8 +101,22 @@ public final class ApplicationConstants {
         public static final String MESSAGE_BODY_NOT_BLANK = "Message body cannot be blank";
         public static final String MESSAGE_TOO_LONG = "Message too long";
         public static final String INVALID_TOKEN = "Invalid token";
+        public static final String QR_INVALID_FORMAT = "Invalid QR payload format";
+        public static final String QR_INVALID_ENCODING = "Invalid QR payload encoding";
+        public static final String QR_SESSION_NOT_FOUND = "Session not found";
+        public static final String QR_ALREADY_USED = "QR code has already been used";
+        public static final String QR_REVOKED = "Session has been revoked";
+        public static final String QR_EXPIRED = "QR code has expired";
+        public static final String QR_INVALID_SECRET = "Invalid QR secret";
+        public static final String QR_NOT_YOUR_SESSION = "Not your session";
+        public static final String QR_RATE_LIMIT_EXCEEDED = "Too many QR sessions created. Try again later.";
 
 
         public static final int MAX_FREEZE_DAYS = 90;
         public static final int MIN_NOTICE_DAYS = 1;
+        public static final int QR_SESSION_TTL_MINUTES = 5;
+        public static final int QR_MAX_SESSIONS_PER_WINDOW = 5;
+        public static final int QR_RATE_LIMIT_WINDOW_MINUTES = 10;
+
+
 }
