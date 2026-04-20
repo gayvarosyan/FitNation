@@ -1,5 +1,6 @@
 package com.example.fitnationtrainer.service.impl;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.ApproveRejectTrainerRequestRequest;
 import com.example.fitnationcommon.dto.request.CreateTrainerAssignmentRequest;
 import com.example.fitnationcommon.dto.response.TrainerAssignmentRequestResponse;
@@ -12,8 +13,8 @@ import com.example.fitnationtrainer.mapper.TrainerAssignmentRequestMapper;
 import com.example.fitnationtrainer.mapper.TrainerMapper;
 import com.example.fitnationtrainer.repository.TrainerAssignmentRequestRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
+import com.example.fitnationtrainer.service.TrainerAssignmentService;
 import com.example.fitnationuser.repository.UserRepository;
-import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TrainerAssignmentServiceImpl {
+public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
 
     private final TrainerAssignmentRequestRepository requestRepository;
     private final TrainerRepository trainerRepository;
@@ -34,6 +35,7 @@ public class TrainerAssignmentServiceImpl {
     private final TrainerAssignmentRequestMapper mapper;
     private final TrainerMapper trainerMapper;
 
+    @Override
     public List<TrainerDirectoryItem> getActiveTrainersForClients() {
         return trainerRepository.findAllByDeletedAtIsNull()
                 .stream()
@@ -41,18 +43,21 @@ public class TrainerAssignmentServiceImpl {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public TrainerPublicProfileResponse getTrainerPublicProfile(Long trainerId, Long clientId) {
-        Trainer trainer = findActiveTrainerOrThrow(trainerId);
-        TrainerPublicProfileResponse response = mapper.toPublicProfileResponse(trainer);
+        var trainer = findActiveTrainerOrThrow(trainerId);
+        var response = mapper.toPublicProfileResponse(trainer);
 
-        User client = userRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
+        var client = userRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, ApplicationConstants.MSG_USER_NOT_FOUND + clientId));
 
-        boolean alreadyAssigned = trainerId.equals(client.getAssignedTrainerId());
-        boolean hasPending = requestRepository.existsByClient_IdAndStatus(clientId, TrainerAssignmentRequestStatus.PENDING);
-        boolean canRequest = !alreadyAssigned && !hasPending;
+        var alreadyAssigned = trainerId.equals(client.getAssignedTrainerId());
+        var hasPending = requestRepository.existsByClient_IdAndStatus(
+                clientId, TrainerAssignmentRequestStatus.PENDING);
+        var canRequest = !alreadyAssigned && !hasPending;
 
-        TrainerAssignmentRequestStatus existingStatus = requestRepository
+        var existingStatus = requestRepository
                 .findByClient_IdAndStatus(clientId, TrainerAssignmentRequestStatus.PENDING)
                 .filter(r -> r.getTrainer().getId().equals(trainerId))
                 .map(TrainerAssignmentRequest::getStatus)
@@ -62,26 +67,28 @@ public class TrainerAssignmentServiceImpl {
         return response;
     }
 
+    @Override
     @Transactional
     public TrainerAssignmentRequestResponse createAssignmentRequest(
             Long clientId, CreateTrainerAssignmentRequest request) {
 
-        Trainer trainer = findActiveTrainerOrThrow(request.getTrainerId());
+        var trainer = findActiveTrainerOrThrow(request.getTrainerId());
 
-        User client = userRepository.findById(clientId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
+        var client = userRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, ApplicationConstants.MSG_USER_NOT_FOUND + clientId));
 
         if (requestRepository.existsByClient_IdAndStatus(clientId, TrainerAssignmentRequestStatus.PENDING)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "You already have a pending trainer request.");
+                    ApplicationConstants.MSG_TRAINER_ASSIGNMENT_PENDING_EXISTS);
         }
 
         if (request.getTrainerId().equals(client.getAssignedTrainerId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "This trainer is already your assigned trainer.");
+                    ApplicationConstants.MSG_TRAINER_ALREADY_ASSIGNED);
         }
 
-        TrainerAssignmentRequest saved = requestRepository.save(
+        var saved = requestRepository.save(
                 TrainerAssignmentRequest.builder()
                         .client(client)
                         .trainer(trainer)
@@ -93,12 +100,14 @@ public class TrainerAssignmentServiceImpl {
         return mapper.toResponse(saved);
     }
 
+    @Override
     public List<TrainerAssignmentRequestResponse> getClientRequests(Long clientId) {
         return mapper.toResponseList(
                 requestRepository.findByClient_IdOrderByCreatedAtDesc(clientId)
         );
     }
 
+    @Override
     public List<TrainerAssignmentRequestResponse> getTrainerPendingRequests(Long trainerId) {
         return mapper.toResponseList(
                 requestRepository.findByTrainer_IdAndStatusOrderByCreatedAtDesc(
@@ -106,17 +115,17 @@ public class TrainerAssignmentServiceImpl {
         );
     }
 
+    @Override
     @Transactional
     public TrainerAssignmentRequestResponse approveRequest(
             Long trainerId, ApproveRejectTrainerRequestRequest request) {
 
-        TrainerAssignmentRequest tar = loadPendingRequestOwnedByTrainer(request.getRequestId(), trainerId);
-
-        User client = tar.getClient();
+        var tar = loadPendingRequestOwnedByTrainer(request.getRequestId(), trainerId);
+        var client = tar.getClient();
 
         if (client.getAssignedTrainerId() != null && !client.getAssignedTrainerId().equals(trainerId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Client already has an assigned trainer. They must unassign first.");
+                    ApplicationConstants.MSG_TRAINER_CLIENT_ALREADY_HAS_TRAINER);
         }
 
         tar.setStatus(TrainerAssignmentRequestStatus.APPROVED);
@@ -131,11 +140,12 @@ public class TrainerAssignmentServiceImpl {
         return mapper.toResponse(tar);
     }
 
+    @Override
     @Transactional
     public TrainerAssignmentRequestResponse rejectRequest(
             Long trainerId, ApproveRejectTrainerRequestRequest request) {
 
-        TrainerAssignmentRequest tar = loadPendingRequestOwnedByTrainer(request.getRequestId(), trainerId);
+        var tar = loadPendingRequestOwnedByTrainer(request.getRequestId(), trainerId);
 
         tar.setStatus(TrainerAssignmentRequestStatus.REJECTED);
         tar.setResolvedAt(LocalDateTime.now());
@@ -148,20 +158,23 @@ public class TrainerAssignmentServiceImpl {
 
     private Trainer findActiveTrainerOrThrow(Long trainerId) {
         return trainerRepository.findByIdAndDeletedAtIsNull(trainerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trainer not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, ApplicationConstants.MSG_TRAINER_NOT_FOUND + trainerId));
     }
 
     private TrainerAssignmentRequest loadPendingRequestOwnedByTrainer(Long requestId, Long trainerId) {
-        TrainerAssignmentRequest tar = requestRepository.findById(requestId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Request not found"));
+        var tar = requestRepository.findById(requestId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, ApplicationConstants.MSG_TRAINER_ASSIGNMENT_REQUEST_NOT_FOUND + requestId));
 
         if (!tar.getTrainer().getId().equals(trainerId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This request does not belong to you");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    ApplicationConstants.MSG_TRAINER_ASSIGNMENT_NOT_OWNER);
         }
 
         if (tar.getStatus() != TrainerAssignmentRequestStatus.PENDING) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Request is already " + tar.getStatus().name().toLowerCase());
+                    ApplicationConstants.MSG_TRAINER_ASSIGNMENT_NOT_PENDING + tar.getStatus().name().toLowerCase());
         }
 
         return tar;

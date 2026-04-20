@@ -27,7 +27,7 @@ import java.util.List;
 @RequestMapping("/api/trainer-assignments")
 @RequiredArgsConstructor
 @Tag(name = "Trainer Assignments", description = "Trainer-client assignment management")
-public class TrainerAssignmentController {
+public class TrainerAssignmentEndpoint {
 
     private final TrainerAssignmentServiceImpl trainerAssignmentService;
     private final CurrentUserHelper currentUserHelper;

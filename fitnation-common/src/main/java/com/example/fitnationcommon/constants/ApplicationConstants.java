@@ -105,4 +105,15 @@ public final class ApplicationConstants {
 
         public static final int MAX_FREEZE_DAYS = 90;
         public static final int MIN_NOTICE_DAYS = 1;
+
+        public static final String MSG_TRAINER_ASSIGNMENT_PENDING_EXISTS = "You already have a pending trainer request.";
+        public static final String MSG_TRAINER_ALREADY_ASSIGNED = "This trainer is already your assigned trainer.";
+        public static final String MSG_TRAINER_CLIENT_ALREADY_HAS_TRAINER = "Client already has an assigned trainer. They must unassign first.";
+        public static final String MSG_TRAINER_ASSIGNMENT_REQUEST_NOT_FOUND = "Trainer assignment request not found: ";
+        public static final String MSG_TRAINER_ASSIGNMENT_NOT_OWNER = "This request does not belong to you.";
+        public static final String MSG_TRAINER_ASSIGNMENT_NOT_PENDING = "Request is already ";
+
+        public static final String REQUEST_ID_REQUIRED = "requestId is required";
+        public static final String TRAINER_ID_REQUIRED = "trainerId is required";
+        public static final String MESSAGE_MAX_SIZE = "Message must not exceed 1000 characters";
 }

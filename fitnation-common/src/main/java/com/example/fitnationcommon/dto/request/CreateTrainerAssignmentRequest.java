@@ -1,5 +1,6 @@
 package com.example.fitnationcommon.dto.request;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -13,10 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateTrainerAssignmentRequest {
 
-    @NotNull(message = "trainerId is required")
+    @NotNull(message = ApplicationConstants.TRAINER_ID_REQUIRED)
     private Long trainerId;
 
-    @Size(max = 1000, message = "Message must not exceed 1000 characters")
+    @Size(max = 1000, message = ApplicationConstants.MESSAGE_MAX_SIZE)
     private String message;
 }
  
