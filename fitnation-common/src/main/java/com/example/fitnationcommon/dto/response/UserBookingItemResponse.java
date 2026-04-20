@@ -1,5 +1,6 @@
 package com.example.fitnationcommon.dto.response;
 
+import com.example.fitnationcommon.enums.BookingDisplayStatus;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
 
 import java.time.LocalDate;
@@ -12,5 +13,6 @@ public record UserBookingItemResponse(
         LocalDate date,
         LocalTime startTime,
         LocalTime endTime,
-        ClassBookingStatus status
+        ClassBookingStatus status,
+        BookingDisplayStatus displayStatus
 ) {}

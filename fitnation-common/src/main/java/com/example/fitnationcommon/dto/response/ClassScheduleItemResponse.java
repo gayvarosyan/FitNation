@@ -13,5 +13,8 @@ public record ClassScheduleItemResponse(
         LocalDate date,
         LocalTime startTime,
         LocalTime endTime,
-        Integer capacity
+        Integer capacity,
+        long bookedCount,
+        int spotsLeft,
+        boolean isFull
 ) {}
