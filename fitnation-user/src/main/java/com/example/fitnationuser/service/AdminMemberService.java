@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminMemberService {
 
     private final UserRepository userRepository;
+    private final UserAdminService userAdminService;
     private final PasswordEncoder passwordEncoder;
     private final MemberValidator memberValidator;
     private final EmailService emailService;
@@ -193,7 +194,7 @@ public class AdminMemberService {
                     return new UserNotFoundException(ApplicationConstants.MEMBER_NOT_FOUND + id);
                 });
 
-        userRepository.delete(user);
+        userAdminService.softDeleteUser(user.getId());
     }
 
     private MemberListResponse convertToMemberListResponse(User user) {
