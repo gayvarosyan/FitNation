@@ -73,7 +73,7 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
         String adminPassword = request.password();
         Trainer trainer = trainerMapper.toTrainer(request);
         trainer.setPassword(passwordEncoder.encode(adminPassword));
-        trainer.setRole(UserRole.CLIENT);
+        trainer.setRole(UserRole.TRAINER);
         trainer.setStatus(UserStatus.PENDING);
         trainer = trainerRepository.save(trainer);
         log.info(
