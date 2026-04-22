@@ -1,7 +1,9 @@
 package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationbooking.service.ClassBookingService;
+import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
+import com.example.fitnationcommon.enums.BookingDisplayStatus;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
@@ -36,11 +38,14 @@ class UserBookingControllerApiTest {
     @Mock
     private ClassBookingService classBookingService;
 
+    @Mock
+    private GroupClassService groupClassService;
+
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new UserBookingController(classBookingService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new UserBookingController(classBookingService, groupClassService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
@@ -69,7 +74,8 @@ class UserBookingControllerApiTest {
                         LocalDate.of(2026, 4, 20),
                         LocalTime.of(9, 0),
                         LocalTime.of(10, 0),
-                        ClassBookingStatus.BOOKED
+                        ClassBookingStatus.BOOKED,
+                        BookingDisplayStatus.UPCOMING
                 )));
 
         mockMvc.perform(get("/api/users/bookings"))
