@@ -54,10 +54,13 @@ public class GroupClassMapper {
         );
     }
 
-    public ClassScheduleItemResponse toScheduleItemResponse(ClassSchedule schedule) {
+    public ClassScheduleItemResponse toScheduleItemResponse(ClassSchedule schedule, long bookedCount) {
         var groupClass = schedule.getGroupClass();
         var trainer = groupClass.getTrainer();
         var trainerName = trainer.getFirstName() + " " + trainer.getLastName();
+        int capacity = groupClass.getCapacity() != null ? groupClass.getCapacity() : 0;
+        int spotsLeft = (int) Math.max(0, capacity - bookedCount);
+        boolean isFull = spotsLeft == 0;
         return new ClassScheduleItemResponse(
                 schedule.getId(),
                 groupClass.getId(),
@@ -68,7 +71,10 @@ public class GroupClassMapper {
                 schedule.getDate(),
                 schedule.getStartTime(),
                 schedule.getEndTime(),
-                groupClass.getCapacity()
+                capacity,
+                bookedCount,
+                spotsLeft,
+                isFull
         );
     }
 }

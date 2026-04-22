@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.DayOfWeek;
@@ -40,7 +39,7 @@ public class AdminClassMvcController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public String page(Model model) {
-        List<ClassScheduleItemResponse> schedules = groupClassService.getAllSchedules();
+        List<ClassScheduleItemResponse> schedules = groupClassService.getAllSchedules(null, null, null, null);
         List<ClassScheduleView> rows = new ArrayList<>();
         for (ClassScheduleItemResponse s : schedules) {
             rows.add(new ClassScheduleView(s, toHm(s.startTime()), toHm(s.endTime())));
