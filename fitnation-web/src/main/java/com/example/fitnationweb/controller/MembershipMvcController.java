@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -40,10 +41,11 @@ public class MembershipMvcController {
     @GetMapping
     public String page(Model model) {
         model.addAttribute("membershipTypes", membershipService.getAllMembershipTypes());
-        model.addAttribute("records", membershipService.getAdminMemberships());
+        model.addAttribute("records", membershipService.getAdminMemberships(
+                PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "startDate")), null, null).getContent());
         model.addAttribute("stats", membershipService.getAdminMembershipStats());
         model.addAttribute("nutritionPlans", nutritionPlanService.getPlanCatalog());
-        model.addAttribute("trainerOptions", trainerManagementService.getDirectory());
+        model.addAttribute("trainerOptions", trainerManagementService.getDirectory(0, 100, null, null, null).getItems());
         model.addAttribute("groupClasses", groupClassService.listAllGroupClasses());
         model.addAttribute("navSection", "subscriptions");
         return "admin/subscriptions";

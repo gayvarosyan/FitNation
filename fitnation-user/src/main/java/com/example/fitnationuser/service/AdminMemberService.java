@@ -2,10 +2,12 @@ package com.example.fitnationuser.service;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.CreateMemberRequest;
+import com.example.fitnationcommon.dto.request.PageRequestParams;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
 import com.example.fitnationcommon.dto.response.AdminMemberStatsResponse;
 import com.example.fitnationcommon.dto.response.MemberDetailResponse;
 import com.example.fitnationcommon.dto.response.MemberListResponse;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
@@ -18,12 +20,11 @@ import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -55,23 +56,37 @@ public class AdminMemberService {
                 .build();
     }
 
-    public Page<MemberListResponse> getMembers(Integer page, Integer size, String search, String status) {
-        Pageable pageable = PageRequest.of(page, size);
+    public PagedResponse<MemberListResponse> getMembers(Integer page, Integer size, String sort, String q, String status) {
+        Pageable pageable = PageRequestParams.toPageable(page, size, sort,
+                Set.of("createdAt", "firstName", "lastName", "email", "status"));
+
         UserStatus userStatus = status != null ? UserStatus.valueOf(status.toUpperCase()) : null;
-        boolean hasSearch = search != null && !search.trim().isEmpty();
+        boolean hasSearch = q != null && !q.trim().isEmpty();
 
         Page<User> userPage;
         if (hasSearch && userStatus != null) {
-            userPage = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, search, pageable);
+            userPage = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, q, pageable);
         } else if (hasSearch) {
-            userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, search, pageable);
+            userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, q, pageable);
         } else if (userStatus != null) {
             userPage = userRepository.findByRoleAndStatus(UserRole.CLIENT, userStatus, pageable);
         } else {
             userPage = userRepository.findByRole(UserRole.CLIENT, pageable);
         }
 
-        return userPage.map(this::convertToMemberListResponse);
+        return PagedResponse.of(userPage.map(this::convertToMemberListResponse), sort);
+    }
+
+    private Sort parseSort(String sort) {
+        if (sort == null || !sort.contains(",")) {
+            return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+        String[] parts = sort.split(",", 2);
+        String field = parts[0].trim();
+        Sort.Direction direction = parts[1].trim().equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+        return Sort.by(direction, field);
     }
 
     public MemberDetailResponse getMemberById(Long id) {

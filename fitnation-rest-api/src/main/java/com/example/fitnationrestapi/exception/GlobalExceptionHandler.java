@@ -24,6 +24,7 @@ import com.example.fitnationcommon.exception.UserBlockedException;
 import com.example.fitnationcommon.exception.UserInactiveException;
 import com.example.fitnationcommon.exception.UserPendingException;
 import com.example.fitnationcommon.exception.InvalidTokenException;
+import com.example.fitnationcommon.exception.InvalidFilterException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
@@ -108,6 +109,13 @@ public class GlobalExceptionHandler {
             IllegalArgumentException ex, HttpServletRequest request) {
         log.warn("Bad request [{}]: {}", request.getRequestURI(), ex.getMessage());
         return build(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_ARGUMENT,
+                ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(InvalidFilterException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidFilter(
+            InvalidFilterException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_FILTER,
                 ex.getMessage(), request, null);
     }
 

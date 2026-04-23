@@ -126,6 +126,7 @@ public final class ApplicationConstants {
         public static final String TRAINER_ID_REQUIRED = "trainerId is required";
         public static final int MESSAGE_MAX_LENGTH = 1000;
         public static final String MESSAGE_MAX_SIZE = "Message must not exceed 1000 characters";
+        public static final String INVALID_FILTER_DATE_RANGE = "fromDate must be earlier than or equal to toDate";
   
         public static final int QR_SESSION_TTL_MINUTES = 5;
         public static final int QR_MAX_SESSIONS_PER_WINDOW = 5;

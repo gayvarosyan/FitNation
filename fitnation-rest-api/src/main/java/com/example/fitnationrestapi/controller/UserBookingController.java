@@ -3,8 +3,11 @@ package com.example.fitnationrestapi.controller;
 import com.example.fitnationbooking.service.ClassBookingService;
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.dto.request.ClassScheduleFilterRequest;
 import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
+import com.example.fitnationcommon.dto.response.PagedResponse;
+import com.example.fitnationcommon.enums.ScheduleFilterStatus;
 import com.example.fitnationuser.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,14 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -46,14 +42,38 @@ public class UserBookingController {
         throw new IllegalStateException(ApplicationConstants.UNEXPECTED_AUTHENTICATION);
     }
 
+    @Operation(
+            summary = "List available classes (paged)",
+            description = """
+                Searchable, paginated list of available group class schedules.
+
+                **q** searches (case-insensitive, partial match):
+                • class name  
+                • trainer firstName  
+                • trainer lastName  
+
+                **sort** allowed fields: date, startTime, createdAt  
+                Example: `date,asc`
+
+                **size** max: 100, default: 20  
+                **page** 0-based, default: 0  
+
+                **dateFrom / dateTo** optional ISO date range filter (yyyy-MM-dd)  
+                **trainerId** optional filter by trainer
+                """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Page returned"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination params (bad sort field, negative page, size > 100)")
+    })
     @GetMapping("/classes")
     public List<ClassScheduleItemResponse> getAvailableClasses(
-            @RequestParam(required = false) LocalDate dateFrom,
-            @RequestParam(required = false) LocalDate dateTo,
             @RequestParam(required = false) Long trainerId,
-            @RequestParam(required = false) String className
+            @RequestParam(required = false) LocalDate fromDate,
+            @RequestParam(required = false) LocalDate toDate,
+            @RequestParam(required = false) ScheduleFilterStatus status
     ) {
-        return groupClassService.getAllSchedules(dateFrom, dateTo, trainerId, className);
+        return groupClassService.getAllSchedules(new ClassScheduleFilterRequest(trainerId, fromDate, toDate, status));
     }
 
     @Operation(summary = "Book a class", description = "Books the given schedule for the authenticated user.")
@@ -78,11 +98,33 @@ public class UserBookingController {
         classBookingService.cancelBooking(id, currentUserId());
         return ResponseEntity.noContent().build();
     }
+    @Operation(
+            summary = "List my bookings (paged)",
+            description = """
+                Paginated booking history for the authenticated user.
 
-    @Operation(summary = "List my bookings")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Bookings returned"))
+                **sort** allowed fields: date, status, createdAt  
+                Example: `date,desc`
+
+                **size** max: 100, default: 20  
+                **page** 0-based, default: 0  
+
+                **status** optional filter: BOOKED, CANCELLED, ATTENDED  
+
+                **q** — not supported for this endpoint (ignored).
+                """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Bookings returned"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination params (bad sort field, negative page, size > 100)")
+    })
     @GetMapping("/bookings")
-    public List<UserBookingItemResponse> getUserBookings() {
-        return classBookingService.getUserBookings(currentUserId());
+    public PagedResponse<UserBookingItemResponse> getUserBookings(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort,
+            @RequestParam(required = false) String status) {
+
+        return classBookingService.getUserBookings(currentUserId(), page, size, sort, status);
     }
 }

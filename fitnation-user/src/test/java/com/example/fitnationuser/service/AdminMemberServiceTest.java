@@ -19,10 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
-
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -113,23 +111,52 @@ class AdminMemberServiceTest {
     }
 
     @Test
-    void getMembers_withSearchAndStatus_usesFilteredRepositoryCall() {
+    void getMembers_invalidSortField_throwsIllegalArgument() {
+        assertThrows(IllegalArgumentException.class, () ->
+                adminMemberService.getMembers(0, 20, "invalidField,desc", null, null));
+    }
+
+    @Test
+    void getMembers_negativePage_throwsIllegalArgument() {
+        assertThrows(IllegalArgumentException.class, () ->
+                adminMemberService.getMembers(-1, 20, "createdAt,desc", null, null));
+    }
+
+    @Test
+    void getMembers_oversizedPage_throwsIllegalArgument() {
+        assertThrows(IllegalArgumentException.class, () ->
+                adminMemberService.getMembers(0, 999, "createdAt,desc", null, null));
+    }
+
+    @Test
+    void getMembers_withQ_usesSearchQuery() {
         User user = User.builder()
-                .id(7L)
-                .firstName("Jon")
-                .lastName("Doe")
-                .email("jon@test.com")
-                .phone("555")
-                .status(UserStatus.ACTIVE)
-                .role(UserRole.CLIENT)
+                .id(7L).firstName("Jon").lastName("Doe")
+                .email("jon@test.com").phone("555")
+                .status(UserStatus.ACTIVE).role(UserRole.CLIENT)
+                .build();
+        when(userRepository.findByRoleAndSearch(eq(UserRole.CLIENT), eq("jon"), any()))
+                .thenReturn(new PageImpl<>(List.of(user)));
+
+        var result = adminMemberService.getMembers(0, 20, "createdAt,desc", "jon", null);
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals("jon@test.com", result.getItems().get(0).getEmail());
+    }
+
+    @Test
+    void getMembers_withQAndStatus_usesFilteredRepositoryCall() {
+        User user = User.builder()
+                .id(7L).firstName("Jon").lastName("Doe")
+                .email("jon@test.com").phone("555")
+                .status(UserStatus.ACTIVE).role(UserRole.CLIENT)
                 .build();
         when(userRepository.findByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
                 .thenReturn(new PageImpl<>(List.of(user)));
 
-        var page = adminMemberService.getMembers(0, 20, "jon", "active");
+        var result = adminMemberService.getMembers(0, 20, "createdAt,desc", "jon", "active");
 
-        assertEquals(1, page.getTotalElements());
-        assertEquals("jon@test.com", page.getContent().get(0).getEmail());
-        verify(userRepository).findByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any());
+        assertEquals(1, result.getTotalElements());
+        assertEquals("jon@test.com", result.getItems().get(0).getEmail());
     }
 }

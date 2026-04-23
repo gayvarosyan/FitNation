@@ -31,7 +31,7 @@ public class TrainerMvcController {
     @GetMapping
     public String page(Model model) {
         model.addAttribute("stats", trainerManagementService.getStats());
-        model.addAttribute("trainers", trainerManagementService.getDirectory());
+        model.addAttribute("trainers", trainerManagementService.getDirectory(0, 100, null, null, null).getItems());
         model.addAttribute("navSection", "trainers");
         return "admin/trainers";
     }

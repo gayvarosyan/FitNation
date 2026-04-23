@@ -1,6 +1,7 @@
 package com.example.fitnationweb.controller;
 
 import com.example.fitnationbooking.service.GroupClassService;
+import com.example.fitnationcommon.dto.request.ClassScheduleFilterRequest;
 import com.example.fitnationcommon.dto.request.CreateGroupClassRequest;
 import com.example.fitnationcommon.dto.request.ScheduleClassRequest;
 import com.example.fitnationcommon.dto.request.UpdateGroupClassRequest;
@@ -39,13 +40,13 @@ public class AdminClassMvcController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public String page(Model model) {
-        List<ClassScheduleItemResponse> schedules = groupClassService.getAllSchedules(null, null, null, null);
+        List<ClassScheduleItemResponse> schedules = groupClassService.getAllSchedules(null);
         List<ClassScheduleView> rows = new ArrayList<>();
         for (ClassScheduleItemResponse s : schedules) {
             rows.add(new ClassScheduleView(s, toHm(s.startTime()), toHm(s.endTime())));
         }
         model.addAttribute("scheduleRows", rows);
-        model.addAttribute("trainerOptions", trainerManagementService.getDirectory());
+        model.addAttribute("trainerOptions", trainerManagementService.getDirectory(0, 100, null, null, null).getItems());
         model.addAttribute("navSection", "classes");
         model.addAttribute("classesThisWeek", countClassesThisWeek(schedules));
         model.addAttribute("totalSchedules", schedules.size());

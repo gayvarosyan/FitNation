@@ -15,7 +15,6 @@ import com.example.fitnationcommon.enums.MembershipRequestStatus;
 import com.example.fitnationuser.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import java.util.List;
 
 public interface MembershipService {
@@ -30,7 +29,7 @@ public interface MembershipService {
 
     MembershipResponse purchaseMembership(String email, PurchaseMembershipRequest request);
 
-    List<MembershipResponse> getUserMemberships(String email);
+    Page<MembershipResponse> getUserMemberships(String email, Pageable pageable);
 
     UserMembershipRequestResponse submitMembershipRequest(String userEmail, SubmitMembershipRequest request);
 
@@ -51,7 +50,7 @@ public interface MembershipService {
 
     MembershipResponse updateMembership(Long membershipId, UpdateMembershipRequest request, User currentUser);
 
-    List<AdminMembershipRecordResponse> getAdminMemberships();
+    Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status);
 
     AdminMembershipStatsResponse getAdminMembershipStats();
 }

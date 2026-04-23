@@ -6,6 +6,7 @@ import com.example.fitnationcommon.dto.request.EditTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
 import com.example.fitnationtrainer.service.TrainerManagementService;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -20,9 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/trainers")
@@ -41,11 +41,38 @@ public class TrainerController {
         return trainerManagementService.getStats();
     }
 
-    @Operation(summary = "Trainer directory")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Trainers returned"))
+    @Operation(
+            summary = "Trainer directory (paged)",
+            description = """
+            Searchable, paginated trainer directory.
+
+            **q** searches (case-insensitive, partial match):  
+            • firstName  
+            • lastName  
+            • email  
+
+            **sort** allowed fields: lastName, firstName, email, status, createdAt  
+            Example: `lastName,asc`
+
+            **size** max: 100 (default: 20)  
+            **page** 0-based (default: 0)
+
+            **status** optional filter: ACTIVE, PENDING, BLOCKED, DELETED
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Page returned"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination params (bad sort field, negative page, size > 100)")
+    })
     @GetMapping
-    public List<TrainerDirectoryItem> getDirectory() {
-        return trainerManagementService.getDirectory();
+    public PagedResponse<TrainerDirectoryItem> getDirectory(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "lastName,asc") String sort,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String status) {
+
+        return trainerManagementService.getDirectory(page, size, sort, q, status);
     }
 
     @Operation(summary = "Create trainer")

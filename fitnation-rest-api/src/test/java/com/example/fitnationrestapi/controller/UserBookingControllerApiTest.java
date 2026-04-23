@@ -2,6 +2,7 @@ package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationbooking.service.ClassBookingService;
 import com.example.fitnationbooking.service.GroupClassService;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationcommon.enums.BookingDisplayStatus;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
@@ -20,11 +21,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -68,21 +69,38 @@ class UserBookingControllerApiTest {
     @Test
     void getUserBookings_returns200_withPayload() throws Exception {
         setAuthenticatedUser(42L);
-        when(classBookingService.getUserBookings(42L)).thenReturn(List.of(
+
+        List<UserBookingItemResponse> items = List.of(
                 new UserBookingItemResponse(
-                        10L, "Yoga Flow", "Ann Trainer",
+                        10L,
+                        "Yoga Flow",
+                        "Ann Trainer",
                         LocalDate.of(2026, 4, 20),
                         LocalTime.of(9, 0),
                         LocalTime.of(10, 0),
                         ClassBookingStatus.BOOKED,
                         BookingDisplayStatus.UPCOMING
-                )));
+                )
+        );
+
+        PagedResponse<UserBookingItemResponse> pagedResponse = PagedResponse.<UserBookingItemResponse>builder()
+                .items(items)
+                .page(0)
+                .size(20)
+                .totalElements(1)
+                .totalPages(1)
+                .hasNext(false)
+                .sort("date,desc")
+                .build();
+
+        when(classBookingService.getUserBookings(anyLong(), any(), any(), any(), any()))
+                .thenReturn(pagedResponse);
 
         mockMvc.perform(get("/api/users/bookings"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].bookingId").value(10))
-                .andExpect(jsonPath("$[0].className").value("Yoga Flow"))
-                .andExpect(jsonPath("$[0].status").value("BOOKED"));
+                .andExpect(jsonPath("$.items[0].bookingId").value(10))
+                .andExpect(jsonPath("$.items[0].className").value("Yoga Flow"))
+                .andExpect(jsonPath("$.items[0].status").value("BOOKED"));
     }
 
     private void setAuthenticatedUser(Long userId) {
