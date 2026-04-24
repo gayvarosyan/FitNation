@@ -102,7 +102,7 @@ public class AdminClassController {
     @ApiResponses(@ApiResponse(responseCode = "200", description = "Schedules returned"))
     @GetMapping("/classes/schedule")
     public List<ClassScheduleItemResponse> getAllSchedules() {
-        return groupClassService.getAllSchedules();
+        return groupClassService.getAllSchedules(null, null, null, null);
     }
 
     @Operation(summary = "List group classes", description = "ADMIN: list all group class templates.")

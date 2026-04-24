@@ -10,6 +10,7 @@ import com.example.fitnationcommon.dto.request.ScheduleClassRequest;
 import com.example.fitnationcommon.dto.request.UpdateGroupClassRequest;
 import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationcommon.dto.response.GroupClassResponse;
+import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.GroupClassNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
@@ -18,7 +19,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -54,7 +55,7 @@ public class GroupClassService {
         var loaded = classScheduleRepository.findByIdWithClassAndTrainer(saved.getId())
                 .orElseThrow(() -> new ClassScheduleNotFoundException(
                         ApplicationConstants.MSG_SCHEDULE_NOT_FOUND_AFTER_SAVE + saved.getId()));
-        return groupClassMapper.toScheduleItemResponse(loaded);
+        return groupClassMapper.toScheduleItemResponse(loaded, 0L);
     }
 
     @Transactional
@@ -85,7 +86,7 @@ public class GroupClassService {
         var loaded = classScheduleRepository.findByIdWithClassAndTrainer(saved.getId())
                 .orElseThrow(() -> new ClassScheduleNotFoundException(
                         ApplicationConstants.MSG_SCHEDULE_NOT_FOUND_AFTER_UPDATE + saved.getId()));
-        return groupClassMapper.toScheduleItemResponse(loaded);
+        return groupClassMapper.toScheduleItemResponse(loaded, 0L);
     }
 
     @Transactional
@@ -94,12 +95,21 @@ public class GroupClassService {
     }
 
     @Transactional
-    public List<ClassScheduleItemResponse> getAllSchedules() {
-        return classScheduleRepository.findAllWithClassAndTrainer()
+    public List<ClassScheduleItemResponse> getAllSchedules(
+            LocalDate dateFrom,
+            LocalDate dateTo,
+            Long trainerId,
+            String className
+    ) {
+        return classScheduleRepository.findAllWithFilters(dateFrom, dateTo, trainerId, className)
                 .stream()
-                .map(groupClassMapper::toScheduleItemResponse)
+                .map(s -> {
+                    long booked = classBookingRepository.countByScheduleAndStatus(s, ClassBookingStatus.BOOKED);
+                    return groupClassMapper.toScheduleItemResponse(s, booked);
+                })
                 .toList();
     }
+
 
     @Transactional
     public List<GroupClassResponse> listAllGroupClasses() {

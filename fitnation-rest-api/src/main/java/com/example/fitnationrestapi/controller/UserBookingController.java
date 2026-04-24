@@ -1,7 +1,9 @@
 package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationbooking.service.ClassBookingService;
+import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationuser.user.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,8 +21,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -31,6 +35,7 @@ import java.util.List;
 public class UserBookingController {
 
     private final ClassBookingService classBookingService;
+    private final GroupClassService groupClassService;
 
     private Long currentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -39,6 +44,16 @@ public class UserBookingController {
             return user.getId();
         }
         throw new IllegalStateException(ApplicationConstants.UNEXPECTED_AUTHENTICATION);
+    }
+
+    @GetMapping("/classes")
+    public List<ClassScheduleItemResponse> getAvailableClasses(
+            @RequestParam(required = false) LocalDate dateFrom,
+            @RequestParam(required = false) LocalDate dateTo,
+            @RequestParam(required = false) Long trainerId,
+            @RequestParam(required = false) String className
+    ) {
+        return groupClassService.getAllSchedules(dateFrom, dateTo, trainerId, className);
     }
 
     @Operation(summary = "Book a class", description = "Books the given schedule for the authenticated user.")
@@ -71,4 +86,3 @@ public class UserBookingController {
         return classBookingService.getUserBookings(currentUserId());
     }
 }
-
