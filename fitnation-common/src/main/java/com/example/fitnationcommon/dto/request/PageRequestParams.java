@@ -1,5 +1,7 @@
 package com.example.fitnationcommon.dto.request;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.exception.InvalidFilterException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -7,23 +9,19 @@ import java.util.Set;
 
 public class PageRequestParams {
 
-    private static final int MAX_SIZE = 100;
-    private static final int DEFAULT_SIZE = 20;
-    private static final int DEFAULT_PAGE = 0;
-
     public static Pageable toPageable(Integer page, Integer size, String sort, Set<String> allowedSortFields) {
-        int p = page != null ? page : DEFAULT_PAGE;
-        int s = size != null ? size : DEFAULT_SIZE;
+        int pageNumber = page != null ? page : ApplicationConstants.PAGINATION_DEFAULT_PAGE;
+        int pageSize = size != null ? size : ApplicationConstants.PAGINATION_DEFAULT_SIZE;
 
-        if (p < 0) {
-            throw new IllegalArgumentException("page must be >= 0");
+        if (pageNumber < 0) {
+            throw new InvalidFilterException(ApplicationConstants.INVALID_PAGE_NUMBER);
         }
-        if (s <= 0 || s > MAX_SIZE) {
-            throw new IllegalArgumentException("size must be between 1 and " + MAX_SIZE);
+        if (pageSize <= 0 || pageSize > ApplicationConstants.PAGINATION_MAX_SIZE) {
+            throw new InvalidFilterException(ApplicationConstants.INVALID_PAGE_SIZE + ApplicationConstants.PAGINATION_MAX_SIZE);
         }
 
         Sort springSort = parseSort(sort, allowedSortFields);
-        return PageRequest.of(p, s, springSort);
+        return PageRequest.of(pageNumber, pageSize, springSort);
     }
 
     private static Sort parseSort(String sort, Set<String> allowedFields) {

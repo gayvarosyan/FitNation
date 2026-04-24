@@ -6,6 +6,7 @@ import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
+import com.example.fitnationcommon.exception.InvalidFilterException;
 import com.example.fitnationcommon.service.EmailService;
 import com.example.fitnationcommon.validation.MemberValidator;
 import com.example.fitnationuser.repository.UserRepository;
@@ -19,8 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
+
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -117,14 +120,14 @@ class AdminMemberServiceTest {
     }
 
     @Test
-    void getMembers_negativePage_throwsIllegalArgument() {
-        assertThrows(IllegalArgumentException.class, () ->
+    void getMembers_negativePage_throwsInvalidFilterException() {
+        assertThrows(InvalidFilterException.class, () ->
                 adminMemberService.getMembers(-1, 20, "createdAt,desc", null, null));
     }
 
     @Test
-    void getMembers_oversizedPage_throwsIllegalArgument() {
-        assertThrows(IllegalArgumentException.class, () ->
+    void getMembers_oversizedPage_throwsInvalidFilterException() {
+        assertThrows(InvalidFilterException.class, () ->
                 adminMemberService.getMembers(0, 999, "createdAt,desc", null, null));
     }
 

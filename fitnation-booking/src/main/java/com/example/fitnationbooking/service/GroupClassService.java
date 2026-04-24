@@ -17,6 +17,7 @@ import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.GroupClassNotFoundException;
+import com.example.fitnationcommon.exception.InvalidFilterException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationtrainer.repository.TrainerRepository;
 import jakarta.persistence.EntityManager;
@@ -26,7 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import com.example.fitnationcommon.exception.InvalidFilterException;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -122,26 +123,10 @@ public class GroupClassService {
         return schedules.stream()
                 .filter(s -> filterByStatus(s, filter))
                 .map(s -> {
-                    long booked = classBookingRepository.countByScheduleAndStatus(s.getId(), ClassBookingStatus.BOOKED.name());                    return groupClassMapper.toScheduleItemResponse(s, booked);
+                    long booked = classBookingRepository.countByScheduleAndStatus(s.getId(), ClassBookingStatus.BOOKED.name());
+                    return groupClassMapper.toScheduleItemResponse(s, booked);
                 })
                 .toList();
-    }
-
-    private boolean filterByStatus(ClassSchedule s, ClassScheduleFilterRequest filter) {
-        if (filter == null || filter.status() == null) return true;
-
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = LocalDateTime.of(s.getDate(), s.getStartTime());
-        LocalDateTime end = LocalDateTime.of(s.getDate(), s.getEndTime());
-        long booked = classBookingRepository.countByScheduleAndStatus(s.getId(), ClassBookingStatus.BOOKED.name());
-        int capacity = s.getGroupClass().getCapacity() != null ? s.getGroupClass().getCapacity() : 0;
-
-        return switch (filter.status()) {
-            case UPCOMING -> now.isBefore(start);
-            case IN_PROGRESS -> !now.isBefore(start) && now.isBefore(end);
-            case COMPLETED -> !now.isBefore(end);
-            case FULL -> booked >= capacity && capacity > 0;
-        };
     }
 
     @Transactional
@@ -162,16 +147,6 @@ public class GroupClassService {
         return PagedResponse.of(resultPage, sort);
     }
 
-    private Sort parseSort(String sort) {
-        if (sort == null || !sort.contains(",")) {
-            return Sort.by(Sort.Direction.ASC, "date");
-        }
-        String[] parts = sort.split(",", 2);
-        Sort.Direction direction = parts[1].trim().equalsIgnoreCase("asc")
-                ? Sort.Direction.ASC : Sort.Direction.DESC;
-        return Sort.by(direction, parts[0].trim());
-    }
-
     @Transactional
     public List<GroupClassResponse> listAllGroupClasses() {
         return groupClassRepository.findAllWithTrainer().stream()
@@ -189,5 +164,33 @@ public class GroupClassService {
 
         groupClassRepository.deleteAllByTrainerId(trainerId);
         entityManager.flush();
+    }
+
+
+    private boolean filterByStatus(ClassSchedule s, ClassScheduleFilterRequest filter) {
+        if (filter == null || filter.status() == null) return true;
+
+        var now = LocalDateTime.now();
+        var start = LocalDateTime.of(s.getDate(), s.getStartTime());
+        var end = LocalDateTime.of(s.getDate(), s.getEndTime());
+        var booked = classBookingRepository.countByScheduleAndStatus(s.getId(), ClassBookingStatus.BOOKED.name());
+        int capacity = s.getGroupClass().getCapacity() != null ? s.getGroupClass().getCapacity() : 0;
+
+        return switch (filter.status()) {
+            case UPCOMING -> now.isBefore(start);
+            case IN_PROGRESS -> !now.isBefore(start) && now.isBefore(end);
+            case COMPLETED -> !now.isBefore(end);
+            case FULL -> booked >= capacity && capacity > 0;
+        };
+    }
+
+    private Sort parseSort(String sort) {
+        if (sort == null || !sort.contains(",")) {
+            return Sort.by(Sort.Direction.ASC, "date");
+        }
+        String[] parts = sort.split(",", 2);
+        Sort.Direction direction = parts[1].trim().equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return Sort.by(direction, parts[0].trim());
     }
 }
