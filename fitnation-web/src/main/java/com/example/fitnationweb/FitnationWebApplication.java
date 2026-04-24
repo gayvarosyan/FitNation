@@ -12,22 +12,26 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "com.example.fitnationtrainer",
         "com.example.fitnationbooking",
         "com.example.fitnationcommon",
-        "com.fitnationnutrition"
+        "com.fitnationnutrition",
+        "com.example.fitnationprogress"
 })
 @EntityScan(basePackages = {
         "com.example.fitnationuser",
         "com.example.fitnationmembership.model",
         "com.example.fitnationtrainer",
         "com.example.fitnationbooking",
-        "com.fitnationnutrition.model"
+        "com.fitnationnutrition.model",
+        "com.example.fitnationprogress.model"
 })
 @EnableJpaRepositories(basePackages = {
         "com.example.fitnationuser.repository",
         "com.example.fitnationuser.payment",
+        "com.example.fitnationuser.device",
         "com.example.fitnationmembership.repository",
         "com.example.fitnationtrainer.repository",
         "com.example.fitnationbooking.repository",
-        "com.fitnationnutrition.repository"
+        "com.fitnationnutrition.repository",
+        "com.example.fitnationprogress.repository"
 })
 public class FitnationWebApplication {
 

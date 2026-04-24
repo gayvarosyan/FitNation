@@ -18,6 +18,7 @@ import com.example.fitnationcommon.exception.MembershipRequestConflictException;
 import com.example.fitnationcommon.exception.MembershipRequestNotFoundException;
 import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
 import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
+import com.example.fitnationcommon.exception.ProgressEntryNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.exception.UserBlockedException;
@@ -209,7 +210,8 @@ public class GlobalExceptionHandler {
             ClassBookingNotFoundException.class,
             GroupClassNotFoundException.class,
             MembershipRequestNotFoundException.class,
-            ConversationNotFoundException.class
+            ConversationNotFoundException.class,
+            ProgressEntryNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException ex, HttpServletRequest request) {

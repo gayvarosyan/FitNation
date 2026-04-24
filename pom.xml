@@ -126,5 +126,6 @@
         <module>fitnation-web</module>
         <module>fitnation-trainer</module>
         <module>fitnation-nutrition</module>
+        <module>fitnation-progress</module>
     </modules>
 </project>

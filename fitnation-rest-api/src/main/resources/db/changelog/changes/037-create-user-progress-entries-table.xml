@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="037-create-user-progress-entries-table" author="Gayane">
+        <createTable tableName="user_progress_entries">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_user_progress_entries"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_progress_entry_user" references="users(id)"/>
+            </column>
+            <column name="recorded_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight" type="DECIMAL(10,2)"/>
+            <column name="body_fat_percent" type="DECIMAL(5,2)"/>
+            <column name="muscle_mass" type="DECIMAL(10,2)"/>
+            <column name="waist_cm" type="DECIMAL(10,2)"/>
+            <column name="chest_cm" type="DECIMAL(10,2)"/>
+            <column name="hip_cm" type="DECIMAL(10,2)"/>
+            <column name="notes" type="TEXT"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="user_progress_entries" indexName="idx_progress_entries_user_recorded_at">
+            <column name="user_id"/>
+            <column name="recorded_at"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
