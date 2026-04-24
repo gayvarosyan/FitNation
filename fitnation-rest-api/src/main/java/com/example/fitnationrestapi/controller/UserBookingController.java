@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,8 +40,8 @@ public class UserBookingController {
     private final GroupClassService groupClassService;
 
     private Long currentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Object principal = authentication.getPrincipal();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var principal = authentication.getPrincipal();
         if (principal instanceof User user) {
             return user.getId();
         }
@@ -105,6 +104,7 @@ public class UserBookingController {
         classBookingService.cancelBooking(id, currentUserId());
         return ResponseEntity.noContent().build();
     }
+
     @Operation(
             summary = "List my bookings (paged)",
             description = """

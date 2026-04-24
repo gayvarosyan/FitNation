@@ -23,8 +23,6 @@ import com.example.fitnationtrainer.repository.TrainerRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -113,11 +111,10 @@ public class GroupClassService {
             }
         }
 
-        LocalDate fromDate = filter != null ? filter.fromDate() : null;
-        LocalDate toDate = filter != null ? filter.toDate() : null;
-        Long trainerId = filter != null ? filter.trainerId() : null;
-
-        List<ClassSchedule> schedules = classScheduleRepository.findAllWithFilters(
+        var fromDate = filter != null ? filter.fromDate() : null;
+        var toDate = filter != null ? filter.toDate() : null;
+        var trainerId = filter != null ? filter.trainerId() : null;
+        var schedules = classScheduleRepository.findAllWithFilters(
                 fromDate, toDate, trainerId, null);
 
         return schedules.stream()
@@ -134,10 +131,10 @@ public class GroupClassService {
             Integer page, Integer size, String sort,
             String q, LocalDate dateFrom, LocalDate dateTo, Long trainerId) {
 
-        Pageable pageable = PageRequestParams.toPageable(page, size, sort,
+        var pageable = PageRequestParams.toPageable(page, size, sort,
                 Set.of("date", "startTime", "createdAt"));
 
-        Page<ClassScheduleItemResponse> resultPage = classScheduleRepository
+        var resultPage = classScheduleRepository
                 .findAllWithFilters(q, dateFrom, dateTo, trainerId, pageable)
                 .map(s -> {
                     long booked = classBookingRepository.countByScheduleAndStatus(s.getId(), ClassBookingStatus.BOOKED.name());
@@ -165,7 +162,6 @@ public class GroupClassService {
         groupClassRepository.deleteAllByTrainerId(trainerId);
         entityManager.flush();
     }
-
 
     private boolean filterByStatus(ClassSchedule s, ClassScheduleFilterRequest filter) {
         if (filter == null || filter.status() == null) return true;
