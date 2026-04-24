@@ -10,11 +10,11 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import static com.example.fitnationcommon.constants.ApplicationConstants.START_TIME_ATTRIBUTE;
+
 @Slf4j
 @Component
 public class PerformanceInterceptor implements HandlerInterceptor {
-
-    private static final String START_TIME_ATTRIBUTE = "startTime";
 
     @Override
     public boolean preHandle(

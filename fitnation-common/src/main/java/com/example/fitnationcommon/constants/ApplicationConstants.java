@@ -144,4 +144,6 @@ public final class ApplicationConstants {
                 "/bookings",
                 "/memberships"
         };
+
+        public static final String START_TIME_ATTRIBUTE = "startTime";
 }
