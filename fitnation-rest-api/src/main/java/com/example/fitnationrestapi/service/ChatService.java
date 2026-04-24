@@ -23,8 +23,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
-public class ChatService {
+public class ChatService extends PerformanceOptimizedService {
 
     private final ChatConversationRepository conversationRepository;
     private final ChatMessageRepository messageRepository;
@@ -58,25 +57,36 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public Page<ConversationResponse> listConversations(Long userId, Pageable pageable) {
-        return conversationRepository.findAllByUserId(userId, pageable)
-                .map(conversation -> {
-                    Page<ChatMessage> last = messageRepository
-                            .findByConversationIdOrderByCreatedAtDesc(conversation.getId(), PageRequest.of(0, 1));
-                    MessageResponse lastMsg = last.isEmpty() ? null
-                            : toMsgResponse(last.getContent().get(0));
-                    return toConvResponse(conversation, lastMsg);
-                });
+        return executeReadOnlyWithMonitoring("listConversations", () -> {
+            Pageable validatedPageable = validatePageable(pageable);
+            Page<ConversationResponse> result = conversationRepository.findAllByUserIdWithUsers(userId, validatedPageable)
+                    .map(conversation -> {
+                        // Get last message efficiently with single query
+                        Page<ChatMessage> last = messageRepository
+                                .findByConversationIdOrderByCreatedAtDesc(conversation.getId(), PageRequest.of(0, 1));
+                        MessageResponse lastMsg = last.isEmpty() ? null
+                                : toMsgResponse(last.getContent().get(0));
+                        return toConvResponse(conversation, lastMsg);
+                    });
+            logPaginationInfo("listConversations", result);
+            return result;
+        });
     }
 
     @Transactional(readOnly = true)
     public Page<MessageResponse> getMessages(Long userId, Long conversationId, Pageable pageable) {
-        ChatConversation conversation = conversationRepository.findById(conversationId)
-                .orElseThrow(() -> new ConversationNotFoundException(
-                        ApplicationConstants.MSG_CONVERSATION_NOT_FOUND + conversationId));
-        assertParticipant(userId, conversation);
-        return messageRepository
-                .findByConversationIdOrderByCreatedAtDesc(conversationId, pageable)
-                .map(this::toMsgResponse);
+        return executeReadOnlyWithMonitoring("getMessages", () -> {
+            Pageable validatedPageable = validatePageable(pageable);
+            ChatConversation conversation = conversationRepository.findById(conversationId)
+                    .orElseThrow(() -> new ConversationNotFoundException(
+                            ApplicationConstants.MSG_CONVERSATION_NOT_FOUND + conversationId));
+            assertParticipant(userId, conversation);
+            Page<MessageResponse> result = messageRepository
+                    .findByConversationIdOrderByCreatedAtDescWithSender(conversationId, validatedPageable)
+                    .map(this::toMsgResponse);
+            logPaginationInfo("getMessages", result);
+            return result;
+        });
     }
 
     public MessageResponse handleInbound(Long senderId, Long conversationId, String body) {
