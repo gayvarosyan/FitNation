@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="039-add-date-range-indexes" author="performance-optimization">
+        <createIndex tableName="memberships" indexName="idx_memberships_user_dates">
+            <column name="user_id"/>
+            <column name="start_date"/>
+            <column name="end_date"/>
+        </createIndex>
+        
+        <createIndex tableName="memberships" indexName="idx_memberships_status_dates">
+            <column name="status"/>
+            <column name="start_date"/>
+            <column name="end_date"/>
+        </createIndex>
+        
+        <createIndex tableName="membership_freeze_requests" indexName="idx_freeze_membership_dates_status">
+            <column name="membership_id"/>
+            <column name="freeze_start"/>
+            <column name="freeze_end"/>
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="payments" indexName="idx_payments_date_range">
+            <column name="created_at"/>
+        </createIndex>
+        
+        <createIndex tableName="users" indexName="idx_users_deleted_cleanup">
+            <column name="deleted_at"/>
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="class_schedule" indexName="idx_class_schedule_dates">
+            <column name="start_time"/>
+            <column name="end_time"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="039-add-partitioning-comments" author="performance-optimization">
+        <sql>
+            COMMENT ON TABLE chat_messages IS 'Consider partitioning by month on created_at for large datasets';
+            COMMENT ON TABLE class_bookings IS 'Consider partitioning by month on created_at for large datasets';
+            COMMENT ON TABLE payments IS 'Consider partitioning by month on payment_date for large datasets';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

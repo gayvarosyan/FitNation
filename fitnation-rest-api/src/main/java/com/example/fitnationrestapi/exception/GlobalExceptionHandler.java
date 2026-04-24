@@ -53,8 +53,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        List<ValidationErrorDetail> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
-                .map(fe -> new ValidationErrorDetail(fe.getField(), fe.getRejectedValue(), fe.getDefaultMessage()))
+        var fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .map(fe -> new ValidationErrorDetail(
+                        fe.getField(),
+                        fe.getRejectedValue(),
+                        fe.getDefaultMessage()))
                 .toList();
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
@@ -65,7 +68,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleConstraintViolation(
             ConstraintViolationException ex, HttpServletRequest request) {
 
-        List<ValidationErrorDetail> fieldErrors = ex.getConstraintViolations().stream()
+        var fieldErrors = ex.getConstraintViolations().stream()
                 .map(cv -> new ValidationErrorDetail(
                         leafPath(cv.getPropertyPath()),
                         cv.getInvalidValue(),
@@ -74,13 +77,14 @@ public class GlobalExceptionHandler {
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
                 ApplicationConstants.VALIDATION_REQUEST_FAILED, request, fieldErrors);
-
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleJakartaValidation(
             ValidationException ex, HttpServletRequest request) {
+
         log.debug("Validation failed [{}]: {}", request.getRequestURI(), ex.getMessage());
+
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
                 ex.getMessage(), request, null);
     }
@@ -89,8 +93,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMissingParam(
             MissingServletRequestParameterException ex, HttpServletRequest request) {
 
-        List<ValidationErrorDetail> fieldErrors = List.of(
-                new ValidationErrorDetail(ex.getParameterName(), null, ApplicationConstants.REQUIRED_PARAM_MISSING));
+        var fieldErrors = List.of(
+                new ValidationErrorDetail(
+                        ex.getParameterName(),
+                        null,
+                        ApplicationConstants.REQUIRED_PARAM_MISSING)
+        );
 
         return build(HttpStatus.BAD_REQUEST, ErrorCode.VALIDATION_FAILED,
                 ApplicationConstants.REQUIRED_PARAM_MISSING, request, fieldErrors);
@@ -107,7 +115,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(
             IllegalArgumentException ex, HttpServletRequest request) {
+
         log.warn("Bad request [{}]: {}", request.getRequestURI(), ex.getMessage());
+
         return build(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_ARGUMENT,
                 ex.getMessage(), request, null);
     }
@@ -127,7 +137,6 @@ public class GlobalExceptionHandler {
                 ex.getMessage(), request, null);
     }
 
-
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ErrorResponse> handleInvalidPassword(
             InvalidPasswordException ex, HttpServletRequest request) {
@@ -139,7 +148,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ErrorResponse> handleInvalidToken(
             InvalidTokenException ex, HttpServletRequest request) {
+
         log.warn("Invalid token [{}]: {}", request.getRequestURI(), ex.getMessage());
+
         return build(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED,
                 ex.getMessage(), request, null);
     }
@@ -147,6 +158,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(QrSessionExpiredException.class)
     public ResponseEntity<ErrorResponse> handleQrExpired(
             QrSessionExpiredException ex, HttpServletRequest request) {
+
         return build(HttpStatus.GONE, ErrorCode.INVALID_ARGUMENT,
                 ex.getMessage(), request, null);
     }
@@ -154,6 +166,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(QrSessionAlreadyUsedException.class)
     public ResponseEntity<ErrorResponse> handleQrAlreadyUsed(
             QrSessionAlreadyUsedException ex, HttpServletRequest request) {
+
         return build(HttpStatus.CONFLICT, ErrorCode.CONFLICT,
                 ex.getMessage(), request, null);
     }
@@ -161,6 +174,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(QrSessionInvalidException.class)
     public ResponseEntity<ErrorResponse> handleQrInvalid(
             QrSessionInvalidException ex, HttpServletRequest request) {
+
         return build(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_ARGUMENT,
                 ex.getMessage(), request, null);
     }
@@ -168,20 +182,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<ErrorResponse> handleRateLimit(
             RateLimitExceededException ex, HttpServletRequest request) {
+
         return build(HttpStatus.TOO_MANY_REQUESTS, ErrorCode.INVALID_ARGUMENT,
                 ex.getMessage(), request, null);
     }
 
-    @ExceptionHandler({UserBlockedException.class, UserInactiveException.class,
-            ForbiddenOperationException.class})
+    @ExceptionHandler({
+            UserBlockedException.class,
+            UserInactiveException.class,
+            ForbiddenOperationException.class
+    })
     public ResponseEntity<ErrorResponse> handleForbidden(
             RuntimeException ex, HttpServletRequest request) {
 
         return build(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN,
                 ex.getMessage(), request, null);
     }
-
-
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(
@@ -191,12 +207,18 @@ public class GlobalExceptionHandler {
                 ex.getMessage(), request, null);
     }
 
-    @ExceptionHandler({UserNotFoundException.class, TrainerNotFoundException.class,
-            MembershipNotFoundException.class, MembershipTypeNotFoundException.class,
-            NutritionPlanNotFoundException.class, ClassScheduleNotFoundException.class,
-            ClassBookingNotFoundException.class, GroupClassNotFoundException.class,
-            MembershipRequestNotFoundException.class, ConversationNotFoundException.class})
-
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            TrainerNotFoundException.class,
+            MembershipNotFoundException.class,
+            MembershipTypeNotFoundException.class,
+            NutritionPlanNotFoundException.class,
+            ClassScheduleNotFoundException.class,
+            ClassBookingNotFoundException.class,
+            GroupClassNotFoundException.class,
+            MembershipRequestNotFoundException.class,
+            ConversationNotFoundException.class
+    })
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException ex, HttpServletRequest request) {
 
@@ -204,9 +226,12 @@ public class GlobalExceptionHandler {
                 ex.getMessage(), request, null);
     }
 
-
-    @ExceptionHandler({EmailAlreadyExistsException.class, UserPendingException.class,
-            MembershipRequestConflictException.class, ClassBookingConflictException.class})
+    @ExceptionHandler({
+            EmailAlreadyExistsException.class,
+            UserPendingException.class,
+            MembershipRequestConflictException.class,
+            ClassBookingConflictException.class
+    })
     public ResponseEntity<ErrorResponse> handleConflict(
             RuntimeException ex, HttpServletRequest request) {
 
@@ -224,10 +249,13 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred.", request, null);
     }
 
+    private ResponseEntity<ErrorResponse> build(
+            HttpStatus status,
+            ErrorCode code,
+            String message,
+            HttpServletRequest request,
+            Object details) {
 
-    private ResponseEntity<ErrorResponse> build(HttpStatus status, ErrorCode code,
-                                                   String message, HttpServletRequest request,
-                                                   Object details) {
         return ResponseEntity.status(status).body(
                 ErrorResponse.builder()
                         .timestamp(Instant.now())
@@ -242,8 +270,8 @@ public class GlobalExceptionHandler {
     }
 
     private String leafPath(Path path) {
-        String full = path.toString();
-        int dot = full.lastIndexOf('.');
+        var full = path.toString();
+        var dot = full.lastIndexOf('.');
         return dot >= 0 ? full.substring(dot + 1) : full;
     }
 }

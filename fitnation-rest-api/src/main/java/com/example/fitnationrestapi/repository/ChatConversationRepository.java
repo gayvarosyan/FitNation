@@ -13,9 +13,11 @@ public interface ChatConversationRepository extends JpaRepository<ChatConversati
     Optional<ChatConversation> findByClientIdAndTrainerId(Long clientId, Long trainerId);
 
     @Query("""
-        SELECT c FROM ChatConversation c
+        SELECT DISTINCT c FROM ChatConversation c
+        LEFT JOIN FETCH c.client
+        LEFT JOIN FETCH c.trainer
         WHERE c.client.id = :userId OR c.trainer.id = :userId
         ORDER BY COALESCE(c.lastMessageAt, c.createdAt) DESC
     """)
-    Page<ChatConversation> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
+    Page<ChatConversation> findAllByUserIdWithUsers(@Param("userId") Long userId, Pageable pageable);
 }
