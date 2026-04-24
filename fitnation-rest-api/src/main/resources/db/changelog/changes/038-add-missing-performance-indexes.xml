@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="038-add-users-indexes" author="performance-optimization">
+        <createIndex tableName="users" indexName="idx_users_role_status_created">
+            <column name="role"/>
+            <column name="status"/>
+            <column name="created_at"/>
+        </createIndex>
+        
+        <createIndex tableName="users" indexName="idx_users_email_lower">
+            <column name="email"/>
+        </createIndex>
+        
+        <createIndex tableName="users" indexName="idx_users_phone">
+            <column name="phone"/>
+        </createIndex>
+        
+        <createIndex tableName="users" indexName="idx_users_deleted_at">
+            <column name="deleted_at"/>
+        </createIndex>
+        
+        <createIndex tableName="users" indexName="idx_users_role_trainer">
+            <column name="role"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="038-add-memberships-indexes" author="performance-optimization">
+
+        <createIndex tableName="memberships" indexName="idx_memberships_user_status">
+            <column name="user_id"/>
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="memberships" indexName="idx_memberships_dates">
+            <column name="start_date"/>
+            <column name="end_date"/>
+        </createIndex>
+        
+        <createIndex tableName="memberships" indexName="idx_memberships_trainer">
+            <column name="trainer_id"/>
+        </createIndex>
+        
+        <createIndex tableName="memberships" indexName="idx_memberships_nutrition_plan">
+            <column name="nutrition_plan_id"/>
+        </createIndex>
+        
+        <createIndex tableName="memberships" indexName="idx_memberships_type">
+            <column name="membership_type_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="038-add-class-bookings-indexes" author="performance-optimization">
+        <createIndex tableName="class_bookings" indexName="idx_bookings_user_created">
+            <column name="user_id"/>
+            <column name="created_at"/>
+        </createIndex>
+        
+        <createIndex tableName="class_bookings" indexName="idx_bookings_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="class_bookings" indexName="idx_bookings_schedule_status">
+            <column name="class_schedule_id"/>
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="038-add-freeze-requests-indexes" author="performance-optimization">
+        <createIndex tableName="membership_freeze_requests" indexName="idx_freeze_status_created">
+            <column name="status"/>
+            <column name="created_at"/>
+        </createIndex>
+        
+        <createIndex tableName="membership_freeze_requests" indexName="idx_freeze_dates">
+            <column name="freeze_start"/>
+            <column name="freeze_end"/>
+        </createIndex>
+        
+        <createIndex tableName="membership_freeze_requests" indexName="idx_freeze_reviewed_by">
+            <column name="reviewed_by"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="038-add-trainer-assignment-indexes" author="performance-optimization">
+        <createIndex tableName="trainer_assignment_requests" indexName="idx_trainer_assign_client_status">
+            <column name="client_user_id"/>
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="trainer_assignment_requests" indexName="idx_trainer_assign_trainer_status_created">
+            <column name="trainer_user_id"/>
+            <column name="status"/>
+            <column name="created_at"/>
+        </createIndex>
+        
+        <createIndex tableName="trainer_assignment_requests" indexName="idx_trainer_assign_client_created">
+            <column name="client_user_id"/>
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="038-add-chat-conversations-indexes" author="performance-optimization">
+        <createIndex tableName="chat_conversations" indexName="idx_conv_last_message_time">
+            <column name="last_message_at"/>
+        </createIndex>
+        
+        <createIndex tableName="chat_conversations" indexName="idx_conv_client_last_message">
+            <column name="client_user_id"/>
+            <column name="last_message_at"/>
+        </createIndex>
+
+        <createIndex tableName="chat_conversations" indexName="idx_conv_trainer_last_message">
+            <column name="trainer_user_id"/>
+            <column name="last_message_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="038-add-chat-messages-indexes" author="performance-optimization">
+        <createIndex tableName="chat_messages" indexName="idx_msg_read_at">
+            <column name="read_at"/>
+        </createIndex>
+        
+        <createIndex tableName="chat_messages" indexName="idx_msg_sender_created">
+            <column name="sender_user_id"/>
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="038-add-device-sessions-indexes" author="performance-optimization">
+        <createIndex tableName="device_login_sessions" indexName="idx_device_sessions_user">
+            <column name="initiator_user_id"/>
+        </createIndex>
+        
+        <createIndex tableName="device_login_sessions" indexName="idx_device_sessions_token">
+            <column name="secret_hash"/>
+        </createIndex>
+        
+        <createIndex tableName="device_login_sessions" indexName="idx_device_sessions_expires">
+            <column name="expires_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="038-add-payments-indexes" author="performance-optimization">
+        <createIndex tableName="payments" indexName="idx_payments_user_date">
+            <column name="user_id"/>
+            <column name="created_at"/>
+        </createIndex>
+        
+        <createIndex tableName="payments" indexName="idx_payments_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="payments" indexName="idx_payments_entity">
+            <column name="entity_id"/>
+            <column name="payment_type"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
