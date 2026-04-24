@@ -113,8 +113,7 @@
             <column name="client_user_id"/>
             <column name="last_message_at"/>
         </createIndex>
-        
-        <!-- Composite index for trainer + last_message_at -->
+
         <createIndex tableName="chat_conversations" indexName="idx_conv_trainer_last_message">
             <column name="trainer_user_id"/>
             <column name="last_message_at"/>

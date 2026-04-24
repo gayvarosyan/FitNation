@@ -1,5 +1,6 @@
 package com.example.fitnationrestapi.interceptor;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -32,20 +33,39 @@ public class PerformanceInterceptor implements HandlerInterceptor {
             @Nullable Exception ex) {
 
         Long startTime = (Long) request.getAttribute(START_TIME_ATTRIBUTE);
-        if (startTime != null) {
-            long duration = System.currentTimeMillis() - startTime;
-            String uri = request.getRequestURI();
-            String method = request.getMethod();
+        if (startTime == null) {
+            return;
+        }
 
-            if (duration > 2000) {
-                log.warn("Slow API request: {} {} took {} ms", method, uri, duration);
-            } else if (duration > 1000) {
-                log.info("API request: {} {} took {} ms", method, uri, duration);
-            }
+        long duration = System.currentTimeMillis() - startTime;
+        String uri = request.getRequestURI();
+        String method = request.getMethod();
 
-            if (uri.contains("/conversations") || uri.contains("/messages") ||
-                    uri.contains("/bookings") || uri.contains("/memberships")) {
-                log.debug("High-frequency endpoint accessed: {} {} in {} ms", method, uri, duration);
+        if (duration > ApplicationConstants.SLOW_API_THRESHOLD_MS) {
+            log.warn(
+                    "Slow API request: {} {} took {} ms",
+                    method,
+                    uri,
+                    duration
+            );
+        } else if (duration > ApplicationConstants.INFO_API_THRESHOLD_MS) {
+            log.info(
+                    "API request: {} {} took {} ms",
+                    method,
+                    uri,
+                    duration
+            );
+        }
+
+        for (String endpoint : ApplicationConstants.HIGH_FREQUENCY_ENDPOINTS) {
+            if (uri.contains(endpoint)) {
+                log.debug(
+                        "High-frequency endpoint accessed: {} {} in {} ms",
+                        method,
+                        uri,
+                        duration
+                );
+                break;
             }
         }
     }

@@ -131,4 +131,17 @@ public final class ApplicationConstants {
         public static final int QR_MAX_SESSIONS_PER_WINDOW = 5;
         public static final int QR_RATE_LIMIT_WINDOW_MINUTES = 10;
 
+        public static final long DB_OPERATION_INFO_THRESHOLD_MS = 500;
+        public static final long DB_OPERATION_WARN_THRESHOLD_MS = 1000;
+        public static final int MAX_PAGE_SIZE = 100;
+
+        public static final long SLOW_API_THRESHOLD_MS = 2000;
+        public static final long INFO_API_THRESHOLD_MS = 1000;
+
+        public static final String[] HIGH_FREQUENCY_ENDPOINTS = {
+                "/conversations",
+                "/messages",
+                "/bookings",
+                "/memberships"
+        };
 }

@@ -1,5 +1,6 @@
 package com.example.fitnationrestapi.service;
 
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,13 +21,14 @@ public abstract class PerformanceOptimizedService {
             T result = operation.get();
             long duration = System.currentTimeMillis() - startTime;
 
-            if (duration > 1000) {
+            if (duration > ApplicationConstants.DB_OPERATION_WARN_THRESHOLD_MS) {
                 log.warn("Slow database operation: {} took {} ms", operationName, duration);
-            } else if (duration > 500) {
+            } else if (duration > ApplicationConstants.DB_OPERATION_INFO_THRESHOLD_MS) {
                 log.info("Database operation: {} took {} ms", operationName, duration);
             }
 
             return result;
+
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             log.error("Database operation failed: {} after {} ms", operationName, duration, e);
@@ -41,21 +43,30 @@ public abstract class PerformanceOptimizedService {
     }
 
     protected Pageable validatePageable(Pageable pageable) {
-        int maxSize = 100;
-        if (pageable.getPageSize() > maxSize) {
-            log.warn("Page size {} exceeds maximum of {}, limiting to {}",
-                    pageable.getPageSize(), maxSize, maxSize);
-            return PageRequest.of(0, maxSize, pageable.getSort());
+        if (pageable.getPageSize() > ApplicationConstants.MAX_PAGE_SIZE) {
+            log.warn(
+                    "Page size {} exceeds maximum of {}, limiting to {}",
+                    pageable.getPageSize(),
+                    ApplicationConstants.MAX_PAGE_SIZE,
+                    ApplicationConstants.MAX_PAGE_SIZE
+            );
+
+            return PageRequest.of(
+                    pageable.getPageNumber(),
+                    ApplicationConstants.MAX_PAGE_SIZE,
+                    pageable.getSort()
+            );
         }
         return pageable;
     }
 
     protected void logPaginationInfo(String operation, Page<?> page) {
-        log.debug("Pagination info for {}: page {} of {}, total {} elements, {} total pages",
+        log.debug(
+                "Pagination info for {}: page {} of {}, total {} elements",
                 operation,
                 page.getNumber() + 1,
                 page.getTotalPages(),
-                page.getTotalElements(),
-                page.getTotalPages());
+                page.getTotalElements()
+        );
     }
 }

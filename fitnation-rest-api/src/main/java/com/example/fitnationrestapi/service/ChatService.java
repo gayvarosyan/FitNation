@@ -61,7 +61,6 @@ public class ChatService extends PerformanceOptimizedService {
             Pageable validatedPageable = validatePageable(pageable);
             Page<ConversationResponse> result = conversationRepository.findAllByUserIdWithUsers(userId, validatedPageable)
                     .map(conversation -> {
-                        // Get last message efficiently with single query
                         Page<ChatMessage> last = messageRepository
                                 .findByConversationIdOrderByCreatedAtDesc(conversation.getId(), PageRequest.of(0, 1));
                         MessageResponse lastMsg = last.isEmpty() ? null
