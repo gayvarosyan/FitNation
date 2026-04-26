@@ -22,6 +22,8 @@ import com.example.fitnationmembership.model.MembershipFreezeRequests;
 import com.example.fitnationmembership.repository.MembershipFreezeRequestRepository;
 import com.example.fitnationmembership.repository.MembershipRepository;
 import com.example.fitnationmembership.service.MembershipFreezeService;
+import com.example.fitnationprogress.factory.NotificationCommandFactory;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.payment.Payment;
 import com.example.fitnationuser.payment.PaymentRepository;
 import com.example.fitnationuser.user.User;
@@ -45,6 +47,7 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
     private final PaymentRepository paymentRepository;
     private final MembershipMapper membershipMapper;
     private final MembershipFreezeMapper membershipFreezeMapper;
+    private final NotificationCommandPublisher notificationCommandPublisher;
 
     @Override
     @Transactional
@@ -60,6 +63,12 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
                         .status(FreezeRequestStatus.PENDING)
                         .createdAt(Instant.now())
                         .build());
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.freezeRequestSubmitted(
+                        saved.getId(),
+                        membership.getMembershipType().getName(),
+                        req.freezeStart().toString(),
+                        req.freezeEnd().toString()));
         return membershipFreezeMapper.toUserResponse(saved);
     }
 
@@ -106,6 +115,14 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
         assertPending(freezeRequest);
         applyFreeze(freezeRequest);
         finalizeReview(freezeRequest, reviewer, FreezeRequestStatus.APPROVED, null);
+        var membership = freezeRequest.getMembership();
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.freezeRequestApproved(
+                        freezeRequest.getId(),
+                        membership.getUser().getId(),
+                        membership.getMembershipType().getName(),
+                        freezeRequest.getFreezeStart().toString(),
+                        freezeRequest.getFreezeEnd().toString()));
         return membershipFreezeMapper.toAdminResponse(freezeRequest);
     }
 
@@ -115,6 +132,14 @@ public class MembershipFreezeServiceImpl implements MembershipFreezeService {
         MembershipFreezeRequests freezeRequest = requireFreezeRequest(requestId);
         assertPending(freezeRequest);
         finalizeReview(freezeRequest, reviewer, FreezeRequestStatus.REJECTED, body != null ? body.reason() : null);
+        var membership = freezeRequest.getMembership();
+        String reason = body != null ? body.reason() : null;
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.freezeRequestRejected(
+                        freezeRequest.getId(),
+                        membership.getUser().getId(),
+                        membership.getMembershipType().getName(),
+                        reason == null ? "" : reason));
         return membershipFreezeMapper.toAdminResponse(freezeRequest);
     }
 

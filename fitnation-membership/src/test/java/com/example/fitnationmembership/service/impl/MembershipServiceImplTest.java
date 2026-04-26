@@ -14,6 +14,7 @@ import com.example.fitnationmembership.repository.MembershipRequestRepository;
 import com.example.fitnationmembership.repository.MembershipTypeRepository;
 import com.example.fitnationbooking.repository.GroupClassRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.payment.PaymentRepository;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
@@ -54,6 +55,8 @@ class MembershipServiceImplTest {
     private TrainerRepository trainerRepository;
     @Mock
     private GroupClassRepository groupClassRepository;
+    @Mock
+    private NotificationCommandPublisher notificationCommandPublisher;
 
     @InjectMocks
     private MembershipServiceImpl membershipService;

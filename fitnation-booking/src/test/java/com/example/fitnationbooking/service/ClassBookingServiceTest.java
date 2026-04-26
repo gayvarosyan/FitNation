@@ -6,6 +6,7 @@ import com.example.fitnationbooking.repository.ClassScheduleRepository;
 import com.example.fitnationbooking.validation.ClassBookingValidator;
 import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,8 @@ class ClassBookingServiceTest {
     private ClassBookingMapper classBookingMapper;
     @Mock
     private ClassBookingValidator classBookingValidator;
+    @Mock
+    private NotificationCommandPublisher notificationCommandPublisher;
 
     @InjectMocks
     private ClassBookingService classBookingService;
@@ -44,7 +47,7 @@ class ClassBookingServiceTest {
         var ex = assertThrows(ClassScheduleNotFoundException.class, () ->
                 classBookingService.bookClass(5L, 9L));
         assertTrue(ex.getMessage().contains("5"));
-        verifyNoInteractions(userRepository, classBookingValidator, classBookingRepository);
+        verifyNoInteractions(userRepository, classBookingValidator, classBookingRepository, notificationCommandPublisher);
     }
 
     @Test
@@ -55,6 +58,6 @@ class ClassBookingServiceTest {
         var ex = assertThrows(UserNotFoundException.class, () ->
                 classBookingService.bookClass(5L, 9L));
         assertTrue(ex.getMessage().contains("9"));
-        verifyNoInteractions(classBookingValidator, classBookingRepository);
+        verifyNoInteractions(classBookingValidator, classBookingRepository, notificationCommandPublisher);
     }
 }

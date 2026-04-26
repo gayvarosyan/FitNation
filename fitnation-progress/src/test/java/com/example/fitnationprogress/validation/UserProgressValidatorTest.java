@@ -1,6 +1,7 @@
 package com.example.fitnationprogress.validation;
 
 import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ class UserProgressValidatorTest {
                 null,
                 "note");
 
-        assertThrows(IllegalArgumentException.class, () -> validator.validateForCreate(request));
+        assertThrows(ValidationException.class, () -> validator.validateForCreate(request));
     }
 
     @Test

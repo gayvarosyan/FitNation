@@ -15,6 +15,7 @@ import com.example.fitnationtrainer.mapper.TrainerMapper;
 import com.example.fitnationtrainer.repository.TrainerAssignmentRequestRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
 import com.example.fitnationuser.user.User;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,7 @@ class TrainerAssignmentServiceImplTest {
     @Mock private TrainerAssignmentRequestRepository requestRepository;
     @Mock private TrainerAssignmentRequestMapper mapper;
     @Mock private TrainerMapper trainerMapper;
+    @Mock private NotificationCommandPublisher notificationCommandPublisher;
 
     @InjectMocks
     private TrainerAssignmentServiceImpl service;

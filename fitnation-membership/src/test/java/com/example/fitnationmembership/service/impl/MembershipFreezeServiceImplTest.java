@@ -12,6 +12,7 @@ import com.example.fitnationmembership.model.Membership;
 import com.example.fitnationmembership.model.MembershipType;
 import com.example.fitnationmembership.repository.MembershipFreezeRequestRepository;
 import com.example.fitnationmembership.repository.MembershipRepository;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.payment.PaymentRepository;
 import com.example.fitnationuser.user.User;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,8 @@ class MembershipFreezeServiceImplTest {
     private MembershipMapper membershipMapper;
     @Mock
     private MembershipFreezeMapper membershipFreezeMapper;
+    @Mock
+    private NotificationCommandPublisher notificationCommandPublisher;
 
     @InjectMocks
     private MembershipFreezeServiceImpl freezeService;

@@ -40,6 +40,14 @@ jwt:
 fitnation:
   app:
     login-url: http://localhost:8080/login
+  notifications:
+    membership-expiry-lead-days: 7
+    membership-expiry-cron: "0 15 7 * * ?"
+    default-dedup-window: PT1H
+    max-notifications-per-recipient-per-hour: 80
+    dedup-window-by-event:
+      CLASS_FULL: PT24H
+      MEMBERSHIP_EXPIRING_SOON: PT24H
 
 springdoc:
   api-docs:

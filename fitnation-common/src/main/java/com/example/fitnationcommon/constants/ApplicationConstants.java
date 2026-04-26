@@ -172,6 +172,10 @@ public final class ApplicationConstants {
         public static final String TRAINER_NOT_ASSIGNED_TO_CLIENT = "Trainer is not assigned to this client";
         public static final String PROGRESS_ENTRY_REQUIRED_METRIC = "At least one measurable metric must be provided";
         public static final String PROGRESS_RECORDED_AT_TOO_FAR_FUTURE = "recordedAt cannot be in the far future";
+        public static final String NOTIFICATION_UNKNOWN_EVENT_PREFIX = "No notification rule registered for event type: ";
+        public static final String NOTIFICATION_INVALID_CONTEXT_PREFIX = "Notification command is missing required context: ";
+        public static final String NOTIFICATION_METADATA_SERIALIZATION_FAILED = "Failed to serialize notification metadata";
+        public static final String IN_APP_NOTIFICATION_NOT_FOUND = "In-app notification not found";
         public static final int METRIC_SCALE = 2;
 
         public static final String WEIGHT_MIN_STR = "1.00";

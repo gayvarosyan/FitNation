@@ -3,6 +3,7 @@ package com.example.fitnationprogress.validation;
 import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
 import com.example.fitnationprogress.dto.UpdateUserProgressEntryRequest;
+import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -42,9 +43,9 @@ public class UserProgressValidator {
     }
 
     private void validateRecordedAt(LocalDateTime recordedAt) {
-        LocalDateTime maxAllowed = LocalDateTime.now().plusMinutes(ApplicationConstants.ALLOWED_FUTURE_MINUTES);
+        var maxAllowed = LocalDateTime.now().plusMinutes(ApplicationConstants.ALLOWED_FUTURE_MINUTES);
         if (recordedAt.isAfter(maxAllowed)) {
-            throw new IllegalArgumentException(ApplicationConstants.PROGRESS_RECORDED_AT_TOO_FAR_FUTURE);
+            throw new ValidationException(ApplicationConstants.PROGRESS_RECORDED_AT_TOO_FAR_FUTURE);
         }
     }
 
@@ -55,14 +56,14 @@ public class UserProgressValidator {
             BigDecimal waistCm,
             BigDecimal chestCm,
             BigDecimal hipCm) {
-        boolean allNull = weight == null
+        var allNull = weight == null
                 && bodyFatPercent == null
                 && muscleMass == null
                 && waistCm == null
                 && chestCm == null
                 && hipCm == null;
         if (allNull) {
-            throw new IllegalArgumentException(ApplicationConstants.PROGRESS_ENTRY_REQUIRED_METRIC);
+            throw new ValidationException(ApplicationConstants.PROGRESS_ENTRY_REQUIRED_METRIC);
         }
     }
 }

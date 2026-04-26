@@ -36,6 +36,8 @@ import com.example.fitnationmembership.repository.MembershipRepository;
 import com.example.fitnationmembership.repository.MembershipRequestRepository;
 import com.example.fitnationmembership.repository.MembershipTypeRepository;
 import com.example.fitnationmembership.service.MembershipService;
+import com.example.fitnationprogress.factory.NotificationCommandFactory;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.payment.Payment;
 import com.example.fitnationuser.payment.PaymentRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
@@ -67,6 +69,7 @@ public class MembershipServiceImpl implements MembershipService {
     private final NutritionPlanRepository nutritionPlanRepository;
     private final TrainerRepository trainerRepository;
     private final GroupClassRepository groupClassRepository;
+    private final NotificationCommandPublisher notificationCommandPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -136,6 +139,9 @@ public class MembershipServiceImpl implements MembershipService {
 
         var membership = createActiveMembershipWithPayment(
                 user, type, LocalDate.now(), nutritionPlanId, trainerId, groupClassId);
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.membershipPurchaseConfirmed(
+                        membership.getId(), user.getId(), type.getName()));
         return membershipMapper.toResponse(membership);
     }
 
@@ -175,6 +181,8 @@ public class MembershipServiceImpl implements MembershipService {
                 .status(MembershipRequestStatus.PENDING)
                 .createdAt(Instant.now())
                 .build());
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.membershipRequestSubmitted(saved.getId(), type.getName()));
         return toUserRequestResponse(saved);
     }
 
@@ -215,6 +223,11 @@ public class MembershipServiceImpl implements MembershipService {
                 type.getTrainerId(),
                 type.getGroupClassId());
         finalizeRequestReview(membershipRequest, reviewer, MembershipRequestStatus.APPROVED, null);
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.membershipRequestApproved(
+                        membershipRequest.getId(),
+                        member.getId(),
+                        type.getName()));
         return toAdminRequestResponse(membershipRequest);
     }
 
@@ -228,6 +241,14 @@ public class MembershipServiceImpl implements MembershipService {
         assertPendingRequest(membershipRequest);
         var reason = rejectBody != null ? rejectBody.reason() : null;
         finalizeRequestReview(membershipRequest, reviewer, MembershipRequestStatus.REJECTED, reason);
+        var member = membershipRequest.getUser();
+        var type = membershipRequest.getMembershipType();
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.membershipRequestRejected(
+                        membershipRequest.getId(),
+                        member.getId(),
+                        type.getName(),
+                        reason == null ? "" : reason));
         return toAdminRequestResponse(membershipRequest);
     }
 
