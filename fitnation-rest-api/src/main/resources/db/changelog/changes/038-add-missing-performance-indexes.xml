@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="038-add-users-indexes" author="performance-optimization">
+    <changeSet id="038-add-users-indexes" author="Mariam">
         <createIndex tableName="users" indexName="idx_users_role_status_created">
             <column name="role"/>
             <column name="status"/>
