@@ -150,6 +150,44 @@ public final class ApplicationConstants {
         };
 
         public static final String START_TIME_ATTRIBUTE = "startTime";
+        public static final String MEMBERSHIP_NOT_FOUND = "Membership not found";
+        public static final String MEMBERSHIP_TYPE_NOT_FOUND = "Membership type not found";
+        public static final String MEMBERSHIP_USER_NOT_FOUND = "User not found";
+        public static final String TRAINER_NOT_FOUND = "Trainer not found";
+        public static final String MEMBERSHIP_NUTRITION_PLAN_NOT_FOUND = "Nutrition plan not found";
+        public static final String GROUP_CLASS_NOT_FOUND = "Group class not found";
+        public static final String CANNOT_CANCEL_MEMBERSHIP = "You cannot cancel this membership";
+        public static final String CANNOT_UPDATE_MEMBERSHIP = "You cannot update this membership";
+        public static final String END_DATE_BEFORE_START_DATE = "endDate must not be before startDate";
+        public static final String MEMBERSHIP_TYPE_IN_USE = "Cannot delete this plan: %d subscription record(s) still reference it.";
+        public static final String MEMBERSHIP_REQUEST_NOT_FOUND = "Membership request not found";
+        public static final String MEMBERSHIP_REQUEST_PENDING_EXISTS = "A pending request already exists for this plan";
+        public static final String MEMBERSHIP_REQUEST_ACTIVE_EXISTS = "You already have an active membership for this plan";
+        public static final String MEMBERSHIP_REQUEST_ALREADY_REVIEWED = "This request was already reviewed";
+        public static final String MEMBERSHIP_REQUEST_CLIENT_ONLY = "Only clients can submit membership requests";
+
+        public static final String PROGRESS_USER_NOT_FOUND = "User not found";
+        public static final String PROGRESS_ENTRY_NOT_FOUND = "Progress entry not found";
+        public static final String PROGRESS_ENTRY_NOT_OWNER = "You can only access your own progress entries";
+        public static final String TRAINER_NOT_ASSIGNED_TO_CLIENT = "Trainer is not assigned to this client";
+        public static final String PROGRESS_ENTRY_REQUIRED_METRIC = "At least one measurable metric must be provided";
+        public static final String PROGRESS_RECORDED_AT_TOO_FAR_FUTURE = "recordedAt cannot be in the far future";
+        public static final int METRIC_SCALE = 2;
+
+        public static final String WEIGHT_MIN_STR = "1.00";
+        public static final String WEIGHT_MAX_STR = "500.00";
+
+        public static final String BODY_FAT_MIN_STR = "1.00";
+        public static final String BODY_FAT_MAX_STR = "80.00";
+
+        public static final String MUSCLE_MASS_MIN_STR = "1.00";
+        public static final String MUSCLE_MASS_MAX_STR = "300.00";
+
+        public static final String MEASUREMENT_MIN_STR = "10.00";
+        public static final String MEASUREMENT_MAX_STR = "300.00";
+
+        public static final int NOTES_MAX_LENGTH = 2000;
+        public static final int ALLOWED_FUTURE_MINUTES = 5;
         public static final int PAGINATION_MAX_SIZE = 100;
         public static final int PAGINATION_DEFAULT_SIZE = 20;
         public static final int PAGINATION_DEFAULT_PAGE = 0;

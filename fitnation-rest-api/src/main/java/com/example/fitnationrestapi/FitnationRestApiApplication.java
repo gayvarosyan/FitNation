@@ -17,6 +17,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.example.fitnationmembership",
         "com.example.fitnationtrainer",
         "com.example.fitnationbooking",
+        "com.example.fitnationprogress",
         "com.example.fitnationcommon",
         "com.fitnationnutrition"},
         excludeFilters = @ComponentScan.Filter(
@@ -27,6 +28,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.example.fitnationmembership.model",
         "com.example.fitnationtrainer",
         "com.example.fitnationbooking",
+        "com.example.fitnationprogress.model",
         "com.fitnationnutrition.model",
         "com.example.fitnationrestapi.entity"})
 @EnableJpaRepositories(basePackages = {
@@ -36,6 +38,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.example.fitnationuser.device",
         "com.example.fitnationtrainer.repository",
         "com.example.fitnationbooking.repository",
+        "com.example.fitnationprogress.repository",
         "com.fitnationnutrition.repository",
         "com.example.fitnationrestapi.repository"})
 @EnableScheduling

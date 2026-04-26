@@ -26,7 +26,7 @@ import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
 import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
-import com.example.fitnationmembership.constant.ApplicationConstants;
+import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationmembership.mapper.MembershipMapper;
 import com.example.fitnationmembership.mapper.MembershipTypeMapper;
 import com.example.fitnationmembership.model.Membership;
@@ -118,7 +118,7 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional
     public MembershipResponse purchaseMembership(String email, PurchaseMembershipRequest request) {
         var user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
 
         var type = membershipTypeRepository.findById(request.membershipTypeId())
                 .orElseThrow(() -> new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND));
@@ -143,7 +143,7 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional(readOnly = true)
     public Page<MembershipResponse> getUserMemberships(String email, Pageable pageable) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
 
         return membershipRepository.findAllByUserId(user.getId(), pageable)
                 .map(membershipMapper::toResponse);
@@ -153,7 +153,7 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional
     public UserMembershipRequestResponse submitMembershipRequest(String userEmail, SubmitMembershipRequest request) {
         var user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
         if (user.getRole() != UserRole.CLIENT) {
             throw new ForbiddenOperationException(ApplicationConstants.MEMBERSHIP_REQUEST_CLIENT_ONLY);
         }
@@ -182,7 +182,7 @@ public class MembershipServiceImpl implements MembershipService {
     @Transactional(readOnly = true)
     public List<UserMembershipRequestResponse> getUserMembershipRequests(String userEmail) {
         var user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
         return membershipRequestRepository.findAllByUserIdWithType(user.getId()).stream()
                 .map(this::toUserRequestResponse)
                 .toList();
@@ -283,7 +283,7 @@ public class MembershipServiceImpl implements MembershipService {
 
     private void validateOptionalRefs(Long nutritionPlanId, Long trainerId, Long groupClassId) {
         if (nutritionPlanId != null && !nutritionPlanRepository.existsById(nutritionPlanId)) {
-            throw new NutritionPlanNotFoundException(ApplicationConstants.NUTRITION_PLAN_NOT_FOUND);
+            throw new NutritionPlanNotFoundException(ApplicationConstants.MEMBERSHIP_NUTRITION_PLAN_NOT_FOUND);
         }
         if (trainerId != null && !trainerRepository.existsById(trainerId)) {
             throw new TrainerNotFoundException(ApplicationConstants.TRAINER_NOT_FOUND);

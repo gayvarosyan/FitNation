@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <changeSet id="033-1-membership-request-status-enum" author="fitnation">
+    <changeSet id="033-1-membership-request-status-enum" author="Gayane">
         <sql>CREATE TYPE membership_request_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED');</sql>
         <rollback>
             <sql>DROP TYPE IF EXISTS membership_request_status;</sql>
