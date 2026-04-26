@@ -2,10 +2,12 @@ package com.example.fitnationuser.service;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.CreateMemberRequest;
+import com.example.fitnationcommon.dto.request.PageRequestParams;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
 import com.example.fitnationcommon.dto.response.AdminMemberStatsResponse;
 import com.example.fitnationcommon.dto.response.MemberDetailResponse;
 import com.example.fitnationcommon.dto.response.MemberListResponse;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
@@ -19,11 +21,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -41,10 +44,10 @@ public class AdminMemberService {
     private String loginUrl;
 
     public AdminMemberStatsResponse getMemberStats() {
-        long totalMembers = userRepository.countTotalMembers(UserRole.CLIENT);
-        long totalActiveUsers = userRepository.countByRoleAndStatus(UserRole.CLIENT, UserStatus.ACTIVE);
-        long usersWithActiveSubscription = userRepository.countActiveUsersWithActiveMembership(UserRole.CLIENT, UserStatus.ACTIVE);
-        long blockedMembers = userRepository.countBlockedMembers(UserRole.CLIENT, UserStatus.BLOCKED);
+        var totalMembers = userRepository.countTotalMembers(UserRole.CLIENT);
+        var totalActiveUsers = userRepository.countByRoleAndStatus(UserRole.CLIENT, UserStatus.ACTIVE);
+        var usersWithActiveSubscription = userRepository.countActiveUsersWithActiveMembership(UserRole.CLIENT, UserStatus.ACTIVE);
+        var blockedMembers = userRepository.countBlockedMembers(UserRole.CLIENT, UserStatus.BLOCKED);
 
         return AdminMemberStatsResponse.builder()
                 .totalMembers(totalMembers)
@@ -55,27 +58,29 @@ public class AdminMemberService {
                 .build();
     }
 
-    public Page<MemberListResponse> getMembers(Integer page, Integer size, String search, String status) {
-        Pageable pageable = PageRequest.of(page, size);
-        UserStatus userStatus = status != null ? UserStatus.valueOf(status.toUpperCase()) : null;
-        boolean hasSearch = search != null && !search.trim().isEmpty();
+    public PagedResponse<MemberListResponse> getMembers(Integer page, Integer size, String sort, String q, String status) {
+        Pageable pageable = PageRequestParams.toPageable(page, size, sort,
+                Set.of("createdAt", "firstName", "lastName", "email", "status"));
+
+        var userStatus = status != null ? UserStatus.valueOf(status.toUpperCase()) : null;
+        var hasSearch = q != null && !q.trim().isEmpty();
 
         Page<User> userPage;
         if (hasSearch && userStatus != null) {
-            userPage = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, search, pageable);
+            userPage = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, q, pageable);
         } else if (hasSearch) {
-            userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, search, pageable);
+            userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, q, pageable);
         } else if (userStatus != null) {
             userPage = userRepository.findByRoleAndStatus(UserRole.CLIENT, userStatus, pageable);
         } else {
             userPage = userRepository.findByRole(UserRole.CLIENT, pageable);
         }
 
-        return userPage.map(this::convertToMemberListResponse);
+        return PagedResponse.of(userPage.map(this::convertToMemberListResponse), sort);
     }
 
     public MemberDetailResponse getMemberById(Long id) {
-        User user = userRepository.findById(id)
+        var user = userRepository.findById(id)
                 .filter(u -> u.getRole() == UserRole.CLIENT)
                 .orElseThrow(() -> {
                     log.warn("getMemberById failed: member not found, id={}", id);
@@ -93,7 +98,7 @@ public class AdminMemberService {
             throw new EmailAlreadyExistsException(ApplicationConstants.EMAIL_ALREADY_EXISTS + request.getEmail());
         }
 
-        User user = User.builder()
+        var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
@@ -105,7 +110,7 @@ public class AdminMemberService {
                 .assignedNutritionPlanId(request.getAssignedNutritionPlanId())
                 .build();
 
-        User savedUser = userRepository.save(user);
+        var savedUser = userRepository.save(user);
         log.info("Created new member with id: {}", savedUser.getId());
 
         return convertToMemberDetailResponse(savedUser);
@@ -119,9 +124,9 @@ public class AdminMemberService {
             throw new EmailAlreadyExistsException(ApplicationConstants.EMAIL_ALREADY_EXISTS + request.getEmail());
         }
 
-        String rawPassword = request.getPassword();
+        var rawPassword = request.getPassword();
 
-        User user = User.builder()
+        var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
@@ -133,7 +138,7 @@ public class AdminMemberService {
                 .assignedNutritionPlanId(request.getAssignedNutritionPlanId())
                 .build();
 
-        User savedUser = userRepository.save(user);
+        var savedUser = userRepository.save(user);
         log.info("Invited new member with id: {}", savedUser.getId());
 
         emailService.sendInvitationEmail(savedUser.getEmail(), rawPassword, loginUrl);
@@ -144,7 +149,7 @@ public class AdminMemberService {
     public MemberDetailResponse updateMember(Long id, UpdateMemberRequest request) {
         memberValidator.validateUpdateMemberRequest(request);
 
-        User user = userRepository.findById(id)
+        var user = userRepository.findById(id)
                 .filter(u -> u.getRole() == UserRole.CLIENT)
                 .orElseThrow(() -> {
                     log.warn("updateMember failed: member not found, id={}", id);
@@ -180,14 +185,14 @@ public class AdminMemberService {
             user.setStatus(request.getStatus());
         }
 
-        User updatedUser = userRepository.save(user);
+        var updatedUser = userRepository.save(user);
         log.info("Updated member with id: {}", updatedUser.getId());
 
         return convertToMemberDetailResponse(updatedUser);
     }
 
     public void deleteMember(Long id) {
-        User user = userRepository.findById(id)
+        var user = userRepository.findById(id)
                 .filter(u -> u.getRole() == UserRole.CLIENT)
                 .orElseThrow(() -> {
                     log.warn("deleteMember failed: member not found, id={}", id);

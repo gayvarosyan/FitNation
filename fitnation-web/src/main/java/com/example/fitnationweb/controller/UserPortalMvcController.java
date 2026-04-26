@@ -12,6 +12,8 @@ import com.example.fitnationweb.support.CurrentUserAccessor;
 import com.example.fitnationweb.support.MvcRedirect;
 import com.fitnationnutrition.service.NutritionPlanService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,12 +53,18 @@ public class UserPortalMvcController {
     @GetMapping("/subscriptions")
     public String subscriptions(Model model) {
         String email = currentUserAccessor.requireUser().getEmail();
+        PageRequest pageable = PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "startDate"));
+
+        List<MembershipResponse> myMemberships = membershipService
+                .getUserMemberships(email, pageable)
+                .getContent();
+
         model.addAttribute("navSection", "subscriptions");
         model.addAttribute("plans", membershipService.getAllMembershipTypes());
         model.addAttribute("myRequests", membershipService.getUserMembershipRequests(email));
-        model.addAttribute("myMemberships", membershipService.getUserMemberships(email));
+        model.addAttribute("myMemberships", myMemberships);
         model.addAttribute("today", LocalDate.now());
-        model.addAttribute("activeMembership", resolveActiveMembership(membershipService.getUserMemberships(email)));
+        model.addAttribute("activeMembership", resolveActiveMembership(myMemberships));
         addBundleLabelMaps(model);
         return SUBSCRIPTIONS_VIEW;
     }
@@ -82,7 +90,7 @@ public class UserPortalMvcController {
             nutritionNames.put(n.getId(), n.getPlanName());
         }
         Map<Long, String> trainerNames = new HashMap<>();
-        for (TrainerDirectoryItem t : trainerManagementService.getDirectory()) {
+        for (TrainerDirectoryItem t : trainerManagementService.getDirectory(0, 100, null, null, null).getItems()) {
             try {
                 if (t.trainerId() != null && !t.trainerId().isBlank()) {
                     trainerNames.put(Long.parseLong(t.trainerId().trim()),
@@ -100,7 +108,6 @@ public class UserPortalMvcController {
         model.addAttribute("trainerNames", trainerNames);
         model.addAttribute("groupClassNames", groupClassNames);
     }
-
     private static MembershipResponse resolveActiveMembership(List<MembershipResponse> memberships) {
         LocalDate today = LocalDate.now();
         Optional<MembershipResponse> best = Optional.empty();

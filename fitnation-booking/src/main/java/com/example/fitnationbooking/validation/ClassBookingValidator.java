@@ -21,7 +21,7 @@ public class ClassBookingValidator {
     }
 
     private void validateCapacity(ClassSchedule schedule) {
-        long bookedCount = classBookingRepository.countByScheduleAndStatus(schedule, ClassBookingStatus.BOOKED);
+        long bookedCount = classBookingRepository.countByScheduleAndStatus(schedule.getId(), ClassBookingStatus.BOOKED.name());
         Integer capacity = schedule.getGroupClass().getCapacity();
         if (capacity != null && bookedCount >= capacity) {
             throw new ClassBookingConflictException(ApplicationConstants.CLASS_SCHEDULE_FULL);
