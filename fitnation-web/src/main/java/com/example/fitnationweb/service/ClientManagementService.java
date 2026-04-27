@@ -22,7 +22,7 @@ public class ClientManagementService {
     }
 
     public List<MemberListResponse> getDirectory() {
-        PagedResponse<MemberListResponse> response = adminMemberService.getMembers(0, 100, null, null, null);
+        PagedResponse<MemberListResponse> response = adminMemberService.getMembers(0, 100, "createdAt,desc", null, null);
         return response.getItems();
     }
 

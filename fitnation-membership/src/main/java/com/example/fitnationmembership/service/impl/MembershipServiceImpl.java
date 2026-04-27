@@ -45,9 +45,11 @@ import com.example.fitnationuser.user.User;
 import com.fitnationnutrition.repository.NutritionPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.math.BigDecimal;
@@ -151,8 +153,16 @@ public class MembershipServiceImpl implements MembershipService {
 
         softDeleteValidationService.validateUserForMembership(user);
 
-        return membershipRepository.findAllByUserId(user.getId(), pageable)
-                .map(membershipMapper::toResponse);
+        List<MembershipResponse> memberships = membershipRepository.findAllByUserIdWithType(user.getId()).stream()
+                .map(membershipMapper::toResponse)
+                .toList();
+        
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), memberships.size());
+        List<MembershipResponse> pageContent = start < memberships.size() ? 
+                memberships.subList(start, end) : List.of();
+        
+        return new PageImpl<>(pageContent, pageable, memberships.size());
     }
 
     @Override
@@ -307,12 +317,33 @@ public class MembershipServiceImpl implements MembershipService {
     @Override
     @Transactional(readOnly = true)
     public Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status) {
-        MembershipStatus membershipStatus = null;
-        if (status != null && !status.isBlank()) {
-            membershipStatus = MembershipStatus.valueOf(status.toUpperCase());
+        List<Membership> memberships = membershipRepository.findAllWithTypeAndUser();
+        
+        if (q != null && !q.trim().isEmpty()) {
+            String searchQuery = q.toLowerCase().trim();
+            memberships = memberships.stream()
+                    .filter(membership -> {
+                        User user = membership.getUser();
+                        return (user.getFirstName() != null && user.getFirstName().toLowerCase().contains(searchQuery)) ||
+                               (user.getLastName() != null && user.getLastName().toLowerCase().contains(searchQuery)) ||
+                               (user.getEmail() != null && user.getEmail().toLowerCase().contains(searchQuery)) ||
+                               (membership.getMembershipType().getName() != null && membership.getMembershipType().getName().toLowerCase().contains(searchQuery));
+                    })
+                    .toList();
         }
-
-        return membershipRepository.findAllWithFilters(q, membershipStatus, pageable)
+        
+        if (status != null && !status.trim().isEmpty()) {
+            try {
+                MembershipStatus statusFilter = MembershipStatus.valueOf(status.toUpperCase());
+                memberships = memberships.stream()
+                        .filter(membership -> membership.getStatus() == statusFilter)
+                        .toList();
+            } catch (IllegalArgumentException e) {
+                return new PageImpl<>(List.of(), pageable, 0);
+            }
+        }
+        
+        List<AdminMembershipRecordResponse> responses = memberships.stream()
                 .map(membership -> new AdminMembershipRecordResponse(
                         membership.getId(),
                         membership.getUser().getId(),
@@ -329,7 +360,15 @@ public class MembershipServiceImpl implements MembershipService {
                         membership.getNutritionPlanId(),
                         membership.getTrainerId(),
                         membership.getGroupClassId()
-                ));
+                ))
+                .toList();
+        
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), responses.size());
+        List<AdminMembershipRecordResponse> pageContent = start < responses.size() ? 
+                responses.subList(start, end) : List.of();
+        
+        return new PageImpl<>(pageContent, pageable, responses.size());
     }
 
     @Override

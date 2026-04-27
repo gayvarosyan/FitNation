@@ -10,7 +10,6 @@ import com.example.fitnationcommon.service.EmailService;
 import com.example.fitnationcommon.validation.MemberValidator;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -116,7 +115,6 @@ class AdminMemberServiceTest {
     }
 
     @Test
-    @DisplayName("getMembers with search and status uses filtered repository call")
     void getMembers_withSearchAndStatus_usesFilteredRepositoryCall() {
         User user = User.builder()
                 .id(7L)
@@ -128,15 +126,14 @@ class AdminMemberServiceTest {
                 .role(UserRole.CLIENT)
                 .build();
         PageImpl<User> userPage = new PageImpl<>(List.of(user), PageRequest.of(0, 20), 1);
-        when(userRepository.findByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
+        when(userRepository.findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
                 .thenReturn(userPage);
 
-        // Test the repository call directly to avoid PagedResponse classpath issues
-        var result = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, UserStatus.ACTIVE, "jon", PageRequest.of(0, 20));
+        var page = adminMemberService.getMembers(0, 20, "createdAt,desc", "jon", "active");
         
-        assertNotNull(result, "Result should not be null");
-        assertEquals(1, result.getTotalElements());
-        assertEquals("jon@test.com", result.getContent().get(0).getEmail());
-        verify(userRepository).findByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any());
+        assertNotNull(page, "Page should not be null");
+        assertEquals(1, page.getTotalElements());
+        assertEquals("jon@test.com", page.getItems().get(0).getEmail());
+        verify(userRepository).findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any());
     }
 }
