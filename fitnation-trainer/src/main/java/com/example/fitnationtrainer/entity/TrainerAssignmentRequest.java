@@ -2,6 +2,8 @@ package com.example.fitnationtrainer.entity;
 
 import com.example.fitnationcommon.enums.TrainerAssignmentRequestStatus;
 import com.example.fitnationuser.user.User;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,6 +29,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "trainer_assignment_requests")
+@Access(AccessType.FIELD)
 public class TrainerAssignmentRequest {
 
     @Id

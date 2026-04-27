@@ -20,6 +20,7 @@ import com.example.fitnationcommon.exception.MembershipTypeNotFoundException;
 import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.ProgressEntryNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
+import com.example.fitnationcommon.exception.UserDeletedException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.exception.UserBlockedException;
 import com.example.fitnationcommon.exception.UserInactiveException;
@@ -44,6 +45,7 @@ import com.example.fitnationcommon.exception.QrSessionInvalidException;
 import com.example.fitnationcommon.exception.RateLimitExceededException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
@@ -267,5 +269,17 @@ public class GlobalExceptionHandler {
         var full = path.toString();
         var dot = full.lastIndexOf('.');
         return dot >= 0 ? full.substring(dot + 1) : full;
+    }
+
+    @ExceptionHandler(UserDeletedException.class)
+    public ResponseEntity<Map<String, Object>> handle(UserDeletedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(Map.of(
+                        "code",      "USER_DELETED",
+                        "message",   "User account has been deactivated",
+                        "userId",    ex.getUserId(),
+                        "timestamp", Instant.now().toString()
+                ));
     }
 }

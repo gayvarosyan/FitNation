@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -123,13 +125,15 @@ class AdminMemberServiceTest {
                 .status(UserStatus.ACTIVE)
                 .role(UserRole.CLIENT)
                 .build();
-        when(userRepository.findByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
-                .thenReturn(new PageImpl<>(List.of(user)));
+        PageImpl<User> userPage = new PageImpl<>(List.of(user), PageRequest.of(0, 20), 1);
+        when(userRepository.findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
+                .thenReturn(userPage);
 
         var page = adminMemberService.getMembers(0, 20, "jon", "active");
-
+        
+        assertNotNull(page, "Page should not be null");
         assertEquals(1, page.getTotalElements());
         assertEquals("jon@test.com", page.getContent().get(0).getEmail());
-        verify(userRepository).findByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any());
+        verify(userRepository).findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any());
     }
 }

@@ -10,6 +10,7 @@ import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.exception.ClassBookingNotFoundException;
 import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
+import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.example.fitnationuser.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class ClassBookingService {
     private final UserRepository userRepository;
     private final ClassBookingMapper classBookingMapper;
     private final ClassBookingValidator classBookingValidator;
+    private final SoftDeleteValidationService softDeleteValidationService;
 
     @Transactional
     public void bookClass(Long scheduleId, Long userId) {
@@ -37,6 +39,7 @@ public class ClassBookingService {
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
+        softDeleteValidationService.validateUserForBooking(user);
         classBookingValidator.validateCanBook(schedule, user);
 
         var booking = classBookingMapper.toBookedEntity(schedule, user);
@@ -48,6 +51,8 @@ public class ClassBookingService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
+
+        softDeleteValidationService.validateUserForBooking(user);
 
         var booking = classBookingRepository.findByIdAndUser(bookingId, user)
                 .orElseThrow(() -> new ClassBookingNotFoundException(
@@ -61,6 +66,8 @@ public class ClassBookingService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
+
+        softDeleteValidationService.validateUserForBooking(user);
 
         return classBookingRepository.findByUser(user).stream()
                 .map(classBookingMapper::toUserBookingItemResponse)

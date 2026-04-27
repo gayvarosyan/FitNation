@@ -17,6 +17,7 @@ import com.example.fitnationtrainer.repository.TrainerRepository;
 import com.example.fitnationuser.payment.PaymentRepository;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
+import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.fitnationnutrition.repository.NutritionPlanRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,6 +55,8 @@ class MembershipServiceImplTest {
     private TrainerRepository trainerRepository;
     @Mock
     private GroupClassRepository groupClassRepository;
+    @Mock
+    private SoftDeleteValidationService softDeleteValidationService;
 
     @InjectMocks
     private MembershipServiceImpl membershipService;
@@ -84,6 +87,8 @@ class MembershipServiceImplTest {
         trainer.setEmail("t@test.com");
         trainer.setRole(UserRole.TRAINER);
         when(userRepository.findByEmail("t@test.com")).thenReturn(Optional.of(trainer));
+        
+        org.mockito.Mockito.doNothing().when(softDeleteValidationService).validateUserForMembership(trainer);
 
         assertThrows(ForbiddenOperationException.class, () ->
                 membershipService.submitMembershipRequest("t@test.com", new SubmitMembershipRequest(1L)));

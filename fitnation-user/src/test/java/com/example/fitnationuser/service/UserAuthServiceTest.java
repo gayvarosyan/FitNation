@@ -8,6 +8,7 @@ import com.example.fitnationcommon.exception.UserInactiveException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
+import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +37,8 @@ class UserAuthServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private UserStatusUtil userStatusUtil;
+    @Mock
+    private SoftDeleteValidationService softDeleteValidationService;
 
     @InjectMocks
     private UserAuthService userAuthService;

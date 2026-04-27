@@ -55,4 +55,36 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.deletedAt IS NOT NULL AND u.deletedAt < :cutoffDate")
     List<User> findUsersDeletedBefore(@Param("cutoffDate") LocalDateTime cutoffDate);
+
+    @Query("SELECT u FROM User u WHERE u.role = :role AND u.deletedAt IS NULL")
+    Page<User> findActiveByRole(@Param("role") UserRole role, Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.role = :role AND u.status = :status AND u.deletedAt IS NULL")
+    Page<User> findActiveByRoleAndStatus(@Param("role") UserRole role,
+                                         @Param("status") UserStatus status,
+                                         Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.role = :role AND u.deletedAt IS NULL AND " +
+            "(LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "u.phone LIKE CONCAT('%', :search, '%') OR " +
+            "CAST(u.id AS STRING) LIKE CONCAT('%', :search, '%'))")
+    Page<User> findActiveByRoleAndSearch(@Param("role") UserRole role,
+                                         @Param("search") String search,
+                                         Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.role = :role AND u.status = :status AND u.deletedAt IS NULL AND " +
+            "(LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "u.phone LIKE CONCAT('%', :search, '%') OR " +
+            "CAST(u.id AS STRING) LIKE CONCAT('%', :search, '%'))")
+    Page<User> findActiveByRoleAndStatusAndSearch(@Param("role") UserRole role,
+                                                  @Param("status") UserStatus status,
+                                                  @Param("search") String search,
+                                                  Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.assignedTrainerId = :trainerId AND u.deletedAt IS NULL")
+    List<User> findActiveByAssignedTrainerId(@Param("trainerId") Long trainerId);
 }

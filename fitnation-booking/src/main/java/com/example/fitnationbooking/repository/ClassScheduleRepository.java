@@ -45,7 +45,8 @@ public interface ClassScheduleRepository extends JpaRepository<ClassSchedule, Lo
             """)
     Optional<ClassSchedule> findByIdWithClassAndTrainer(@Param("id") Long id);
 
-    List<ClassSchedule> findAllByGroupClassTrainerId(Long trainerId);
+    @Query("SELECT s FROM ClassSchedule s WHERE s.groupClass.trainer.id = :trainerId")
+    List<ClassSchedule> findAllByGroupClassTrainerId(@Param("trainerId") Long trainerId);
 
     @Modifying
     @Query("""

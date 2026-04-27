@@ -28,7 +28,8 @@ public interface ClassBookingRepository extends JpaRepository<ClassBooking, Long
     @Query("SELECT cb FROM ClassBooking cb LEFT JOIN FETCH cb.user LEFT JOIN FETCH cb.schedule s LEFT JOIN FETCH s.groupClass gc LEFT JOIN FETCH gc.trainer WHERE cb.id = :id AND cb.user.id = :userId")
     Optional<ClassBooking> findByIdAndUserWithDetails(@Param("id") Long id, @Param("userId") Long userId);
 
-    List<ClassBooking> findAllByScheduleGroupClassTrainerId(Long trainerId);
+    @Query("SELECT cb FROM ClassBooking cb WHERE cb.schedule.groupClass.trainer.id = :trainerId")
+    List<ClassBooking> findAllByScheduleGroupClassTrainerId(@Param("trainerId") Long trainerId);
 
     @Query("SELECT cb FROM ClassBooking cb LEFT JOIN FETCH cb.user LEFT JOIN FETCH cb.schedule s LEFT JOIN FETCH s.groupClass gc LEFT JOIN FETCH gc.trainer WHERE gc.trainer.id = :trainerId ORDER BY cb.createdAt DESC")
     List<ClassBooking> findAllByTrainerIdWithDetails(@Param("trainerId") Long trainerId);
