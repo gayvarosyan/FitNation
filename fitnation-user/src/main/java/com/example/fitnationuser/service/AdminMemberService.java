@@ -68,11 +68,6 @@ public class AdminMemberService {
 
         Page<User> userPage;
         if (hasSearch && userStatus != null) {
-
-            userPage = userRepository.findActiveByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, search, pageable);
-        } else if (hasSearch) {
-            userPage = userRepository.findActiveByRoleAndSearch(UserRole.CLIENT, search, pageable);
-
             userPage = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, q, pageable);
         } else if (hasSearch) {
             userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, q, pageable);

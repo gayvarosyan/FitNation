@@ -151,13 +151,8 @@ public class MembershipServiceImpl implements MembershipService {
 
         softDeleteValidationService.validateUserForMembership(user);
 
-        return membershipRepository.findAllByUserIdWithType(user.getId()).stream()
-                .map(membershipMapper::toResponse)
-                .toList();
-
         return membershipRepository.findAllByUserId(user.getId(), pageable)
                 .map(membershipMapper::toResponse);
-
     }
 
     @Override

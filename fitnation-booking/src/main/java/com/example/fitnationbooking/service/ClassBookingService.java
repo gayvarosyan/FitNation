@@ -74,8 +74,6 @@ public class ClassBookingService {
 
         softDeleteValidationService.validateUserForBooking(user);
 
-        return classBookingRepository.findByUser(user).stream()
-
         Pageable pageable = PageRequestParams.toPageable(page, size, sort,
                 Set.of("status", "createdAt"));
         ClassBookingStatus bookingStatus = status != null ? ClassBookingStatus.valueOf(status.toUpperCase()) : null;
