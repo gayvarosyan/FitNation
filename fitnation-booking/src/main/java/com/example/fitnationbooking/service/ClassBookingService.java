@@ -5,18 +5,21 @@ import com.example.fitnationbooking.repository.ClassBookingRepository;
 import com.example.fitnationbooking.repository.ClassScheduleRepository;
 import com.example.fitnationbooking.validation.ClassBookingValidator;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.dto.request.PageRequestParams;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.exception.ClassBookingNotFoundException;
 import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
-import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.example.fitnationuser.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +30,6 @@ public class ClassBookingService {
     private final UserRepository userRepository;
     private final ClassBookingMapper classBookingMapper;
     private final ClassBookingValidator classBookingValidator;
-    private final SoftDeleteValidationService softDeleteValidationService;
 
     @Transactional
     public void bookClass(Long scheduleId, Long userId) {
@@ -39,7 +41,6 @@ public class ClassBookingService {
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
-        softDeleteValidationService.validateUserForBooking(user);
         classBookingValidator.validateCanBook(schedule, user);
 
         var booking = classBookingMapper.toBookedEntity(schedule, user);
@@ -52,8 +53,6 @@ public class ClassBookingService {
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
-        softDeleteValidationService.validateUserForBooking(user);
-
         var booking = classBookingRepository.findByIdAndUser(bookingId, user)
                 .orElseThrow(() -> new ClassBookingNotFoundException(
                         ApplicationConstants.MSG_BOOKING_NOT_FOUND + bookingId));
@@ -62,15 +61,31 @@ public class ClassBookingService {
     }
 
     @Transactional
-    public List<UserBookingItemResponse> getUserBookings(Long userId) {
+    public PagedResponse<UserBookingItemResponse> getUserBookings(Long userId, Integer page, Integer size, String sort, String status) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
-        softDeleteValidationService.validateUserForBooking(user);
+        Pageable pageable = PageRequestParams.toPageable(page, size, sort,
+                Set.of("status", "createdAt"));
+        ClassBookingStatus bookingStatus = status != null ? ClassBookingStatus.valueOf(status.toUpperCase()) : null;
 
-        return classBookingRepository.findByUser(user).stream()
+        Page<UserBookingItemResponse> resultPage = bookingStatus != null
+                ? classBookingRepository.findByUserAndStatus(user, bookingStatus, pageable)
                 .map(classBookingMapper::toUserBookingItemResponse)
-                .toList();
+                : classBookingRepository.findByUser(user, pageable)
+                .map(classBookingMapper::toUserBookingItemResponse);
+
+        return PagedResponse.of(resultPage, sort);
+    }
+
+    private Sort parseSort(String sort) {
+        if (sort == null || !sort.contains(",")) {
+            return Sort.by(Sort.Direction.DESC, "date");
+        }
+        String[] parts = sort.split(",", 2);
+        Sort.Direction direction = parts[1].trim().equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return Sort.by(direction, parts[0].trim());
     }
 }

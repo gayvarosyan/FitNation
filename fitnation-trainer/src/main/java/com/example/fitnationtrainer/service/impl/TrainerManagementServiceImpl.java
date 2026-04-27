@@ -1,9 +1,10 @@
-
 package com.example.fitnationtrainer.service.impl;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
 import com.example.fitnationcommon.dto.request.EditTrainerRequest;
+import com.example.fitnationcommon.dto.request.PageRequestParams;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
 import com.example.fitnationcommon.enums.UserRole;
@@ -11,22 +12,24 @@ import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserPendingException;
+import com.example.fitnationcommon.service.EmailService;
 import com.example.fitnationtrainer.entity.Trainer;
 import com.example.fitnationtrainer.mapper.TrainerMapper;
 import com.example.fitnationtrainer.repository.TrainerRepository;
 import com.example.fitnationtrainer.service.TrainerManagementService;
 import com.example.fitnationuser.repository.UserRepository;
-import com.example.fitnationcommon.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -54,12 +57,22 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TrainerDirectoryItem> getDirectory() {
-        List<TrainerDirectoryItem> items = trainerRepository.findAllByDeletedAtIsNull().stream()
-                .map(trainerMapper::toDirectoryItem)
-                .toList();
-        log.debug("getDirectory: returned {} trainer(s)", items.size());
-        return items;
+    public PagedResponse<TrainerDirectoryItem> getDirectory(Integer page, Integer size, String sort, String q, String status) {
+        Pageable pageable = PageRequestParams.toPageable(page, size, sort,
+                Set.of("lastName", "firstName", "email", "status", "createdAt"));
+        Page<Trainer> trainerPage = trainerRepository.findPagedDirectory(q, status, pageable);
+
+        return PagedResponse.of(trainerPage.map(trainerMapper::toDirectoryItem), sort);
+    }
+
+    private Sort parseSort(String sort) {
+        if (sort == null || !sort.contains(",")) {
+            return Sort.by(Sort.Direction.ASC, "lastName");
+        }
+        String[] parts = sort.split(",", 2);
+        Sort.Direction direction = parts[1].trim().equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return Sort.by(direction, parts[0].trim());
     }
 
     @Override
@@ -76,11 +89,7 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
         trainer.setRole(UserRole.TRAINER);
         trainer.setStatus(UserStatus.PENDING);
         trainer = trainerRepository.save(trainer);
-        log.info(
-                ApplicationConstants.LOG_TRAINER_CREATED,
-                trainer.getId(),
-                trainer.getEmail(),
-                trainer.getStatus());
+        log.info(ApplicationConstants.LOG_TRAINER_CREATED, trainer.getId(), trainer.getEmail(), trainer.getStatus());
 
         if (emailService.sendInvitationEmail(trainer.getEmail(), adminPassword, loginUrl)) {
             log.info(ApplicationConstants.LOG_TRAINER_INVITATION_EMAIL_SENT, trainer.getEmail());
@@ -105,7 +114,6 @@ public class TrainerManagementServiceImpl implements TrainerManagementService {
         }
 
         trainerMapper.updateTrainer(trainer, request);
-
         trainer = trainerRepository.save(trainer);
         log.info("Trainer updated: id={}, email={}", trainer.getId(), trainer.getEmail());
         return trainerMapper.toDirectoryItem(trainer);
