@@ -5,6 +5,7 @@ import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
 import com.example.fitnationcommon.dto.response.AdminMemberStatsResponse;
 import com.example.fitnationcommon.dto.response.MemberDetailResponse;
 import com.example.fitnationcommon.dto.response.MemberListResponse;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationuser.service.AdminMemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,21 +41,35 @@ public class AdminMemberController {
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminMemberStatsResponse> getMemberStats() {
-
         return ResponseEntity.ok(adminMemberService.getMemberStats());
     }
 
-    @Operation(summary = "List members (paged)")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Page returned"))
+    @Operation(
+            summary = "List members (paged)",
+            description = """
+            Searchable, paginated member directory.
+            
+            **q** searches: firstName, lastName, email (case-insensitive, partial match)
+            **sort** allowed fields: createdAt, firstName, lastName, email, status
+            **size** max: 100, default: 20
+            **page** 0-based, default: 0
+            **status** optional filter: ACTIVE, PENDING, BLOCKED
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Page returned"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination params (bad sort field, negative page, size > 100)")
+    })
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<MemberListResponse>> getMembers(
+    public ResponseEntity<PagedResponse<MemberListResponse>> getMembers(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
-            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "createdAt,desc") String sort,
+            @RequestParam(required = false) String q,
             @RequestParam(required = false) String status) {
 
-        return ResponseEntity.ok(adminMemberService.getMembers(page, size, search, status));
+        return ResponseEntity.ok(adminMemberService.getMembers(page, size, sort, q, status));
     }
 
     @Operation(summary = "Get member by id")

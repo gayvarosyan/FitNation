@@ -126,7 +126,11 @@ public final class ApplicationConstants {
         public static final String TRAINER_ID_REQUIRED = "trainerId is required";
         public static final int MESSAGE_MAX_LENGTH = 1000;
         public static final String MESSAGE_MAX_SIZE = "Message must not exceed 1000 characters";
-  
+        public static final String INVALID_FILTER_DATE_RANGE = "fromDate must be earlier than or equal to toDate";
+
+        public static final String INVALID_PAGE_NUMBER = "Page number must be >= 0";
+        public static final String INVALID_PAGE_SIZE = "Page size must be between 1 and ";
+
         public static final int QR_SESSION_TTL_MINUTES = 5;
         public static final int QR_MAX_SESSIONS_PER_WINDOW = 5;
         public static final int QR_RATE_LIMIT_WINDOW_MINUTES = 10;
@@ -184,4 +188,9 @@ public final class ApplicationConstants {
 
         public static final int NOTES_MAX_LENGTH = 2000;
         public static final int ALLOWED_FUTURE_MINUTES = 5;
+        public static final int PAGINATION_MAX_SIZE = 100;
+        public static final int PAGINATION_DEFAULT_SIZE = 20;
+        public static final int PAGINATION_DEFAULT_PAGE = 0;
+
+
 }

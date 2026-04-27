@@ -40,7 +40,7 @@ public class ClassBooking {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 20, columnDefinition = "booking_status")
     private ClassBookingStatus status = ClassBookingStatus.BOOKED;
 
     @Column(name = "created_at", nullable = false, updatable = false)

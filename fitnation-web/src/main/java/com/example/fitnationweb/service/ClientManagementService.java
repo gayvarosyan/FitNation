@@ -4,9 +4,9 @@ import com.example.fitnationcommon.dto.request.CreateMemberRequest;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
 import com.example.fitnationcommon.dto.response.AdminMemberStatsResponse;
 import com.example.fitnationcommon.dto.response.MemberListResponse;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationuser.service.AdminMemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +22,8 @@ public class ClientManagementService {
     }
 
     public List<MemberListResponse> getDirectory() {
-        return adminMemberService.getMembers(0, 100, null, null).getContent();
+        PagedResponse<MemberListResponse> response = adminMemberService.getMembers(0, 100, null, null, null);
+        return response.getItems();
     }
 
     public void create(CreateMemberRequest request) {

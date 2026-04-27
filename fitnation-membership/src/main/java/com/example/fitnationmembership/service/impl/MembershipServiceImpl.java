@@ -48,7 +48,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.math.BigDecimal;
@@ -146,7 +145,7 @@ public class MembershipServiceImpl implements MembershipService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MembershipResponse> getUserMemberships(String email) {
+    public Page<MembershipResponse> getUserMemberships(String email, Pageable pageable) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
 
@@ -155,6 +154,10 @@ public class MembershipServiceImpl implements MembershipService {
         return membershipRepository.findAllByUserIdWithType(user.getId()).stream()
                 .map(membershipMapper::toResponse)
                 .toList();
+
+        return membershipRepository.findAllByUserId(user.getId(), pageable)
+                .map(membershipMapper::toResponse);
+
     }
 
     @Override
@@ -308,8 +311,13 @@ public class MembershipServiceImpl implements MembershipService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AdminMembershipRecordResponse> getAdminMemberships() {
-        return membershipRepository.findAllWithTypeAndUser().stream()
+    public Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status) {
+        MembershipStatus membershipStatus = null;
+        if (status != null && !status.isBlank()) {
+            membershipStatus = MembershipStatus.valueOf(status.toUpperCase());
+        }
+
+        return membershipRepository.findAllWithFilters(q, membershipStatus, pageable)
                 .map(membership -> new AdminMembershipRecordResponse(
                         membership.getId(),
                         membership.getUser().getId(),
@@ -326,8 +334,7 @@ public class MembershipServiceImpl implements MembershipService {
                         membership.getNutritionPlanId(),
                         membership.getTrainerId(),
                         membership.getGroupClassId()
-                ))
-                .toList();
+                ));
     }
 
     @Override

@@ -1,11 +1,13 @@
 package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationbooking.service.GroupClassService;
+import com.example.fitnationcommon.dto.request.ClassScheduleFilterRequest;
 import com.example.fitnationcommon.dto.request.CreateGroupClassRequest;
 import com.example.fitnationcommon.dto.request.ScheduleClassRequest;
 import com.example.fitnationcommon.dto.request.UpdateGroupClassRequest;
 import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationcommon.dto.response.GroupClassResponse;
+import com.example.fitnationcommon.enums.ScheduleFilterStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,8 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -101,8 +105,13 @@ public class AdminClassController {
     @Operation(summary = "List all schedules", description = "Returns published class schedules (authenticated).")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "Schedules returned"))
     @GetMapping("/classes/schedule")
-    public List<ClassScheduleItemResponse> getAllSchedules() {
-        return groupClassService.getAllSchedules(null, null, null, null);
+    public List<ClassScheduleItemResponse> getAllSchedules(
+            @RequestParam(required = false) Long trainerId,
+            @RequestParam(required = false) LocalDate fromDate,
+            @RequestParam(required = false) LocalDate toDate,
+            @RequestParam(required = false) ScheduleFilterStatus status
+    ) {
+        return groupClassService.getAllSchedules(new ClassScheduleFilterRequest(trainerId, fromDate, toDate, status));
     }
 
     @Operation(summary = "List group classes", description = "ADMIN: list all group class templates.")

@@ -1,6 +1,7 @@
 package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.request.CreateMembershipTypeRequest;
+import com.example.fitnationcommon.dto.request.PageRequestParams;
 import com.example.fitnationcommon.dto.request.PurchaseMembershipRequest;
 import com.example.fitnationcommon.dto.request.SubmitMembershipRequest;
 import com.example.fitnationcommon.dto.request.UpdateMembershipRequest;
@@ -11,6 +12,10 @@ import com.example.fitnationcommon.dto.response.MembershipTypeResponse;
 import com.example.fitnationcommon.dto.response.UserMembershipRequestResponse;
 import com.example.fitnationmembership.service.MembershipService;
 import com.example.fitnationuser.user.User;
+import com.example.fitnationcommon.dto.response.PagedResponse;
+import org.springframework.data.domain.Pageable;
+import java.util.Set;
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -21,15 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -96,13 +93,39 @@ public class MembershipController {
                 .body(membershipService.purchaseMembership(user.getEmail(), request));
     }
 
-    @Operation(summary = "List current user's memberships")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Memberships returned"))
+    @Operation(
+            summary = "List current user's memberships (paged)",
+            description = """
+                Paginated membership list for the authenticated user.
+
+                **sort** allowed fields: createdAt, status, startDate, endDate  
+                **size** max: 100, default: 20  
+                **page** 0-based, default: 0  
+                **status** optional filter: ACTIVE, EXPIRED, CANCELLED, PAST_DUE  
+
+                **q** — not supported for this endpoint (ignored).
+                """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Page returned"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination params (bad sort field, negative page, size > 100)")
+    })
     @GetMapping("/api/users/memberships")
-    public ResponseEntity<List<MembershipResponse>> getUserMemberships(
-            @AuthenticationPrincipal User user) {
+    public ResponseEntity<PagedResponse<MembershipResponse>> getUserMemberships(
+            @AuthenticationPrincipal User user,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort,
+            @RequestParam(required = false) String status) {
+
+        Pageable pageable = PageRequestParams.toPageable(
+                page, size, sort,
+                Set.of("createdAt", "status", "startDate", "endDate")
+        );
+
         return ResponseEntity.ok(
-                membershipService.getUserMemberships(user.getEmail()));
+                PagedResponse.of(membershipService.getUserMemberships(user.getEmail(), pageable), sort)
+        );
     }
 
     @Operation(summary = "Submit membership request", description = "User requests a new membership plan change.")
@@ -126,12 +149,39 @@ public class MembershipController {
         return ResponseEntity.ok(membershipService.getUserMembershipRequests(user.getEmail()));
     }
 
-    @Operation(summary = "List memberships (admin view)")
-    @ApiResponses(@ApiResponse(responseCode = "200", description = "Records returned"))
+    @Operation(
+            summary = "List memberships (admin view, paged)",
+            description = """
+                Searchable, paginated membership records for admin.
+
+                **q** searches: user firstName, lastName, email, membership type name (case-insensitive, partial match)  
+                **sort** allowed fields: createdAt, status, startDate, endDate, memberName  
+                **size** max: 100, default: 20  
+                **page** 0-based, default: 0  
+                **status** optional filter: ACTIVE, EXPIRED, CANCELLED, PAST_DUE
+                """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Page returned"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination params (bad sort field, negative page, size > 100)")
+    })
     @GetMapping("/api/admin/memberships")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<AdminMembershipRecordResponse>> getAdminMemberships() {
-        return ResponseEntity.ok(membershipService.getAdminMemberships());
+    public ResponseEntity<PagedResponse<AdminMembershipRecordResponse>> getAdminMemberships(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String status) {
+
+        Pageable pageable = PageRequestParams.toPageable(
+                page, size, sort,
+                Set.of("createdAt", "status", "startDate", "endDate", "memberName")
+        );
+
+        return ResponseEntity.ok(
+                PagedResponse.of(membershipService.getAdminMemberships(pageable, q, status), sort)
+        );
     }
 
     @Operation(summary = "Membership statistics (admin)")

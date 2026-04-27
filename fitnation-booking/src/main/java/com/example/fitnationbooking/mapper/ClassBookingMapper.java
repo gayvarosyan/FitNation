@@ -16,7 +16,7 @@ import java.time.LocalTime;
 public class ClassBookingMapper {
 
     public ClassBooking toBookedEntity(ClassSchedule schedule, User user) {
-        ClassBooking booking = new ClassBooking();
+        var booking = new ClassBooking();
         booking.setSchedule(schedule);
         booking.setUser(user);
         booking.setStatus(ClassBookingStatus.BOOKED);
@@ -24,12 +24,12 @@ public class ClassBookingMapper {
     }
 
     public UserBookingItemResponse toUserBookingItemResponse(ClassBooking booking) {
-        ClassSchedule schedule = booking.getSchedule();
+        var schedule = booking.getSchedule();
         var groupClass = schedule.getGroupClass();
         var trainer = groupClass.getTrainer();
-        String trainerName = trainer.getFirstName() + " " + trainer.getLastName();
+        var trainerName = trainer.getFirstName() + " " + trainer.getLastName();
 
-        BookingDisplayStatus displayStatus = computeDisplayStatus(
+        var displayStatus = computeDisplayStatus(
                 booking.getStatus(),
                 schedule.getDate(),
                 schedule.getStartTime(),
@@ -57,9 +57,9 @@ public class ClassBookingMapper {
         if (status == ClassBookingStatus.CANCELLED) {
             return BookingDisplayStatus.CANCELLED;
         }
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime sessionStart = LocalDateTime.of(date, startTime);
-        LocalDateTime sessionEnd = LocalDateTime.of(date, endTime);
+        var now = LocalDateTime.now();
+        var sessionStart = LocalDateTime.of(date, startTime);
+        var sessionEnd = LocalDateTime.of(date, endTime);
 
         if (now.isBefore(sessionStart)) {
             return BookingDisplayStatus.UPCOMING;

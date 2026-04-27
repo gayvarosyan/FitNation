@@ -2,16 +2,16 @@ package com.example.fitnationtrainer.service;
 
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
 import com.example.fitnationcommon.dto.request.EditTrainerRequest;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
 
-import java.util.List;
 
 public interface TrainerManagementService {
 
     TrainerStatsResponse getStats();
 
-    List<TrainerDirectoryItem> getDirectory();
+    PagedResponse<TrainerDirectoryItem> getDirectory(Integer page, Integer size, String sort, String q, String status);
 
     TrainerDirectoryItem create(CreateTrainerRequest request);
 

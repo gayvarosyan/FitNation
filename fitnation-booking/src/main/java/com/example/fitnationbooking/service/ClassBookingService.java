@@ -5,6 +5,8 @@ import com.example.fitnationbooking.repository.ClassBookingRepository;
 import com.example.fitnationbooking.repository.ClassScheduleRepository;
 import com.example.fitnationbooking.validation.ClassBookingValidator;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.dto.request.PageRequestParams;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.exception.ClassBookingNotFoundException;
@@ -14,9 +16,11 @@ import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.example.fitnationuser.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -62,15 +66,37 @@ public class ClassBookingService {
     }
 
     @Transactional
-    public List<UserBookingItemResponse> getUserBookings(Long userId) {
+    public PagedResponse<UserBookingItemResponse> getUserBookings(Long userId, Integer page, Integer size, String sort, String status) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
+
         softDeleteValidationService.validateUserForBooking(user);
 
         return classBookingRepository.findByUser(user).stream()
+
+        Pageable pageable = PageRequestParams.toPageable(page, size, sort,
+                Set.of("status", "createdAt"));
+        ClassBookingStatus bookingStatus = status != null ? ClassBookingStatus.valueOf(status.toUpperCase()) : null;
+
+        Page<UserBookingItemResponse> resultPage = bookingStatus != null
+                ? classBookingRepository.findByUserAndStatus(user, bookingStatus, pageable)
+
                 .map(classBookingMapper::toUserBookingItemResponse)
-                .toList();
+                : classBookingRepository.findByUser(user, pageable)
+                .map(classBookingMapper::toUserBookingItemResponse);
+
+        return PagedResponse.of(resultPage, sort);
+    }
+
+    private Sort parseSort(String sort) {
+        if (sort == null || !sort.contains(",")) {
+            return Sort.by(Sort.Direction.DESC, "date");
+        }
+        String[] parts = sort.split(",", 2);
+        Sort.Direction direction = parts[1].trim().equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return Sort.by(direction, parts[0].trim());
     }
 }
