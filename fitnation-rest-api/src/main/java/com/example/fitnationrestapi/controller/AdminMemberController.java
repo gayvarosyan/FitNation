@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/members")
 @RequiredArgsConstructor
-@Slf4j
+@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Admin members", description = "Member directory and lifecycle (ADMIN)")
 public class AdminMemberController {
 
@@ -92,9 +91,7 @@ public class AdminMemberController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> createMember(
             @Valid @RequestBody CreateMemberRequest request) {
-
-        MemberDetailResponse createdMember = adminMemberService.createMember(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdMember);
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminMemberService.createMember(request));
     }
 
     @Operation(summary = "Invite member")
@@ -106,9 +103,7 @@ public class AdminMemberController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> inviteMember(
             @Valid @RequestBody CreateMemberRequest request) {
-
-        MemberDetailResponse invited = adminMemberService.inviteMember(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(invited);
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminMemberService.inviteMember(request));
     }
 
     @Operation(summary = "Update member")
@@ -121,9 +116,7 @@ public class AdminMemberController {
     public ResponseEntity<MemberDetailResponse> updateMember(
             @PathVariable Long id,
             @Valid @RequestBody UpdateMemberRequest request) {
-
-        MemberDetailResponse updatedMember = adminMemberService.updateMember(id, request);
-        return ResponseEntity.ok(updatedMember);
+        return ResponseEntity.ok(adminMemberService.updateMember(id, request));
     }
 
     @Operation(summary = "Delete member")

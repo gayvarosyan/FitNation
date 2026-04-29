@@ -1,7 +1,5 @@
 package com.example.fitnationrestapi.controller;
 
-import com.example.fitnationbooking.service.ClassBookingService;
-import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationcommon.enums.BookingDisplayStatus;
@@ -9,6 +7,7 @@ import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
+import com.example.fitnationrestapi.service.UserBookingFacadeService;
 import com.example.fitnationuser.security.SecurityAuthoritiesUtil;
 import com.example.fitnationuser.user.User;
 import org.junit.jupiter.api.AfterEach;
@@ -25,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,16 +35,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserBookingControllerApiTest {
 
     @Mock
-    private ClassBookingService classBookingService;
-
-    @Mock
-    private GroupClassService groupClassService;
+    private UserBookingFacadeService bookingFacadeService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new UserBookingController(classBookingService, groupClassService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new UserBookingController(bookingFacadeService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
@@ -63,7 +58,7 @@ class UserBookingControllerApiTest {
         mockMvc.perform(post("/api/users/classes/7/book"))
                 .andExpect(status().isCreated());
 
-        verify(classBookingService).bookClass(7L, 42L);
+        verify(bookingFacadeService).bookClass(7L);
     }
 
     @Test
@@ -93,7 +88,7 @@ class UserBookingControllerApiTest {
                 .sort("date,desc")
                 .build();
 
-        when(classBookingService.getUserBookings(anyLong(), any(), any(), any(), any()))
+        when(bookingFacadeService.getUserBookings(any(), any(), any(), any()))
                 .thenReturn(pagedResponse);
 
         mockMvc.perform(get("/api/users/bookings"))

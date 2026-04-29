@@ -6,20 +6,17 @@ import com.example.fitnationprogress.exception.InvalidNotificationContextExcepti
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationuser.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
+@RequiredArgsConstructor
 public class NotificationRecipientResolver {
 
     private final UserRepository userRepository;
-
-    public NotificationRecipientResolver(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public List<Long> resolve(RecipientAudience audience, NotificationTriggerCommand command) {
         return switch (audience) {
@@ -33,10 +30,7 @@ public class NotificationRecipientResolver {
     }
 
     private List<Long> singleId(Long id) {
-        if (id == null) {
-            return List.of();
-        }
-        return List.of(id);
+        return id == null ? List.of() : List.of(id);
     }
 
     private List<Long> optionalTrainer(NotificationTriggerCommand command) {
@@ -48,10 +42,9 @@ public class NotificationRecipientResolver {
     }
 
     private List<Long> mergeUnique(List<Long> trainerIds, List<Long> adminIds) {
-        var merged = new LinkedHashSet<Long>();
-        merged.addAll(trainerIds);
-        merged.addAll(adminIds);
-        return new ArrayList<>(merged);
+        return Stream.concat(trainerIds.stream(), adminIds.stream())
+                .distinct()
+                .toList();
     }
 
     private Long parseRequiredLong(NotificationTriggerCommand command, String key) {

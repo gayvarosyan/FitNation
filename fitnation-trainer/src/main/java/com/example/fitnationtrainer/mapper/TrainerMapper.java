@@ -18,30 +18,20 @@ public class TrainerMapper {
     private final PasswordEncoder passwordEncoder;
 
     public Trainer toTrainer(RegisterRequest request) {
-        Trainer trainer = new Trainer();
-        trainer.setFirstName(request.firstName());
-        trainer.setLastName(request.lastName());
-        trainer.setEmail(request.email());
-        trainer.setPhone(request.phone());
+        Trainer trainer = baseTrainer(request.firstName(), request.lastName(), request.email(), request.phone());
         trainer.setPassword(passwordEncoder.encode(request.password()));
-        trainer.setRole(UserRole.TRAINER);
         trainer.setStatus(UserStatus.INACTIVE);
-        trainer.setSpecialization(request.specialization() != null ? request.specialization() : "");
+        trainer.setSpecialization(blankToEmpty(request.specialization()));
         trainer.setBio(request.bio());
         return trainer;
     }
 
     public Trainer toTrainer(CreateTrainerRequest request) {
-        Trainer trainer = new Trainer();
-        trainer.setFirstName(request.firstName());
-        trainer.setLastName(request.lastName());
-        trainer.setEmail(request.email());
-        trainer.setPhone(request.phone());
+        Trainer trainer = baseTrainer(request.firstName(), request.lastName(), request.email(), request.phone());
         trainer.setPassword(passwordEncoder.encode(request.password()));
-        trainer.setRole(UserRole.TRAINER);
         trainer.setStatus(UserStatus.ACTIVE);
-        trainer.setSpecialization(request.specialization() != null ? request.specialization() : "");
-        trainer.setBio(request.bio() != null ? request.bio() : "");
+        trainer.setSpecialization(blankToEmpty(request.specialization()));
+        trainer.setBio(blankToEmpty(request.bio()));
         return trainer;
     }
 
@@ -64,12 +54,26 @@ public class TrainerMapper {
                 String.valueOf(trainer.getId()),
                 trainer.getFirstName(),
                 trainer.getLastName(),
-                trainer.getSpecialization() != null ? trainer.getSpecialization() : "",
-                trainer.getBio() != null ? trainer.getBio() : "",
+                blankToEmpty(trainer.getSpecialization()),
+                blankToEmpty(trainer.getBio()),
                 trainer.getEmail(),
-                trainer.getPhone() != null ? trainer.getPhone() : "",
+                blankToEmpty(trainer.getPhone()),
                 trainer.getStatus(),
                 false
         );
+    }
+
+    private Trainer baseTrainer(String firstName, String lastName, String email, String phone) {
+        Trainer trainer = new Trainer();
+        trainer.setFirstName(firstName);
+        trainer.setLastName(lastName);
+        trainer.setEmail(email);
+        trainer.setPhone(phone);
+        trainer.setRole(UserRole.TRAINER);
+        return trainer;
+    }
+
+    private static String blankToEmpty(String value) {
+        return value != null ? value : "";
     }
 }

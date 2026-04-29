@@ -3,6 +3,7 @@ package com.example.fitnationprogress.service;
 import com.example.fitnationprogress.config.NotificationProperties;
 import com.example.fitnationprogress.dto.NotificationTriggerCommand;
 import com.example.fitnationprogress.repository.InAppNotificationRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationTriggerService {
     private static final Logger LOG = LoggerFactory.getLogger(NotificationTriggerService.class);
 
@@ -21,21 +23,6 @@ public class NotificationTriggerService {
     private final NotificationTransactionalIssuer notificationTransactionalIssuer;
     private final NotificationProperties notificationProperties;
     private final InAppNotificationRepository inAppNotificationRepository;
-
-    public NotificationTriggerService(
-            NotificationRuleRegistry notificationRuleRegistry,
-            NotificationRecipientResolver notificationRecipientResolver,
-            NotificationTemplateRenderer notificationTemplateRenderer,
-            NotificationTransactionalIssuer notificationTransactionalIssuer,
-            NotificationProperties notificationProperties,
-            InAppNotificationRepository inAppNotificationRepository) {
-        this.notificationRuleRegistry = notificationRuleRegistry;
-        this.notificationRecipientResolver = notificationRecipientResolver;
-        this.notificationTemplateRenderer = notificationTemplateRenderer;
-        this.notificationTransactionalIssuer = notificationTransactionalIssuer;
-        this.notificationProperties = notificationProperties;
-        this.inAppNotificationRepository = inAppNotificationRepository;
-    }
 
     public void dispatch(NotificationTriggerCommand command) {
         var segments = notificationRuleRegistry.segmentsFor(command.eventType());
@@ -92,10 +79,7 @@ public class NotificationTriggerService {
     }
 
     private boolean isBurstLimited(Long recipientId, Instant burstWindowStart, long burstLimit) {
-        if (burstLimit <= 0) {
-            return false;
-        }
-        var recent = inAppNotificationRepository.countByRecipientSince(recipientId, burstWindowStart);
+        long recent = inAppNotificationRepository.countByRecipientSince(recipientId, burstWindowStart);
         return recent >= burstLimit;
     }
 

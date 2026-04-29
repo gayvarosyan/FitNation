@@ -4,38 +4,26 @@ import com.example.fitnationbooking.entity.ClassBooking;
 import com.example.fitnationbooking.entity.ClassSchedule;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationuser.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
 import java.util.Optional;
 
 public interface ClassBookingRepository extends JpaRepository<ClassBooking, Long> {
 
-    @Query(value = "select count(*) from public.class_bookings where class_schedule_id = :scheduleId and status = cast(:status as booking_status)", nativeQuery = true)
-    long countByScheduleAndStatus(@Param("scheduleId") Long scheduleId, @Param("status") String status);
+    long countBySchedule_IdAndStatus(Long scheduleId, ClassBookingStatus status);
 
     boolean existsByScheduleAndUserAndStatus(ClassSchedule schedule, User user, ClassBookingStatus status);
 
     Page<ClassBooking> findByUser(User user, Pageable pageable);
     Page<ClassBooking> findByUserAndStatus(User user, ClassBookingStatus status, Pageable pageable);
 
-    @Query("SELECT cb FROM ClassBooking cb LEFT JOIN FETCH cb.user LEFT JOIN FETCH cb.schedule s LEFT JOIN FETCH s.groupClass gc LEFT JOIN FETCH gc.trainer WHERE cb.user.id = :userId ORDER BY cb.createdAt DESC")
-    List<ClassBooking> findByUserIdWithDetails(@Param("userId") Long userId);
-
-    Optional<ClassBooking> findByIdAndUser(Long id, User user);
-
     @Query("SELECT cb FROM ClassBooking cb LEFT JOIN FETCH cb.user LEFT JOIN FETCH cb.schedule s LEFT JOIN FETCH s.groupClass gc LEFT JOIN FETCH gc.trainer WHERE cb.id = :id AND cb.user.id = :userId")
     Optional<ClassBooking> findByIdAndUserWithDetails(@Param("id") Long id, @Param("userId") Long userId);
-
-    List<ClassBooking> findAllByScheduleGroupClassTrainerId(Long trainerId);
-
-    @Query("SELECT cb FROM ClassBooking cb LEFT JOIN FETCH cb.user LEFT JOIN FETCH cb.schedule s LEFT JOIN FETCH s.groupClass gc LEFT JOIN FETCH gc.trainer WHERE gc.trainer.id = :trainerId ORDER BY cb.createdAt DESC")
-    List<ClassBooking> findAllByTrainerIdWithDetails(@Param("trainerId") Long trainerId);
 
     @Modifying
     @Query("""

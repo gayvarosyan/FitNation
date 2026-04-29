@@ -2,9 +2,9 @@ package com.example.fitnationweb.controller;
 
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.SubmitMembershipRequest;
+import com.example.fitnationcommon.dto.response.GroupClassResponse;
 import com.example.fitnationcommon.dto.response.MembershipResponse;
 import com.example.fitnationcommon.dto.response.NutritionPlanCatalogItemDto;
-import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.enums.MembershipStatus;
 import com.example.fitnationmembership.service.MembershipService;
 import com.example.fitnationtrainer.service.TrainerManagementService;
@@ -24,10 +24,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/portal")
@@ -85,40 +86,36 @@ public class UserPortalMvcController {
     }
 
     private void addBundleLabelMaps(Model model) {
-        Map<Long, String> nutritionNames = new HashMap<>();
-        for (NutritionPlanCatalogItemDto n : nutritionPlanService.getPlanCatalog()) {
-            nutritionNames.put(n.getId(), n.getPlanName());
-        }
-        Map<Long, String> trainerNames = new HashMap<>();
-        for (TrainerDirectoryItem t : trainerManagementService.getDirectory(0, 100, null, null, null).getItems()) {
-            try {
-                if (t.trainerId() != null && !t.trainerId().isBlank()) {
-                    trainerNames.put(Long.parseLong(t.trainerId().trim()),
-                            t.firstName() + " " + t.lastName());
-                }
-            } catch (NumberFormatException ignored) {
-                // skip malformed directory id
-            }
-        }
-        Map<Long, String> groupClassNames = new HashMap<>();
-        for (var gc : groupClassService.listAllGroupClasses()) {
-            groupClassNames.put(gc.id(), gc.name());
-        }
+        Map<Long, String> nutritionNames = nutritionPlanService.getPlanCatalog().stream()
+                .collect(Collectors.toMap(NutritionPlanCatalogItemDto::getId, NutritionPlanCatalogItemDto::getPlanName, (a, b) -> a));
+
+        Map<Long, String> trainerNames = trainerManagementService.getDirectory(0, 100, null, null, null).getItems().stream()
+                .flatMap(t -> {
+                    if (t.trainerId() == null || t.trainerId().isBlank()) {
+                        return Stream.empty();
+                    }
+                    try {
+                        long id = Long.parseLong(t.trainerId().trim());
+                        return Stream.of(Map.entry(id, t.firstName() + " " + t.lastName()));
+                    } catch (NumberFormatException e) {
+                        return Stream.empty();
+                    }
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a));
+
+        Map<Long, String> groupClassNames = groupClassService.listAllGroupClasses().stream()
+                .collect(Collectors.toMap(GroupClassResponse::id, GroupClassResponse::name, (a, b) -> a));
+
         model.addAttribute("nutritionNames", nutritionNames);
         model.addAttribute("trainerNames", trainerNames);
         model.addAttribute("groupClassNames", groupClassNames);
     }
+
     private static MembershipResponse resolveActiveMembership(List<MembershipResponse> memberships) {
         LocalDate today = LocalDate.now();
-        Optional<MembershipResponse> best = Optional.empty();
-        for (MembershipResponse m : memberships) {
-            if (m.status() != MembershipStatus.ACTIVE || m.endDate().isBefore(today)) {
-                continue;
-            }
-            if (best.isEmpty() || m.endDate().isAfter(best.get().endDate())) {
-                best = Optional.of(m);
-            }
-        }
-        return best.orElse(null);
+        return memberships.stream()
+                .filter(m -> m.status() == MembershipStatus.ACTIVE && !m.endDate().isBefore(today))
+                .max(Comparator.comparing(MembershipResponse::endDate))
+                .orElse(null);
     }
 }

@@ -1,6 +1,6 @@
 package com.example.fitnationprogress.validation;
 
-import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
+import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 
@@ -15,8 +15,8 @@ class UserProgressValidatorTest {
     private final UserProgressValidator validator = new UserProgressValidator();
 
     @Test
-    void validateForCreate_rejectsAllMetricsMissing() {
-        CreateUserProgressEntryRequest request = new CreateUserProgressEntryRequest(
+    void validateEntry_rejectsAllMetricsMissing() {
+        UpsertUserProgressEntryRequest request = new UpsertUserProgressEntryRequest(
                 LocalDateTime.now(),
                 null,
                 null,
@@ -26,12 +26,12 @@ class UserProgressValidatorTest {
                 null,
                 "note");
 
-        assertThrows(ValidationException.class, () -> validator.validateForCreate(request));
+        assertThrows(ValidationException.class, () -> validator.validateEntry(request));
     }
 
     @Test
-    void validateForCreate_acceptsAtLeastOneMetric() {
-        CreateUserProgressEntryRequest request = new CreateUserProgressEntryRequest(
+    void validateEntry_acceptsAtLeastOneMetric() {
+        UpsertUserProgressEntryRequest request = new UpsertUserProgressEntryRequest(
                 LocalDateTime.now(),
                 BigDecimal.valueOf(80),
                 null,
@@ -41,6 +41,21 @@ class UserProgressValidatorTest {
                 null,
                 null);
 
-        assertDoesNotThrow(() -> validator.validateForCreate(request));
+        assertDoesNotThrow(() -> validator.validateEntry(request));
+    }
+
+    @Test
+    void validateEntry_rejectsFutureRecordedAt() {
+        UpsertUserProgressEntryRequest request = new UpsertUserProgressEntryRequest(
+                LocalDateTime.now().plusHours(2),
+                BigDecimal.valueOf(80),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        assertThrows(ValidationException.class, () -> validator.validateEntry(request));
     }
 }

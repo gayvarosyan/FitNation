@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/api/admin/membership-requests")
 @RequiredArgsConstructor
@@ -63,7 +65,6 @@ public class AdminMembershipRequestController {
             @PathVariable Long id,
             @AuthenticationPrincipal User reviewer,
             @RequestBody(required = false) RejectMembershipRequest body) {
-        RejectMembershipRequest payload = body != null ? body : new RejectMembershipRequest(null);
-        return membershipService.rejectMembershipRequest(id, reviewer, payload);
+        return membershipService.rejectMembershipRequest(id, reviewer, Objects.requireNonNullElseGet(body, () -> new RejectMembershipRequest(null)));
     }
 }

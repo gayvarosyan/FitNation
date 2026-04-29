@@ -1,7 +1,6 @@
 package com.example.fitnationweb.controller;
 
 import com.example.fitnationbooking.service.GroupClassService;
-import com.example.fitnationcommon.dto.request.ClassScheduleFilterRequest;
 import com.example.fitnationcommon.dto.request.CreateGroupClassRequest;
 import com.example.fitnationcommon.dto.request.ScheduleClassRequest;
 import com.example.fitnationcommon.dto.request.UpdateGroupClassRequest;
@@ -21,11 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.DayOfWeek;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/admin/classes")
@@ -41,10 +37,9 @@ public class AdminClassMvcController {
     @PreAuthorize("hasRole('ADMIN')")
     public String page(Model model) {
         List<ClassScheduleItemResponse> schedules = groupClassService.getAllSchedules(null);
-        List<ClassScheduleView> rows = new ArrayList<>();
-        for (ClassScheduleItemResponse s : schedules) {
-            rows.add(new ClassScheduleView(s, toHm(s.startTime()), toHm(s.endTime())));
-        }
+        List<ClassScheduleView> rows = schedules.stream()
+                .map(s -> new ClassScheduleView(s, toHm(s.startTime()), toHm(s.endTime())))
+                .toList();
         model.addAttribute("scheduleRows", rows);
         model.addAttribute("trainerOptions", trainerManagementService.getDirectory(0, 100, null, null, null).getItems());
         model.addAttribute("navSection", "classes");
@@ -161,26 +156,21 @@ public class AdminClassMvcController {
         return s.length() >= 5 ? s.substring(0, 5) : s;
     }
 
-    private static int countClassesThisWeek(List<ClassScheduleItemResponse> list) {
-        LocalDate now = LocalDate.now();
-        LocalDate weekStart = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate weekEnd = weekStart.plusDays(7);
-        int n = 0;
-        for (ClassScheduleItemResponse item : list) {
-            if (item.date() != null && !item.date().isBefore(weekStart) && item.date().isBefore(weekEnd)) {
-                n++;
-            }
-        }
-        return n;
+    private static long countClassesThisWeek(List<ClassScheduleItemResponse> list) {
+        var weekStart = LocalDate.now().with(DayOfWeek.MONDAY);
+        var weekEnd = weekStart.plusWeeks(1);
+        return list.stream()
+                .map(ClassScheduleItemResponse::date)
+                .filter(Objects::nonNull)
+                .filter(d -> !d.isBefore(weekStart) && d.isBefore(weekEnd))
+                .count();
     }
 
     private static int countUniqueClasses(List<ClassScheduleItemResponse> list) {
-        Set<Long> ids = new HashSet<>();
-        for (ClassScheduleItemResponse item : list) {
-            if (item.classId() != null) {
-                ids.add(item.classId());
-            }
-        }
-        return ids.size();
+        return (int) list.stream()
+                .map(ClassScheduleItemResponse::classId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .count();
     }
 }

@@ -1,9 +1,8 @@
 package com.example.fitnationrestapi.controller;
 
-import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
 import com.example.fitnationprogress.dto.ProgressEntryResponse;
 import com.example.fitnationprogress.dto.ProgressSummaryResponse;
-import com.example.fitnationprogress.dto.UpdateUserProgressEntryRequest;
+import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import com.example.fitnationprogress.service.UserProgressService;
 import com.example.fitnationrestapi.support.CurrentUserHelper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,7 +43,7 @@ public class UserProgressEndpoint {
             @ApiResponse(responseCode = "400", description = "Validation failed")
     })
     @PostMapping
-    public ResponseEntity<ProgressEntryResponse> create(@Valid @RequestBody CreateUserProgressEntryRequest request) {
+    public ResponseEntity<ProgressEntryResponse> create(@Valid @RequestBody UpsertUserProgressEntryRequest request) {
         var response = userProgressService.createEntry(currentUserHelper.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -76,7 +75,7 @@ public class UserProgressEndpoint {
     @PutMapping("/{id}")
     public ProgressEntryResponse update(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateUserProgressEntryRequest request) {
+            @Valid @RequestBody UpsertUserProgressEntryRequest request) {
         return userProgressService.updateMyEntry(currentUserHelper.getId(), id, request);
     }
 

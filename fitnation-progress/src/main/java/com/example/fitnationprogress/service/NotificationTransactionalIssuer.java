@@ -9,6 +9,7 @@ import com.example.fitnationprogress.repository.InAppNotificationRepository;
 import com.example.fitnationuser.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,20 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationTransactionalIssuer {
 
     private final InAppNotificationRepository inAppNotificationRepository;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
-
-    public NotificationTransactionalIssuer(
-            InAppNotificationRepository inAppNotificationRepository,
-            UserRepository userRepository,
-            ObjectMapper objectMapper) {
-        this.inAppNotificationRepository = inAppNotificationRepository;
-        this.userRepository = userRepository;
-        this.objectMapper = objectMapper;
-    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void persistNotification(

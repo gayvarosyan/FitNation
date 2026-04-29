@@ -1,14 +1,10 @@
 package com.example.fitnationrestapi.controller;
 
-import com.example.fitnationbooking.service.ClassBookingService;
-import com.example.fitnationbooking.service.GroupClassService;
-import com.example.fitnationcommon.constants.ApplicationConstants;
-import com.example.fitnationcommon.dto.request.ClassScheduleFilterRequest;
 import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.enums.ScheduleFilterStatus;
-import com.example.fitnationuser.user.User;
+import com.example.fitnationrestapi.service.UserBookingFacadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,17 +31,7 @@ import java.util.List;
 @Tag(name = "Bookings", description = "Class bookings for the authenticated user (CLIENT, TRAINER, or ADMIN)")
 public class UserBookingController {
 
-    private final ClassBookingService classBookingService;
-    private final GroupClassService groupClassService;
-
-    private Long currentUserId() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        var principal = authentication.getPrincipal();
-        if (principal instanceof User user) {
-            return user.getId();
-        }
-        throw new IllegalStateException(ApplicationConstants.UNEXPECTED_AUTHENTICATION);
-    }
+    private final UserBookingFacadeService bookingFacadeService;
 
     @Operation(
             summary = "List available classes (paged)",
@@ -79,7 +64,7 @@ public class UserBookingController {
             @RequestParam(required = false) LocalDate toDate,
             @RequestParam(required = false) ScheduleFilterStatus status
     ) {
-        return groupClassService.getAllSchedules(new ClassScheduleFilterRequest(trainerId, fromDate, toDate, status));
+        return bookingFacadeService.getAvailableClasses(trainerId, fromDate, toDate, status);
     }
 
     @Operation(summary = "Book a class", description = "Books the given schedule for the authenticated user.")
@@ -89,7 +74,7 @@ public class UserBookingController {
     })
     @PostMapping("/classes/{scheduleId}/book")
     public ResponseEntity<Void> bookClass(@PathVariable Long scheduleId) {
-        classBookingService.bookClass(scheduleId, currentUserId());
+        bookingFacadeService.bookClass(scheduleId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -101,7 +86,7 @@ public class UserBookingController {
     })
     @PutMapping("/bookings/{id}/cancel")
     public ResponseEntity<Void> cancelBooking(@PathVariable Long id) {
-        classBookingService.cancelBooking(id, currentUserId());
+        bookingFacadeService.cancelBooking(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -131,7 +116,6 @@ public class UserBookingController {
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "createdAt,desc") String sort,
             @RequestParam(required = false) String status) {
-
-        return classBookingService.getUserBookings(currentUserId(), page, size, sort, status);
+        return bookingFacadeService.getUserBookings(page, size, sort, status);
     }
 }

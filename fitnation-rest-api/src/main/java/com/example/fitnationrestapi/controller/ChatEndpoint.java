@@ -37,20 +37,14 @@ public class ChatEndpoint {
     @PostMapping
     public ResponseEntity<ConversationResponse> openConversation(
             @RequestBody OpenConversationRequest req) {
-
-        return ResponseEntity.ok(chatService.openOrGet(
-                currentUserHelper.getId(),
-                currentUserHelper.getRole(),
-                req));
+        return ResponseEntity.ok(chatService.openOrGet(currentUserHelper.getId(), currentUserHelper.getRole(), req));
     }
 
     @Operation(summary = "List conversations")
     @ApiResponses(@ApiResponse(responseCode = "200", description = "Page returned"))
     @GetMapping
     public ResponseEntity<Page<ConversationResponse>> listConversations(Pageable pageable) {
-
-        return ResponseEntity.ok(
-                chatService.listConversations(currentUserHelper.getId(), pageable));
+        return ResponseEntity.ok(chatService.listConversations(currentUserHelper.getId(), pageable));
     }
 
     @Operation(summary = "List messages in conversation")
@@ -62,8 +56,6 @@ public class ChatEndpoint {
     public ResponseEntity<Page<MessageResponse>> getMessages(
             @PathVariable Long id,
             Pageable pageable) {
-
-        return ResponseEntity.ok(
-                chatService.getMessages(currentUserHelper.getId(), id, pageable));
+        return ResponseEntity.ok(chatService.getMessages(currentUserHelper.getId(), id, pageable));
     }
 }

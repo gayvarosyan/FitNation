@@ -37,10 +37,7 @@ public class ChatWebSocketEndpoint {
             @Parameter(description = "Conversation id", required = true)
             @DestinationVariable Long conversationId,
             @Payload @Valid SendMessageRequest request) {
-
-        Long senderId = currentUserHelper.getId();
-        MessageResponse response = chatService.handleInbound(senderId, conversationId, request.body());
-
+        MessageResponse response = chatService.handleInbound(currentUserHelper.getId(), conversationId, request.body());
         messagingTemplate.convertAndSend("/topic/chat." + conversationId, response);
     }
 }

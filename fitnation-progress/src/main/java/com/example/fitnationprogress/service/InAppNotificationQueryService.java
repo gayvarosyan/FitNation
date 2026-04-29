@@ -4,23 +4,18 @@ import com.example.fitnationprogress.exception.InAppNotificationNotFoundExceptio
 import com.example.fitnationprogress.dto.InAppNotificationResponse;
 import com.example.fitnationprogress.mapper.InAppNotificationMapper;
 import com.example.fitnationprogress.repository.InAppNotificationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class InAppNotificationQueryService {
 
     private final InAppNotificationRepository inAppNotificationRepository;
     private final InAppNotificationMapper inAppNotificationMapper;
-
-    public InAppNotificationQueryService(
-            InAppNotificationRepository inAppNotificationRepository,
-            InAppNotificationMapper inAppNotificationMapper) {
-        this.inAppNotificationRepository = inAppNotificationRepository;
-        this.inAppNotificationMapper = inAppNotificationMapper;
-    }
 
     @Transactional(readOnly = true)
     public Page<InAppNotificationResponse> listForRecipient(Long recipientUserId, Pageable pageable) {

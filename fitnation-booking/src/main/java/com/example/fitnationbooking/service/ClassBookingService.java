@@ -61,8 +61,8 @@ public class ClassBookingService {
                         dateStr,
                         timeStr,
                         trainerDisplayName));
-        var bookedCount = classBookingRepository.countByScheduleAndStatus(
-                scheduleId, ClassBookingStatus.BOOKED.name());
+        var bookedCount = classBookingRepository.countBySchedule_IdAndStatus(
+                scheduleId, ClassBookingStatus.BOOKED);
         var capacity = groupClass.getCapacity();
         if (capacity != null && bookedCount >= capacity) {
             notificationCommandPublisher.publishAfterCommit(

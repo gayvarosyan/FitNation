@@ -1,19 +1,20 @@
 package com.example.fitnationprogress.validation;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
-import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
-import com.example.fitnationprogress.dto.UpdateUserProgressEntryRequest;
+import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Component
 public class UserProgressValidator {
 
-    public void validateForCreate(CreateUserProgressEntryRequest request) {
+    public void validateEntry(UpsertUserProgressEntryRequest request) {
         validateRecordedAt(request.recordedAt());
         validateAtLeastOneMetric(
                 request.weight(),
@@ -24,15 +25,16 @@ public class UserProgressValidator {
                 request.hipCm());
     }
 
-    public void validateForUpdate(UpdateUserProgressEntryRequest request) {
-        validateRecordedAt(request.recordedAt());
-        validateAtLeastOneMetric(
-                request.weight(),
-                request.bodyFatPercent(),
-                request.muscleMass(),
-                request.waistCm(),
-                request.chestCm(),
-                request.hipCm());
+    public UpsertUserProgressEntryRequest normalize(UpsertUserProgressEntryRequest request) {
+        return new UpsertUserProgressEntryRequest(
+                request.recordedAt(),
+                normalize(request.weight()),
+                normalize(request.bodyFatPercent()),
+                normalize(request.muscleMass()),
+                normalize(request.waistCm()),
+                normalize(request.chestCm()),
+                normalize(request.hipCm()),
+                request.notes());
     }
 
     public BigDecimal normalize(BigDecimal value) {
@@ -56,13 +58,7 @@ public class UserProgressValidator {
             BigDecimal waistCm,
             BigDecimal chestCm,
             BigDecimal hipCm) {
-        var allNull = weight == null
-                && bodyFatPercent == null
-                && muscleMass == null
-                && waistCm == null
-                && chestCm == null
-                && hipCm == null;
-        if (allNull) {
+        if (Stream.of(weight, bodyFatPercent, muscleMass, waistCm, chestCm, hipCm).allMatch(Objects::isNull)) {
             throw new ValidationException(ApplicationConstants.PROGRESS_ENTRY_REQUIRED_METRIC);
         }
     }

@@ -1,7 +1,7 @@
 package com.example.fitnationrestapi.controller;
 
-import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
 import com.example.fitnationprogress.dto.ProgressEntryResponse;
+import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import com.example.fitnationprogress.service.UserProgressService;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationrestapi.support.CurrentUserHelper;
@@ -55,7 +55,7 @@ class UserProgressEndpointApiTest {
                 BigDecimal.valueOf(80), null, null, null, null, null,
                 "note", LocalDateTime.now(), LocalDateTime.now()));
 
-        var request = new CreateUserProgressEntryRequest(
+        var request = new UpsertUserProgressEntryRequest(
                 LocalDateTime.of(2026, 4, 20, 9, 30),
                 BigDecimal.valueOf(80),
                 null,

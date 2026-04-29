@@ -120,7 +120,7 @@ public class GroupClassService {
         return schedules.stream()
                 .filter(s -> filterByStatus(s, filter))
                 .map(s -> {
-                    long booked = classBookingRepository.countByScheduleAndStatus(s.getId(), ClassBookingStatus.BOOKED.name());
+                    long booked = classBookingRepository.countBySchedule_IdAndStatus(s.getId(), ClassBookingStatus.BOOKED);
                     return groupClassMapper.toScheduleItemResponse(s, booked);
                 })
                 .toList();
@@ -137,7 +137,7 @@ public class GroupClassService {
         var resultPage = classScheduleRepository
                 .findAllWithFilters(q, dateFrom, dateTo, trainerId, pageable)
                 .map(s -> {
-                    long booked = classBookingRepository.countByScheduleAndStatus(s.getId(), ClassBookingStatus.BOOKED.name());
+                    long booked = classBookingRepository.countBySchedule_IdAndStatus(s.getId(), ClassBookingStatus.BOOKED);
                     return groupClassMapper.toScheduleItemResponse(s, booked);
                 });
 
@@ -169,7 +169,7 @@ public class GroupClassService {
         var now = LocalDateTime.now();
         var start = LocalDateTime.of(s.getDate(), s.getStartTime());
         var end = LocalDateTime.of(s.getDate(), s.getEndTime());
-        var booked = classBookingRepository.countByScheduleAndStatus(s.getId(), ClassBookingStatus.BOOKED.name());
+        var booked = classBookingRepository.countBySchedule_IdAndStatus(s.getId(), ClassBookingStatus.BOOKED);
         int capacity = s.getGroupClass().getCapacity() != null ? s.getGroupClass().getCapacity() : 0;
 
         return switch (filter.status()) {

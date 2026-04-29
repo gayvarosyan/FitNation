@@ -15,5 +15,7 @@ public interface NutritionPlanMapper {
     @Mapping(target = "price", expression = "java(request.getPrice() != null ? java.math.BigDecimal.valueOf(request.getPrice()) : null)")
     NutritionPlan toEntity(CreateNutritionPlanRequest request);
 
+    @Mapping(target = "activeClients", constant = "0L")
+    @Mapping(target = "avgRating", ignore = true)
     NutritionPlanCatalogItemDto toCatalogItem(NutritionPlan plan);
 }

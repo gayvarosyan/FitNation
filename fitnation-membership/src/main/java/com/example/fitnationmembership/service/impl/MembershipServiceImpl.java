@@ -49,11 +49,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -126,19 +132,11 @@ public class MembershipServiceImpl implements MembershipService {
         var type = membershipTypeRepository.findById(request.membershipTypeId())
                 .orElseThrow(() -> new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND));
 
-        Long nutritionPlanId = request.nutritionPlanId() != null
-                ? request.nutritionPlanId()
-                : type.getNutritionPlanId();
-        Long trainerId = request.trainerId() != null
-                ? request.trainerId()
-                : type.getTrainerId();
-        Long groupClassId = request.groupClassId() != null
-                ? request.groupClassId()
-                : type.getGroupClassId();
-        validateOptionalRefs(nutritionPlanId, trainerId, groupClassId);
+        var bundle = resolvePurchaseBundleIds(request, type);
+        validateOptionalRefs(bundle.nutritionPlanId(), bundle.trainerId(), bundle.groupClassId());
 
         var membership = createActiveMembershipWithPayment(
-                user, type, LocalDate.now(), nutritionPlanId, trainerId, groupClassId);
+                user, type, LocalDate.now(), bundle.nutritionPlanId(), bundle.trainerId(), bundle.groupClassId());
         notificationCommandPublisher.publishAfterCommit(
                 NotificationCommandFactory.membershipPurchaseConfirmed(
                         membership.getId(), user.getId(), type.getName()));
@@ -201,9 +199,9 @@ public class MembershipServiceImpl implements MembershipService {
     public Page<AdminMembershipRequestResponse> listMembershipRequestsForAdmin(
             MembershipRequestStatus statusFilter,
             Pageable pageable) {
-        Page<MembershipRequest> page = statusFilter == null
-                ? membershipRequestRepository.findAllByOrderByCreatedAtDesc(pageable)
-                : membershipRequestRepository.findAllByStatusOrderByCreatedAtDesc(statusFilter, pageable);
+        Page<MembershipRequest> page = Optional.ofNullable(statusFilter)
+                .map(status -> membershipRequestRepository.findAllByStatusOrderByCreatedAtDesc(status, pageable))
+                .orElseGet(() -> membershipRequestRepository.findAllByOrderByCreatedAtDesc(pageable));
         return page.map(this::toAdminRequestResponse);
     }
 
@@ -239,7 +237,7 @@ public class MembershipServiceImpl implements MembershipService {
             RejectMembershipRequest rejectBody) {
         var membershipRequest = requireMembershipRequest(requestId);
         assertPendingRequest(membershipRequest);
-        var reason = rejectBody != null ? rejectBody.reason() : null;
+        var reason = Optional.ofNullable(rejectBody).map(RejectMembershipRequest::reason).orElse(null);
         finalizeRequestReview(membershipRequest, reviewer, MembershipRequestStatus.REJECTED, reason);
         var member = membershipRequest.getUser();
         var type = membershipRequest.getMembershipType();
@@ -302,44 +300,13 @@ public class MembershipServiceImpl implements MembershipService {
         return membershipMapper.toResponse(membership);
     }
 
-    private void validateOptionalRefs(Long nutritionPlanId, Long trainerId, Long groupClassId) {
-        if (nutritionPlanId != null && !nutritionPlanRepository.existsById(nutritionPlanId)) {
-            throw new NutritionPlanNotFoundException(ApplicationConstants.MEMBERSHIP_NUTRITION_PLAN_NOT_FOUND);
-        }
-        if (trainerId != null && !trainerRepository.existsById(trainerId)) {
-            throw new TrainerNotFoundException(ApplicationConstants.TRAINER_NOT_FOUND);
-        }
-        if (groupClassId != null && !groupClassRepository.existsById(groupClassId)) {
-            throw new GroupClassNotFoundException(ApplicationConstants.GROUP_CLASS_NOT_FOUND);
-        }
-    }
-
     @Override
     @Transactional(readOnly = true)
     public Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status) {
-        MembershipStatus membershipStatus = null;
-        if (status != null && !status.isBlank()) {
-            membershipStatus = MembershipStatus.valueOf(status.toUpperCase());
-        }
+        MembershipStatus membershipStatus = parseMembershipStatusFilter(status).orElse(null);
 
         return membershipRepository.findAllWithFilters(q, membershipStatus, pageable)
-                .map(membership -> new AdminMembershipRecordResponse(
-                        membership.getId(),
-                        membership.getUser().getId(),
-                        membership.getUser().getFirstName(),
-                        membership.getUser().getLastName(),
-                        membership.getUser().getEmail(),
-                        membership.getMembershipType().getId(),
-                        membership.getMembershipType().getName(),
-                        membership.getMembershipType().getDurationDays(),
-                        membership.getMembershipType().getPrice(),
-                        membership.getStartDate(),
-                        membership.getEndDate(),
-                        membership.getStatus(),
-                        membership.getNutritionPlanId(),
-                        membership.getTrainerId(),
-                        membership.getGroupClassId()
-                ));
+                .map(this::toAdminMembershipRecordResponse);
     }
 
     @Override
@@ -347,29 +314,82 @@ public class MembershipServiceImpl implements MembershipService {
     public AdminMembershipStatsResponse getAdminMembershipStats() {
         List<Membership> memberships = membershipRepository.findAllWithTypeAndUser();
         long total = memberships.size();
-        long active = memberships.stream()
-                .filter(membership -> membership.getStatus() == MembershipStatus.ACTIVE)
-                .count();
-        long cancelledOrExpired = memberships.stream()
-                .filter(membership -> membership.getStatus() == MembershipStatus.CANCELLED
-                        || membership.getStatus() == MembershipStatus.EXPIRED)
-                .count();
-        long pastDue = memberships.stream()
-                .filter(membership -> membership.getStatus() == MembershipStatus.PAST_DUE)
-                .count();
+        Map<MembershipStatus, Long> byStatus = memberships.stream()
+                .collect(Collectors.groupingBy(Membership::getStatus, Collectors.counting()));
+
+        long active = byStatus.getOrDefault(MembershipStatus.ACTIVE, 0L);
+        long cancelledOrExpired = byStatus.getOrDefault(MembershipStatus.CANCELLED, 0L)
+                + byStatus.getOrDefault(MembershipStatus.EXPIRED, 0L);
+        long pastDue = byStatus.getOrDefault(MembershipStatus.PAST_DUE, 0L);
+
         BigDecimal mrr = memberships.stream()
-                .filter(membership -> membership.getStatus() == MembershipStatus.ACTIVE)
-                .map(membership -> membership.getMembershipType().getPrice())
+                .filter(m -> m.getStatus() == MembershipStatus.ACTIVE)
+                .map(m -> m.getMembershipType().getPrice())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        double churnRate = 0.0d;
-        if (total > 0) {
-            churnRate = BigDecimal.valueOf(cancelledOrExpired * 100.0d / total)
-                    .setScale(2, RoundingMode.HALF_UP)
-                    .doubleValue();
-        }
+        double churnRate = total > 0
+                ? BigDecimal.valueOf(cancelledOrExpired * 100.0d / total)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue()
+                : 0.0d;
 
         return new AdminMembershipStatsResponse(mrr, active, churnRate, pastDue);
+    }
+
+    private void validateOptionalRefs(Long nutritionPlanId, Long trainerId, Long groupClassId) {
+        Stream.of(
+                new RefCheck(nutritionPlanId, nutritionPlanRepository::existsById,
+                        () -> new NutritionPlanNotFoundException(ApplicationConstants.MEMBERSHIP_NUTRITION_PLAN_NOT_FOUND)),
+                new RefCheck(trainerId, trainerRepository::existsById,
+                        () -> new TrainerNotFoundException(ApplicationConstants.TRAINER_NOT_FOUND)),
+                new RefCheck(groupClassId, groupClassRepository::existsById,
+                        () -> new GroupClassNotFoundException(ApplicationConstants.GROUP_CLASS_NOT_FOUND))
+        ).forEach(RefCheck::validate);
+    }
+
+    private record RefCheck(Long id, Predicate<Long> exists, Supplier<RuntimeException> onMissing) {
+        void validate() {
+            if (id != null && !exists.test(id)) {
+                throw onMissing.get();
+            }
+        }
+    }
+
+    private record PurchaseBundleIds(Long nutritionPlanId, Long trainerId, Long groupClassId) {}
+
+    private static PurchaseBundleIds resolvePurchaseBundleIds(PurchaseMembershipRequest request, MembershipType type) {
+        return new PurchaseBundleIds(
+                Optional.ofNullable(request.nutritionPlanId()).orElse(type.getNutritionPlanId()),
+                Optional.ofNullable(request.trainerId()).orElse(type.getTrainerId()),
+                Optional.ofNullable(request.groupClassId()).orElse(type.getGroupClassId()));
+    }
+
+    private static Optional<MembershipStatus> parseMembershipStatusFilter(String raw) {
+        return Optional.ofNullable(raw)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(s -> MembershipStatus.valueOf(s.toUpperCase()));
+    }
+
+    private AdminMembershipRecordResponse toAdminMembershipRecordResponse(Membership membership) {
+        var user = membership.getUser();
+        var type = membership.getMembershipType();
+        return new AdminMembershipRecordResponse(
+                membership.getId(),
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                type.getId(),
+                type.getName(),
+                type.getDurationDays(),
+                type.getPrice(),
+                membership.getStartDate(),
+                membership.getEndDate(),
+                membership.getStatus(),
+                membership.getNutritionPlanId(),
+                membership.getTrainerId(),
+                membership.getGroupClassId());
     }
 
     private Membership createActiveMembershipWithPayment(
@@ -402,8 +422,10 @@ public class MembershipServiceImpl implements MembershipService {
     }
 
     private void assertPendingRequest(MembershipRequest r) {
-        if (r.getStatus() != MembershipRequestStatus.PENDING) {
-            throw new MembershipRequestConflictException(ApplicationConstants.MEMBERSHIP_REQUEST_ALREADY_REVIEWED);
+        switch (r.getStatus()) {
+            case PENDING -> { }
+            case APPROVED, REJECTED ->
+                    throw new MembershipRequestConflictException(ApplicationConstants.MEMBERSHIP_REQUEST_ALREADY_REVIEWED);
         }
     }
 
@@ -458,9 +480,9 @@ public class MembershipServiceImpl implements MembershipService {
     }
 
     private boolean canManageMembership(User currentUser, Membership membership) {
-        if (currentUser.getRole() == UserRole.ADMIN) {
-            return true;
-        }
-        return membership.getUser().getId().equals(currentUser.getId());
+        return switch (currentUser.getRole()) {
+            case ADMIN -> true;
+            case CLIENT, TRAINER -> membership.getUser().getId().equals(currentUser.getId());
+        };
     }
 }

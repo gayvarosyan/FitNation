@@ -41,7 +41,7 @@ public class AuthController {
     })
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request.email(), request.password());
+        return authService.login(request);
     }
     @Operation(summary = "Refresh access token", description = "Issues a new access token using a valid refresh token.")
     @ApiResponses({
@@ -49,7 +49,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
     })
     @PostMapping("/refresh")
-    public AuthResponse refresh(@RequestBody RefreshTokenRequest request) {
-        return authService.refresh(request.refreshToken());
+    public AuthResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return authService.refresh(request);
     }
 }

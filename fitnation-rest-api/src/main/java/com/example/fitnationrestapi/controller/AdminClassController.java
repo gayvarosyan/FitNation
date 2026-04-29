@@ -46,8 +46,7 @@ public class AdminClassController {
     @PostMapping("/admin/classes")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GroupClassResponse> createClass(@Valid @RequestBody CreateGroupClassRequest request) {
-        GroupClassResponse body = groupClassService.createClass(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(groupClassService.createClass(request));
     }
 
     @Operation(summary = "Update group class", description = "ADMIN: update class metadata.")
@@ -73,8 +72,7 @@ public class AdminClassController {
     public ResponseEntity<ClassScheduleItemResponse> scheduleClass(
             @PathVariable Long classId,
             @Valid @RequestBody ScheduleClassRequest request) {
-        ClassScheduleItemResponse body = groupClassService.scheduleClass(classId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(groupClassService.scheduleClass(classId, request));
     }
 
     @Operation(summary = "Update schedule", description = "ADMIN: update an existing class schedule.")

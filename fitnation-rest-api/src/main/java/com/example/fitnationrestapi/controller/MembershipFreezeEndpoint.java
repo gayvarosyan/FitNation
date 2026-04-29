@@ -49,8 +49,7 @@ public class MembershipFreezeEndpoint {
             @AuthenticationPrincipal User user,
             @PathVariable Long membershipId,
             @Valid @RequestBody SubmitFreezeRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(freezeService.submitFreezeRequest(user, membershipId, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(freezeService.submitFreezeRequest(user, membershipId, request));
     }
 
     @Operation(summary = "List freeze requests for membership")

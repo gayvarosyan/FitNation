@@ -10,14 +10,15 @@ import com.fitnationnutrition.model.NutritionPlan;
 import com.fitnationnutrition.repository.NutritionPlanRepository;
 import com.fitnationnutrition.repository.UserNutritionPlanRepository;
 import com.fitnationnutrition.service.NutritionPlanService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class NutritionPlanServiceImpl implements NutritionPlanService {
 
     private final NutritionPlanRepository planRepo;
@@ -47,7 +48,7 @@ public class NutritionPlanServiceImpl implements NutritionPlanService {
 
     @Override
     public NutritionPlan createPlan(NutritionPlan plan) {
-        return null;
+        return planRepo.save(plan);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class NutritionPlanServiceImpl implements NutritionPlanService {
         existing.setCategory(request.getCategory());
         existing.setDescription(request.getDescription());
         if (request.getPrice() != null) {
-            existing.setPrice(java.math.BigDecimal.valueOf(request.getPrice()));
+            existing.setPrice(BigDecimal.valueOf(request.getPrice()));
         }
         if (request.getStatus() != null) {
             existing.setStatus(request.getStatus());
