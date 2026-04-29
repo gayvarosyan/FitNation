@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationcommon.dto.request.ApproveRejectTrainerRequestRequest;
 import com.example.fitnationcommon.dto.request.CreateTrainerAssignmentRequest;

@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationprogress.dto.InAppNotificationResponse;
 import com.example.fitnationprogress.service.InAppNotificationQueryService;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('CLIENT', 'TRAINER', 'ADMIN')")
 @Tag(name = "Notifications", description = "In-app notifications for the authenticated user")
-public class NotificationController {
+public class NotificationEndpoint {
 
     private final InAppNotificationQueryService inAppNotificationQueryService;
     private final CurrentUserHelper currentUserHelper;

@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/admin/trainers")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-public class TrainerMvcController {
+public class TrainerMvcEndpoint {
 
     private static final String PAGE = "/admin/trainers";
 

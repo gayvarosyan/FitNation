@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationcommon.dto.request.RedeemQrRequest;
 import com.example.fitnationcommon.dto.response.CreateQrSessionResponse;

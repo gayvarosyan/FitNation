@@ -1,0 +1,7 @@
+package com.example.fitnationprogress.exception;
+
+public class CustomException extends RuntimeException {
+    public CustomException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}

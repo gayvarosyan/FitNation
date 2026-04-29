@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.ClassScheduleFilterRequest;
@@ -34,7 +34,7 @@ import java.util.List;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "Group classes", description = "Group class administration and class schedules")
-public class AdminClassController {
+public class AdminClassEndpoint {
 
     private final GroupClassService groupClassService;
 

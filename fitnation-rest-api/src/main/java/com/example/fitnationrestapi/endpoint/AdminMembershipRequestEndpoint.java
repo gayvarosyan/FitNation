@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationcommon.dto.request.RejectMembershipRequest;
 import com.example.fitnationcommon.dto.response.AdminMembershipRequestResponse;
@@ -30,7 +30,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Admin membership requests", description = "Review user-submitted membership requests (ADMIN)")
-public class AdminMembershipRequestController {
+public class AdminMembershipRequestEndpoint {
 
     private final MembershipService membershipService;
 

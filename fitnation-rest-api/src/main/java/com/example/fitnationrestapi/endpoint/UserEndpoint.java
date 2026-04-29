@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationcommon.dto.response.UserProfileResponse;
 import com.example.fitnationuser.service.UserProfileService;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Tag(name = "Users", description = "Current user profile")
-public class UserController {
+public class UserEndpoint {
 
     private final UserProfileService userProfileService;
 

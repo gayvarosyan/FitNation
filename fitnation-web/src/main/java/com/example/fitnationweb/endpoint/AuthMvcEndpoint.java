@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationcommon.dto.request.LoginRequest;
 import com.example.fitnationcommon.dto.request.RegisterRequest;
@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
-public class AuthMvcController {
+public class AuthMvcEndpoint {
 
     private final AuthWebService authWebService;
 

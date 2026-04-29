@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationcommon.dto.request.RejectMembershipRequest;
 import com.example.fitnationcommon.enums.MembershipRequestStatus;
@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/admin/subscription-requests")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminSubscriptionRequestMvcController {
+public class AdminSubscriptionRequestMvcEndpoint {
 
     private static final String PAGE_PATH = "/admin/subscription-requests";
 

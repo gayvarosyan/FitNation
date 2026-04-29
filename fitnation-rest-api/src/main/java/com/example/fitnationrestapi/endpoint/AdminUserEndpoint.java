@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationuser.service.UserAdminService;
 import io.swagger.v3.oas.annotations.Operation;

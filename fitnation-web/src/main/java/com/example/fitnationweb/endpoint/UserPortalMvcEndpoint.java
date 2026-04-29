@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.SubmitMembershipRequest;
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 @RequestMapping("/portal")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('CLIENT','TRAINER')")
-public class UserPortalMvcController {
+public class UserPortalMvcEndpoint {
 
     private static final String SUBSCRIPTIONS_VIEW = "portal/subscriptions";
     private static final String SUBSCRIPTIONS_PATH = "/portal/subscriptions";

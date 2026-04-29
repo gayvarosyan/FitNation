@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationcommon.dto.request.CreateNutritionPlanRequest;
 import com.example.fitnationcommon.enums.PlanStatus;
@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/admin/nutrition")
 @RequiredArgsConstructor
-public class NutritionMvcController {
+public class NutritionMvcEndpoint {
 
     private static final String NUTRITION_PATH = "/admin/nutrition";
 

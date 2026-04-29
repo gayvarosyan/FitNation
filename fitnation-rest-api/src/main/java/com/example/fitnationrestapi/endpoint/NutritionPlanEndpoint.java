@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationcommon.dto.request.CreateNutritionPlanRequest;
 import com.example.fitnationcommon.dto.response.NutritionPlanCatalogItemDto;
@@ -28,7 +28,7 @@ import java.util.List;
 @RequestMapping("/api/nutrition")
 @RequiredArgsConstructor
 @Tag(name = "Nutrition", description = "Nutrition plan catalog and admin maintenance")
-public class NutritionPlanController {
+public class NutritionPlanEndpoint {
 
     private final NutritionPlanService service;
 

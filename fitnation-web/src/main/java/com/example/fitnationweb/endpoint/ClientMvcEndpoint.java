@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationcommon.dto.request.CreateMemberRequest;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
@@ -20,7 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/admin/clients")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-public class ClientMvcController {
+public class ClientMvcEndpoint {
 
     private static final String PAGE = "/admin/clients";
 

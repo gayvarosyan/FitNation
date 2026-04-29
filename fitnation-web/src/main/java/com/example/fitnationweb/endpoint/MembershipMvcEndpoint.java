@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.CreateMembershipTypeRequest;
@@ -28,7 +28,7 @@ import java.time.LocalDate;
 @RequestMapping("/admin/subscriptions")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-public class MembershipMvcController {
+public class MembershipMvcEndpoint {
 
     private static final String SUBSCRIPTIONS_PATH = "/admin/subscriptions";
 

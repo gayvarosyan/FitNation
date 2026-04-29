@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationcommon.dto.request.CreateMembershipTypeRequest;
 import com.example.fitnationcommon.dto.request.PageRequestParams;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Memberships", description = "Membership types, purchases, requests, and admin membership management")
-public class MembershipController {
+public class MembershipEndpoint {
 
     private final MembershipService membershipService;
 

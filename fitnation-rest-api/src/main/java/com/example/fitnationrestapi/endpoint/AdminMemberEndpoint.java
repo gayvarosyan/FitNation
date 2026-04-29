@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationcommon.dto.request.CreateMemberRequest;
 import com.example.fitnationcommon.dto.request.UpdateMemberRequest;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Admin members", description = "Member directory and lifecycle (ADMIN)")
-public class AdminMemberController {
+public class AdminMemberEndpoint {
 
     private final AdminMemberService adminMemberService;
 

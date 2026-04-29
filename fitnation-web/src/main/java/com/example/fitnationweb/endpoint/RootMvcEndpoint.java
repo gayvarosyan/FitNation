@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationuser.user.User;
 import org.springframework.security.core.Authentication;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class RootMvcController {
+public class RootMvcEndpoint {
 
     @GetMapping("/")
     public String home() {

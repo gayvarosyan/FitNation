@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationprogress.dto.ProgressEntryResponse;
 import com.example.fitnationprogress.dto.ProgressSummaryResponse;

@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.CreateTrainerRequest;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Trainers (admin)", description = "Trainer directory and lifecycle (ADMIN only)")
-public class TrainerController {
+public class TrainerEndpoint {
 
     private final GroupClassService groupClassService;
     private final TrainerManagementService trainerManagementService;

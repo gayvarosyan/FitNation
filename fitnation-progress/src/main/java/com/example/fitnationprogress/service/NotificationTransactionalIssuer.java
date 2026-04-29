@@ -4,6 +4,7 @@ import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationprogress.dto.NotificationTriggerCommand;
 import com.example.fitnationprogress.enums.NotificationEntityType;
 import com.example.fitnationprogress.enums.NotificationEventType;
+import com.example.fitnationprogress.exception.CustomException;
 import com.example.fitnationprogress.model.InAppNotification;
 import com.example.fitnationprogress.repository.InAppNotificationRepository;
 import com.example.fitnationuser.repository.UserRepository;
@@ -62,7 +63,7 @@ public class NotificationTransactionalIssuer {
         try {
             return objectMapper.writeValueAsString(payload);
         } catch (JsonProcessingException e) {
-            throw new IllegalStateException(ApplicationConstants.NOTIFICATION_METADATA_SERIALIZATION_FAILED, e);
+            throw new CustomException(ApplicationConstants.NOTIFICATION_METADATA_SERIALIZATION_FAILED, e);
         }
     }
 }

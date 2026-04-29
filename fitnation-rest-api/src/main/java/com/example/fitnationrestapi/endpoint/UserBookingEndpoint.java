@@ -1,4 +1,4 @@
-package com.example.fitnationrestapi.controller;
+package com.example.fitnationrestapi.endpoint;
 
 import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
@@ -29,7 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyRole('CLIENT', 'TRAINER', 'ADMIN')")
 @Tag(name = "Bookings", description = "Class bookings for the authenticated user (CLIENT, TRAINER, or ADMIN)")
-public class UserBookingController {
+public class UserBookingEndpoint {
 
     private final UserBookingFacadeService bookingFacadeService;
 

@@ -1,4 +1,4 @@
-package com.example.fitnationweb.controller;
+package com.example.fitnationweb.endpoint;
 
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.CreateGroupClassRequest;
@@ -26,7 +26,7 @@ import java.util.Objects;
 @Controller
 @RequestMapping("/admin/classes")
 @RequiredArgsConstructor
-public class AdminClassMvcController {
+public class AdminClassMvcEndpoint {
 
     private static final String CLASSES_PATH = "/admin/classes";
 
