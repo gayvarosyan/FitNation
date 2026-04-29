@@ -2,6 +2,7 @@ package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.request.LoginRequest;
 import com.example.fitnationcommon.dto.response.AuthResponse;
+import com.example.fitnationrestapi.endpoint.AuthEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationrestapi.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +36,7 @@ class AuthControllerApiTest {
         objectMapper = new ObjectMapper();
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
-        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(authService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new AuthEndpoint(authService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setValidator(validator)
                 .build();

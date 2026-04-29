@@ -3,6 +3,7 @@ package com.example.fitnationrestapi.controller;
 import com.example.fitnationprogress.dto.ProgressEntryResponse;
 import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import com.example.fitnationprogress.service.UserProgressService;
+import com.example.fitnationrestapi.endpoint.UserProgressEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationrestapi.support.CurrentUserHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;

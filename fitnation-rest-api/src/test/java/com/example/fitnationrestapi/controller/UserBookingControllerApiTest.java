@@ -6,6 +6,7 @@ import com.example.fitnationcommon.enums.BookingDisplayStatus;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
+import com.example.fitnationrestapi.endpoint.UserBookingEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationrestapi.service.UserBookingFacadeService;
 import com.example.fitnationuser.security.SecurityAuthoritiesUtil;
@@ -41,7 +42,7 @@ class UserBookingControllerApiTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new UserBookingController(bookingFacadeService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new UserBookingEndpoint(bookingFacadeService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
