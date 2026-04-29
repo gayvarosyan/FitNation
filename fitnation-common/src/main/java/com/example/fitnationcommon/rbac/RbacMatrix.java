@@ -1,0 +1,60 @@
+package com.example.fitnationcommon.rbac;
+/**
+ * FITNATION-36 — RBAC Policy Matrix
+ *
+ * Roles: CLIENT | TRAINER | ADMIN
+ *
+ * ┌─────────────────────────────┬─────────┬─────────┬─────────┬──────────────────────────────────┐
+ * │ Resource : Action           │ CLIENT  │ TRAINER │ ADMIN   │ Extra Condition                  │
+ * ├─────────────────────────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+ * │ user:view_own               │   ✅    │   ✅    │   ✅    │ Only own profile                 │
+ * │ user:view_any               │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ user:update_own             │   ✅    │   ✅    │   ✅    │ Only own profile                 │
+ * │ user:update_any             │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ user:delete                 │   ❌    │   ❌    │   ✅    │ Soft delete                      │
+ * │ user:list                   │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * ├─────────────────────────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+ * │ trainer:view                │   ✅    │   ✅    │   ✅    │ Public directory                 │
+ * │ trainer:create              │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ trainer:update_own          │   ❌    │   ✅    │   ✅    │ Trainer owns resource            │
+ * │ trainer:update_any          │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ trainer:delete              │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ trainer:stats_own           │   ❌    │   ✅    │   ✅    │ Trainer sees own stats           │
+ * │ trainer:stats_any           │   ❌    │   ❌    │   ✅    │ Admin sees all stats             │
+ * ├─────────────────────────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+ * │ membership:view_types       │   ✅    │   ✅    │   ✅    │ Public catalog                   │
+ * │ membership:create_type      │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ membership:update_type      │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ membership:delete_type      │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ membership:purchase         │   ✅    │   ❌    │   ✅    │ Client purchases own             │
+ * │ membership:view_own         │   ✅    │   ❌    │   ✅    │ Only own memberships             │
+ * │ membership:view_any         │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ membership:cancel_own       │   ✅    │   ❌    │   ✅    │ Owner or Admin                   │
+ * │ membership:cancel_any       │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ membership:freeze_own       │   ✅    │   ❌    │   ✅    │ Owner or Admin                   │
+ * │ membership:request_submit   │   ✅    │   ❌    │   ✅    │ Client submits own request       │
+ * │ membership:request_review   │   ❌    │   ❌    │   ✅    │ Admin approves/rejects           │
+ * ├─────────────────────────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+ * │ booking:view_classes        │   ✅    │   ✅    │   ✅    │ All authenticated                │
+ * │ booking:create              │   ✅    │   ✅    │   ✅    │ Any authenticated user           │
+ * │ booking:cancel_own          │   ✅    │   ✅    │   ✅    │ Owner cancels own booking        │
+ * │ booking:cancel_any          │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ booking:view_own            │   ✅    │   ✅    │   ✅    │ Only own bookings                │
+ * │ booking:view_any            │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * ├─────────────────────────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+ * │ class:view                  │   ✅    │   ✅    │   ✅    │ All authenticated                │
+ * │ class:create                │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ class:update_own            │   ❌    │   ✅    │   ✅    │ Assigned trainer or Admin        │
+ * │ class:update_any            │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ class:delete                │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * │ class:schedule              │   ❌    │   ✅    │   ✅    │ Assigned trainer or Admin        │
+ * ├─────────────────────────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+ * │ nutrition:view_own          │   ✅    │   ✅    │   ✅    │ Assigned user or trainer         │
+ * │ nutrition:manage            │   ❌    │   ✅    │   ✅    │ Assigned trainer or Admin        │
+ * │ analytics:view_own          │   ❌    │   ✅    │   ✅    │ Trainer sees own analytics       │
+ * │ analytics:view_any          │   ❌    │   ❌    │   ✅    │ Admin only                       │
+ * └─────────────────────────────┴─────────┴─────────┴─────────┴──────────────────────────────────┘
+ */
+public final class RbacMatrix {
+    private RbacMatrix() {}
+}

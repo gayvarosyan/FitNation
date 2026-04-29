@@ -16,7 +16,6 @@ import com.example.fitnationcommon.enums.MembershipRequestStatus;
 import com.example.fitnationcommon.enums.MembershipStatus;
 import com.example.fitnationcommon.enums.PaymentEntityType;
 import com.example.fitnationcommon.enums.PaymentStatus;
-import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
 import com.example.fitnationcommon.exception.GroupClassNotFoundException;
 import com.example.fitnationcommon.exception.MembershipNotFoundException;
@@ -27,6 +26,7 @@ import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.rbac.RbacPolicyService;
 import com.example.fitnationmembership.mapper.MembershipMapper;
 import com.example.fitnationmembership.mapper.MembershipTypeMapper;
 import com.example.fitnationmembership.model.Membership;
@@ -47,10 +47,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Instant;
-import java.time.LocalDate;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -67,6 +68,7 @@ public class MembershipServiceImpl implements MembershipService {
     private final NutritionPlanRepository nutritionPlanRepository;
     private final TrainerRepository trainerRepository;
     private final GroupClassRepository groupClassRepository;
+    private final RbacPolicyService rbacPolicyService;
 
     @Override
     @Transactional(readOnly = true)
@@ -154,9 +156,9 @@ public class MembershipServiceImpl implements MembershipService {
     public UserMembershipRequestResponse submitMembershipRequest(String userEmail, SubmitMembershipRequest request) {
         var user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
-        if (user.getRole() != UserRole.CLIENT) {
-            throw new ForbiddenOperationException(ApplicationConstants.MEMBERSHIP_REQUEST_CLIENT_ONLY);
-        }
+
+        rbacPolicyService.requireClientOrAdmin(user.getRole());
+
         MembershipType type = membershipTypeRepository.findById(request.membershipTypeId())
                 .orElseThrow(() -> new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND));
         Long uid = user.getId();
@@ -237,9 +239,10 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (!canManageMembership(currentUser, membership)) {
-            throw new ForbiddenOperationException(ApplicationConstants.CANNOT_CANCEL_MEMBERSHIP);
-        }
+        rbacPolicyService.requireOwnershipOrAdmin(
+                currentUser.getId(),
+                membership.getUser().getId(),
+                currentUser.getRole());
 
         membership.markExpired();
         membershipRepository.save(membership);
@@ -252,9 +255,10 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (!canManageMembership(currentUser, membership)) {
-            throw new ForbiddenOperationException(ApplicationConstants.CANNOT_UPDATE_MEMBERSHIP);
-        }
+        rbacPolicyService.requireOwnershipOrAdmin(
+                currentUser.getId(),
+                membership.getUser().getId(),
+                currentUser.getRole());
 
         if (request.endDate().isBefore(request.startDate())) {
             throw new IllegalArgumentException(ApplicationConstants.END_DATE_BEFORE_START_DATE);
@@ -434,12 +438,5 @@ public class MembershipServiceImpl implements MembershipService {
                 r.getReviewedAt(),
                 reviewerId,
                 r.getRejectionReason());
-    }
-
-    private boolean canManageMembership(User currentUser, Membership membership) {
-        if (currentUser.getRole() == UserRole.ADMIN) {
-            return true;
-        }
-        return membership.getUser().getId().equals(currentUser.getId());
     }
 }

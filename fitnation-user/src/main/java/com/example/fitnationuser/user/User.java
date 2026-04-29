@@ -1,6 +1,5 @@
 package com.example.fitnationuser.user;
 
-
 import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
