@@ -21,17 +21,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserBookingControllerApiTest {
@@ -46,8 +46,13 @@ class UserBookingControllerApiTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new UserBookingController(classBookingService, groupClassService))
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new UserBookingController(classBookingService, groupClassService))
                 .setControllerAdvice(new GlobalExceptionHandler())
+                .setCustomArgumentResolvers(
+                        new org.springframework.security.web.method.annotation
+                                .AuthenticationPrincipalArgumentResolver()
+                )
                 .build();
     }
 
@@ -56,9 +61,26 @@ class UserBookingControllerApiTest {
         SecurityContextHolder.clearContext();
     }
 
+    private UsernamePasswordAuthenticationToken auth(Long id) {
+        User user = User.builder()
+                .id(id)
+                .email("client@test.com")
+                .firstName("Client")
+                .lastName("User")
+                .role(UserRole.CLIENT)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        return new UsernamePasswordAuthenticationToken(
+                user,
+                null,
+                SecurityAuthoritiesUtil.authoritiesForRole(UserRole.CLIENT)
+        );
+    }
+
     @Test
     void bookClass_returns201_andDelegatesWithCurrentUser() throws Exception {
-        setAuthenticatedUser(42L);
+        SecurityContextHolder.getContext().setAuthentication(auth(42L));
 
         mockMvc.perform(post("/api/users/classes/7/book"))
                 .andExpect(status().isCreated());
@@ -68,8 +90,6 @@ class UserBookingControllerApiTest {
 
     @Test
     void getUserBookings_returns200_withPayload() throws Exception {
-        setAuthenticatedUser(42L);
-
         List<UserBookingItemResponse> items = List.of(
                 new UserBookingItemResponse(
                         10L,
@@ -83,41 +103,26 @@ class UserBookingControllerApiTest {
                 )
         );
 
-        PagedResponse<UserBookingItemResponse> pagedResponse = PagedResponse.<UserBookingItemResponse>builder()
-                .items(items)
-                .page(0)
-                .size(20)
-                .totalElements(1)
-                .totalPages(1)
-                .hasNext(false)
-                .sort("date,desc")
-                .build();
+        PagedResponse<UserBookingItemResponse> pagedResponse =
+                PagedResponse.<UserBookingItemResponse>builder()
+                        .items(items)
+                        .page(0)
+                        .size(20)
+                        .totalElements(1)
+                        .totalPages(1)
+                        .hasNext(false)
+                        .sort("createdAt,desc")
+                        .build();
 
-        when(classBookingService.getUserBookings(anyLong(), any(), any(), any(), any()))
+        when(classBookingService.getUserBookings(anyLong(), anyInt(), anyInt(), anyString(), any()))
                 .thenReturn(pagedResponse);
+
+        SecurityContextHolder.getContext().setAuthentication(auth(42L));
 
         mockMvc.perform(get("/api/users/bookings"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].bookingId").value(10))
                 .andExpect(jsonPath("$.items[0].className").value("Yoga Flow"))
                 .andExpect(jsonPath("$.items[0].status").value("BOOKED"));
-    }
-
-    private void setAuthenticatedUser(Long userId) {
-        User principal = User.builder()
-                .id(userId)
-                .email("client@test.com")
-                .firstName("Client")
-                .lastName("User")
-                .phone("+15550001111")
-                .password("unused")
-                .role(UserRole.CLIENT)
-                .status(UserStatus.ACTIVE)
-                .build();
-        var authentication = new UsernamePasswordAuthenticationToken(
-                principal,
-                null,
-                SecurityAuthoritiesUtil.authoritiesForRole(UserRole.CLIENT));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
