@@ -12,6 +12,7 @@ import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.EmailAlreadyExistsException;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
+import com.example.fitnationcommon.exception.UserDeletedException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.service.EmailService;
 import com.example.fitnationcommon.validation.MemberValidator;
@@ -67,13 +68,13 @@ public class AdminMemberService {
 
         Page<User> userPage;
         if (hasSearch && userStatus != null) {
-            userPage = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, q, pageable);
+            userPage = userRepository.findActiveByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, q, pageable);
         } else if (hasSearch) {
-            userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, q, pageable);
+            userPage = userRepository.findActiveByRoleAndSearch(UserRole.CLIENT, q, pageable);
         } else if (userStatus != null) {
-            userPage = userRepository.findByRoleAndStatus(UserRole.CLIENT, userStatus, pageable);
+            userPage = userRepository.findActiveByRoleAndStatus(UserRole.CLIENT, userStatus, pageable);
         } else {
-            userPage = userRepository.findByRole(UserRole.CLIENT, pageable);
+            userPage = userRepository.findActiveByRole(UserRole.CLIENT, pageable);
         }
 
         return PagedResponse.of(userPage.map(this::convertToMemberListResponse), sort);
@@ -156,6 +157,10 @@ public class AdminMemberService {
                     return new UserNotFoundException(ApplicationConstants.MEMBER_NOT_FOUND + id);
                 });
 
+        if (user.getDeletedAt() != null) {
+            throw new UserDeletedException(id);
+        }
+
         if (user.getStatus() == UserStatus.PENDING) {
             throw new ForbiddenOperationException("Cannot edit a PENDING member until they log in for the first time.");
         }
@@ -174,7 +179,6 @@ public class AdminMemberService {
         if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-
         if (request.getAssignedTrainerId() != null) {
             user.setAssignedTrainerId(request.getAssignedTrainerId());
         }

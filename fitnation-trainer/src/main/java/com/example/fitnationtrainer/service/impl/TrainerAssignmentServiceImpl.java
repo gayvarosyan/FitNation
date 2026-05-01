@@ -7,6 +7,8 @@ import com.example.fitnationcommon.dto.response.TrainerAssignmentRequestResponse
 import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerPublicProfileResponse;
 import com.example.fitnationcommon.enums.TrainerAssignmentRequestStatus;
+import com.example.fitnationcommon.exception.UserDeletedException;
+import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.example.fitnationtrainer.entity.Trainer;
 import com.example.fitnationtrainer.entity.TrainerAssignmentRequest;
 import com.example.fitnationtrainer.mapper.TrainerAssignmentRequestMapper;
@@ -17,6 +19,7 @@ import com.example.fitnationtrainer.service.TrainerAssignmentService;
 import com.example.fitnationprogress.factory.NotificationCommandFactory;
 import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.repository.UserRepository;
+import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,7 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
     private final TrainerAssignmentRequestMapper mapper;
     private final TrainerMapper trainerMapper;
     private final NotificationCommandPublisher notificationCommandPublisher;
+    private final SoftDeleteValidationService softDeleteValidationService;
 
     @Override
     public List<TrainerDirectoryItem> getActiveTrainersForClients() {
@@ -54,6 +58,10 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
         var client = userRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, ApplicationConstants.MSG_USER_NOT_FOUND + clientId));
+
+        softDeleteValidationService.validateTrainerForOperations(trainer);
+        softDeleteValidationService.validateClientForOperations(client);
+        validateSoftDeleteStatus(clientId, client, trainer);
 
         var alreadyAssigned = trainerId.equals(client.getAssignedTrainerId());
         var hasPending = requestRepository.existsByClient_IdAndStatus(
@@ -81,6 +89,10 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, ApplicationConstants.MSG_USER_NOT_FOUND + clientId));
 
+        softDeleteValidationService.validateTrainerForOperations(trainer);
+        softDeleteValidationService.validateClientForOperations(client);
+        validateSoftDeleteStatus(clientId, client, trainer);
+
         if (requestRepository.existsByClient_IdAndStatus(clientId, TrainerAssignmentRequestStatus.PENDING)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     ApplicationConstants.MSG_TRAINER_ASSIGNMENT_PENDING_EXISTS);
@@ -100,7 +112,7 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
                         .build()
         );
 
-        String clientDisplayName = formatPersonName(client.getFirstName(), client.getLastName());
+        var clientDisplayName = formatPersonName(client.getFirstName(), client.getLastName());
         notificationCommandPublisher.publishAfterCommit(
                 NotificationCommandFactory.trainerAssignmentRequested(
                         saved.getId(),
@@ -147,7 +159,7 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
         requestRepository.save(tar);
         userRepository.save(client);
 
-        String trainerDisplayName = formatPersonName(tar.getTrainer().getFirstName(), tar.getTrainer().getLastName());
+        var trainerDisplayName = formatPersonName(tar.getTrainer().getFirstName(), tar.getTrainer().getLastName());
         notificationCommandPublisher.publishAfterCommit(
                 NotificationCommandFactory.trainerAssignmentApproved(tar.getId(), client.getId(), trainerDisplayName));
 
@@ -167,7 +179,7 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
 
         requestRepository.save(tar);
 
-        String trainerDisplayName = formatPersonName(tar.getTrainer().getFirstName(), tar.getTrainer().getLastName());
+        var trainerDisplayName = formatPersonName(tar.getTrainer().getFirstName(), tar.getTrainer().getLastName());
         notificationCommandPublisher.publishAfterCommit(
                 NotificationCommandFactory.trainerAssignmentRejected(tar.getId(), tar.getClient().getId(), trainerDisplayName));
 
@@ -182,6 +194,15 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
         return trainerRepository.findByIdAndDeletedAtIsNull(trainerId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, ApplicationConstants.MSG_TRAINER_NOT_FOUND + trainerId));
+    }
+
+    private void validateSoftDeleteStatus(Long clientId, User client, Trainer trainer) {
+        if (client.getDeletedAt() != null) {
+            throw new UserDeletedException(clientId);
+        }
+        if (trainer.getDeletedAt() != null) {
+            throw new UserDeletedException(trainer.getId());
+        }
     }
 
     private TrainerAssignmentRequest loadPendingRequestOwnedByTrainer(Long requestId, Long trainerId) {

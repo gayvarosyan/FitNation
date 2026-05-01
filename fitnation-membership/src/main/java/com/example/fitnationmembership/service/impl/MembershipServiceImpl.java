@@ -27,6 +27,7 @@ import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.example.fitnationmembership.mapper.MembershipMapper;
 import com.example.fitnationmembership.mapper.MembershipTypeMapper;
 import com.example.fitnationmembership.model.Membership;
@@ -75,6 +76,7 @@ public class MembershipServiceImpl implements MembershipService {
     private final NutritionPlanRepository nutritionPlanRepository;
     private final TrainerRepository trainerRepository;
     private final GroupClassRepository groupClassRepository;
+    private final SoftDeleteValidationService softDeleteValidationService;
     private final NotificationCommandPublisher notificationCommandPublisher;
 
     @Override
@@ -129,6 +131,8 @@ public class MembershipServiceImpl implements MembershipService {
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
 
+        softDeleteValidationService.validateUserForMembership(user);
+
         var type = membershipTypeRepository.findById(request.membershipTypeId())
                 .orElseThrow(() -> new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND));
 
@@ -149,8 +153,11 @@ public class MembershipServiceImpl implements MembershipService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
 
+        softDeleteValidationService.validateUserForMembership(user);
+
         return membershipRepository.findAllByUserId(user.getId(), pageable)
                 .map(membershipMapper::toResponse);
+
     }
 
     @Override
@@ -158,6 +165,9 @@ public class MembershipServiceImpl implements MembershipService {
     public UserMembershipRequestResponse submitMembershipRequest(String userEmail, SubmitMembershipRequest request) {
         var user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
+
+        softDeleteValidationService.validateUserForMembership(user);
+
         if (user.getRole() != UserRole.CLIENT) {
             throw new ForbiddenOperationException(ApplicationConstants.MEMBERSHIP_REQUEST_CLIENT_ONLY);
         }
@@ -189,6 +199,8 @@ public class MembershipServiceImpl implements MembershipService {
     public List<UserMembershipRequestResponse> getUserMembershipRequests(String userEmail) {
         var user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UserNotFoundException(ApplicationConstants.MEMBERSHIP_USER_NOT_FOUND));
+
+        softDeleteValidationService.validateUserForMembership(user);
         return membershipRequestRepository.findAllByUserIdWithType(user.getId()).stream()
                 .map(this::toUserRequestResponse)
                 .toList();
@@ -298,6 +310,18 @@ public class MembershipServiceImpl implements MembershipService {
         );
         membershipRepository.save(membership);
         return membershipMapper.toResponse(membership);
+    }
+
+    private void validateOptionalRefs(Long nutritionPlanId, Long trainerId, Long groupClassId) {
+        if (nutritionPlanId != null && !nutritionPlanRepository.existsById(nutritionPlanId)) {
+            throw new NutritionPlanNotFoundException(ApplicationConstants.MEMBERSHIP_NUTRITION_PLAN_NOT_FOUND);
+        }
+        if (trainerId != null && !trainerRepository.existsById(trainerId)) {
+            throw new TrainerNotFoundException(ApplicationConstants.TRAINER_NOT_FOUND);
+        }
+        if (groupClassId != null && !groupClassRepository.existsById(groupClassId)) {
+            throw new GroupClassNotFoundException(ApplicationConstants.GROUP_CLASS_NOT_FOUND);
+        }
     }
 
     @Override

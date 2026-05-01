@@ -10,7 +10,8 @@ import java.util.Optional;
 
 public interface ChatConversationRepository extends JpaRepository<ChatConversation, Long> {
 
-    Optional<ChatConversation> findByClientIdAndTrainerId(Long clientId, Long trainerId);
+    @Query("SELECT c FROM ChatConversation c WHERE c.client.id = :clientId AND c.trainer.id = :trainerId")
+    Optional<ChatConversation> findByClientIdAndTrainerId(@Param("clientId") Long clientId, @Param("trainerId") Long trainerId);
 
     @Query("""
         SELECT DISTINCT c FROM ChatConversation c

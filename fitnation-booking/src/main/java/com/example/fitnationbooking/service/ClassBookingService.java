@@ -15,9 +15,13 @@ import com.example.fitnationcommon.exception.ClassScheduleNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationprogress.factory.NotificationCommandFactory;
 import com.example.fitnationprogress.service.NotificationCommandPublisher;
+import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.example.fitnationuser.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -32,6 +36,7 @@ public class ClassBookingService {
     private final ClassBookingMapper classBookingMapper;
     private final ClassBookingValidator classBookingValidator;
     private final NotificationCommandPublisher notificationCommandPublisher;
+    private final SoftDeleteValidationService softDeleteValidationService;
 
     @Transactional
     public void bookClass(Long scheduleId, Long userId) {
@@ -43,6 +48,7 @@ public class ClassBookingService {
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
+        softDeleteValidationService.validateUserForBooking(user);
         classBookingValidator.validateCanBook(schedule, user);
 
         var booking = classBookingMapper.toBookedEntity(schedule, user);
@@ -81,7 +87,9 @@ public class ClassBookingService {
             throw new UserNotFoundException(ApplicationConstants.MSG_USER_NOT_FOUND + userId);
         }
 
-        var booking = classBookingRepository.findByIdAndUserWithDetails(bookingId, userId)
+        softDeleteValidationService.validateUserForBooking(user);
+
+        var booking = classBookingRepository.findByIdAndUser(bookingId, user)
                 .orElseThrow(() -> new ClassBookingNotFoundException(
                         ApplicationConstants.MSG_BOOKING_NOT_FOUND + bookingId));
 
@@ -105,12 +113,16 @@ public class ClassBookingService {
                 .orElseThrow(() -> new UserNotFoundException(
                         ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
+
+        softDeleteValidationService.validateUserForBooking(user);
+
         var pageable = PageRequestParams.toPageable(page, size, sort,
                 Set.of("status", "createdAt"));
         var bookingStatus = status != null ? ClassBookingStatus.valueOf(status.toUpperCase()) : null;
 
         var resultPage = bookingStatus != null
                 ? classBookingRepository.findByUserAndStatus(user, bookingStatus, pageable)
+
                 .map(classBookingMapper::toUserBookingItemResponse)
                 : classBookingRepository.findByUser(user, pageable)
                 .map(classBookingMapper::toUserBookingItemResponse);
