@@ -163,6 +163,9 @@ public class MembershipServiceImpl implements MembershipService {
                 memberships.subList(start, end) : List.of();
         
         return new PageImpl<>(pageContent, pageable, memberships.size());
+
+        return membershipRepository.findAllByUserId(user.getId(), pageable)
+                .map(membershipMapper::toResponse);
     }
 
     @Override
@@ -258,7 +261,7 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (!canManageMembership(currentUser, membership)) {
+        if (cannotManageMembership(currentUser, membership)) {
             throw new ForbiddenOperationException(ApplicationConstants.CANNOT_CANCEL_MEMBERSHIP);
         }
 
@@ -273,7 +276,7 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (!canManageMembership(currentUser, membership)) {
+        if (cannotManageMembership(currentUser, membership)) {
             throw new ForbiddenOperationException(ApplicationConstants.CANNOT_UPDATE_MEMBERSHIP);
         }
 
@@ -317,6 +320,7 @@ public class MembershipServiceImpl implements MembershipService {
     @Override
     @Transactional(readOnly = true)
     public Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status) {
+
         List<Membership> memberships = membershipRepository.findAllWithTypeAndUser();
         
         if (q != null && !q.trim().isEmpty()) {
@@ -369,6 +373,34 @@ public class MembershipServiceImpl implements MembershipService {
                 responses.subList(start, end) : List.of();
         
         return new PageImpl<>(pageContent, pageable, responses.size());
+      
+        MembershipStatus statusEnum = null;
+        if (status != null && !status.trim().isEmpty()) {
+            try {
+                statusEnum = MembershipStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+            }
+        }
+        
+        Page<Membership> memberships = membershipRepository.findAllWithFilters(q, statusEnum, pageable);
+        
+        return memberships.map(membership -> new AdminMembershipRecordResponse(
+                membership.getId(),
+                membership.getUser().getId(),
+                membership.getUser().getFirstName(),
+                membership.getUser().getLastName(),
+                membership.getUser().getEmail(),
+                membership.getMembershipType().getId(),
+                membership.getMembershipType().getName(),
+                membership.getMembershipType().getDurationDays(),
+                membership.getMembershipType().getPrice(),
+                membership.getStartDate(),
+                membership.getEndDate(),
+                membership.getStatus(),
+                membership.getNutritionPlanId(),
+                membership.getTrainerId(),
+                membership.getGroupClassId()
+        ));
     }
 
     @Override
@@ -486,10 +518,10 @@ public class MembershipServiceImpl implements MembershipService {
                 r.getRejectionReason());
     }
 
-    private boolean canManageMembership(User currentUser, Membership membership) {
+    private boolean cannotManageMembership(User currentUser, Membership membership) {
         if (currentUser.getRole() == UserRole.ADMIN) {
-            return true;
+            return false;
         }
-        return membership.getUser().getId().equals(currentUser.getId());
+        return !membership.getUser().getId().equals(currentUser.getId());
     }
 }
