@@ -19,9 +19,6 @@ import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.example.fitnationuser.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -83,9 +80,9 @@ public class ClassBookingService {
 
     @Transactional
     public void cancelBooking(Long bookingId, Long userId) {
-        if (userRepository.findById(userId).isEmpty()) {
-            throw new UserNotFoundException(ApplicationConstants.MSG_USER_NOT_FOUND + userId);
-        }
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(
+                        ApplicationConstants.MSG_USER_NOT_FOUND + userId));
 
         softDeleteValidationService.validateUserForBooking(user);
 

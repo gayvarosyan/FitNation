@@ -312,18 +312,6 @@ public class MembershipServiceImpl implements MembershipService {
         return membershipMapper.toResponse(membership);
     }
 
-    private void validateOptionalRefs(Long nutritionPlanId, Long trainerId, Long groupClassId) {
-        if (nutritionPlanId != null && !nutritionPlanRepository.existsById(nutritionPlanId)) {
-            throw new NutritionPlanNotFoundException(ApplicationConstants.MEMBERSHIP_NUTRITION_PLAN_NOT_FOUND);
-        }
-        if (trainerId != null && !trainerRepository.existsById(trainerId)) {
-            throw new TrainerNotFoundException(ApplicationConstants.TRAINER_NOT_FOUND);
-        }
-        if (groupClassId != null && !groupClassRepository.existsById(groupClassId)) {
-            throw new GroupClassNotFoundException(ApplicationConstants.GROUP_CLASS_NOT_FOUND);
-        }
-    }
-
     @Override
     @Transactional(readOnly = true)
     public Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status) {

@@ -14,6 +14,7 @@ import com.example.fitnationtrainer.mapper.TrainerAssignmentRequestMapper;
 import com.example.fitnationtrainer.mapper.TrainerMapper;
 import com.example.fitnationtrainer.repository.TrainerAssignmentRequestRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +51,8 @@ class TrainerAssignmentServiceImplSoftDeleteTest {
     TrainerAssignmentRequestMapper mapper;
     @Mock
     TrainerMapper trainerMapper;
+    @Mock
+    NotificationCommandPublisher notificationCommandPublisher;
     @Mock
     SoftDeleteValidationService softDeleteValidationService;
     
@@ -99,7 +102,7 @@ class TrainerAssignmentServiceImplSoftDeleteTest {
         when(requestRepository.existsByClient_IdAndStatus(1L, TrainerAssignmentRequestStatus.PENDING))
                 .thenReturn(false);
         when(requestRepository.save(any()))
-                .thenReturn(TrainerAssignmentRequest.builder().build());
+                .thenReturn(TrainerAssignmentRequest.builder().id(10L).build());
         when(mapper.toResponse(any()))
                 .thenReturn(TrainerAssignmentRequestResponse.builder().build());
         
