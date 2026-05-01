@@ -76,7 +76,7 @@ class TrainerAssignmentEndpointTest {
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
-        assertEquals("Jane", result.getFirst().firstName());
+        assertEquals("Jane", result.get(0).firstName());
         verify(trainerAssignmentService).getActiveTrainersForClients();
     }
 
@@ -133,7 +133,7 @@ class TrainerAssignmentEndpointTest {
         var result = controller.getClientRequests();
 
         assertFalse(result.isEmpty());
-        assertEquals(TrainerAssignmentRequestStatus.PENDING, result.getFirst().getStatus());
+        assertEquals(TrainerAssignmentRequestStatus.PENDING, result.get(0).getStatus());
         verify(trainerAssignmentService).getClientRequests(1L);
     }
 
@@ -145,7 +145,7 @@ class TrainerAssignmentEndpointTest {
         var result = controller.getPendingRequests();
 
         assertFalse(result.isEmpty());
-        assertEquals(TrainerAssignmentRequestStatus.PENDING, result.getFirst().getStatus());
+        assertEquals(TrainerAssignmentRequestStatus.PENDING, result.get(0).getStatus());
         verify(trainerAssignmentService).getTrainerPendingRequests(2L);
     }
 

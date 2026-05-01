@@ -111,7 +111,7 @@ public class UserProgressServiceImpl implements UserProgressService {
 
     private ProgressSummaryResponse buildSummary(Long userId) {
         var entries = entryRepository.findAllActiveByUserIdOrderByRecordedAtDesc(userId);
-        var latest = entries.isEmpty() ? null : entries.getFirst();
+        var latest = entries.stream().findFirst().orElse(null);
         var previous = entries.size() > 1 ? entries.get(1) : null;
 
         var changeVsPrevious = latest == null
@@ -136,8 +136,8 @@ public class UserProgressServiceImpl implements UserProgressService {
         if (entries.size() < 2) {
             return new ProgressPeriodTrend(days, null);
         }
-        var newest = entries.getFirst();
-        var oldest = entries.getLast();
+        var newest = entries.stream().findFirst().orElse(null);
+        var oldest = entries.isEmpty() ? null : entries.get(entries.size() - 1);
         return new ProgressPeriodTrend(days, buildDeltas(newest, oldest));
     }
 
