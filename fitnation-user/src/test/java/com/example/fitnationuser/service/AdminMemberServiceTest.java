@@ -38,6 +38,8 @@ class AdminMemberServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private UserAdminService userAdminService;
+    @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
     private MemberValidator memberValidator;
@@ -124,14 +126,14 @@ class AdminMemberServiceTest {
                 .role(UserRole.CLIENT)
                 .build();
         PageImpl<User> userPage = new PageImpl<>(List.of(user), PageRequest.of(0, 20), 1);
-        when(userRepository.findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
+        when(userRepository.findByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
                 .thenReturn(userPage);
 
-        var page = adminMemberService.getMembers(0, 20, null, "jon", "active");
+        var page = adminMemberService.getMembers(0, 20, "createdAt", "jon", "active");
         
         assertNotNull(page, "Page should not be null");
         assertEquals(1, page.getTotalElements());
         assertEquals("jon@test.com", page.getItems().get(0).getEmail());
-        verify(userRepository).findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any());
+        verify(userRepository).findByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any());
     }
 }

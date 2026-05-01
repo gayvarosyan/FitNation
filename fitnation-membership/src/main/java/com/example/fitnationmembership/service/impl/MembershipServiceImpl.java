@@ -249,7 +249,7 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (canManageMembership(currentUser, membership)) {
+        if (cannotManageMembership(currentUser, membership)) {
             throw new ForbiddenOperationException(ApplicationConstants.CANNOT_CANCEL_MEMBERSHIP);
         }
 
@@ -264,7 +264,7 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (canManageMembership(currentUser, membership)) {
+        if (cannotManageMembership(currentUser, membership)) {
             throw new ForbiddenOperationException(ApplicationConstants.CANNOT_UPDATE_MEMBERSHIP);
         }
 
@@ -310,7 +310,10 @@ public class MembershipServiceImpl implements MembershipService {
     public Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status) {
         MembershipStatus statusEnum = null;
         if (status != null && !status.trim().isEmpty()) {
-            statusEnum = MembershipStatus.valueOf(status.toUpperCase());
+            try {
+                statusEnum = MembershipStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+            }
         }
         
         Page<Membership> memberships = membershipRepository.findAllWithFilters(q, statusEnum, pageable);
@@ -449,7 +452,7 @@ public class MembershipServiceImpl implements MembershipService {
                 r.getRejectionReason());
     }
 
-    private boolean canManageMembership(User currentUser, Membership membership) {
+    private boolean cannotManageMembership(User currentUser, Membership membership) {
         if (currentUser.getRole() == UserRole.ADMIN) {
             return false;
         }
