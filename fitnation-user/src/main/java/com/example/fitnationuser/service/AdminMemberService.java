@@ -68,15 +68,9 @@ public class AdminMemberService {
 
         Page<User> userPage;
         if (hasSearch && userStatus != null) {
-
-            userPage = userRepository.findActiveByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, search, pageable);
+            userPage = userRepository.findActiveByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, q, pageable);
         } else if (hasSearch) {
-            userPage = userRepository.findActiveByRoleAndSearch(UserRole.CLIENT, search, pageable);
-
-            userPage = userRepository.findByRoleAndStatusAndSearch(UserRole.CLIENT, userStatus, q, pageable);
-        } else if (hasSearch) {
-            userPage = userRepository.findByRoleAndSearch(UserRole.CLIENT, q, pageable);
-
+            userPage = userRepository.findActiveByRoleAndSearch(UserRole.CLIENT, q, pageable);
         } else if (userStatus != null) {
             userPage = userRepository.findActiveByRoleAndStatus(UserRole.CLIENT, userStatus, pageable);
         } else {

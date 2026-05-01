@@ -140,7 +140,7 @@ class AdminMemberServiceTest {
                 .email("jon@test.com").phone("555")
                 .status(UserStatus.ACTIVE).role(UserRole.CLIENT)
                 .build();
-        when(userRepository.findByRoleAndSearch(eq(UserRole.CLIENT), eq("jon"), any()))
+        when(userRepository.findActiveByRoleAndSearch(eq(UserRole.CLIENT), eq("jon"), any()))
                 .thenReturn(new PageImpl<>(List.of(user)));
 
         var result = adminMemberService.getMembers(0, 20, "createdAt,desc", "jon", null);
@@ -160,11 +160,11 @@ class AdminMemberServiceTest {
         when(userRepository.findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
                 .thenReturn(userPage);
 
-        var page = adminMemberService.getMembers(0, 20, "jon", "active");
+        var page = adminMemberService.getMembers(0, 20, "createdAt,desc", "jon", "active");
         
         assertNotNull(page, "Page should not be null");
         assertEquals(1, page.getTotalElements());
-        assertEquals("jon@test.com", page.getContent().get(0).getEmail());
+        assertEquals("jon@test.com", page.getItems().get(0).getEmail());
         verify(userRepository).findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any());
 
         var result = adminMemberService.getMembers(0, 20, "createdAt,desc", "jon", "active");
