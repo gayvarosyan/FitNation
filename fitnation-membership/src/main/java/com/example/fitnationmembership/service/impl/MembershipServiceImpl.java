@@ -45,7 +45,6 @@ import com.example.fitnationuser.user.User;
 import com.fitnationnutrition.repository.NutritionPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -153,16 +152,8 @@ public class MembershipServiceImpl implements MembershipService {
 
         softDeleteValidationService.validateUserForMembership(user);
 
-        List<MembershipResponse> memberships = membershipRepository.findAllByUserIdWithType(user.getId()).stream()
-                .map(membershipMapper::toResponse)
-                .toList();
-        
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), memberships.size());
-        List<MembershipResponse> pageContent = start < memberships.size() ? 
-                memberships.subList(start, end) : List.of();
-        
-        return new PageImpl<>(pageContent, pageable, memberships.size());
+        return membershipRepository.findAllByUserId(user.getId(), pageable)
+                .map(membershipMapper::toResponse);
     }
 
     @Override
@@ -258,7 +249,7 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (!canManageMembership(currentUser, membership)) {
+        if (canManageMembership(currentUser, membership)) {
             throw new ForbiddenOperationException(ApplicationConstants.CANNOT_CANCEL_MEMBERSHIP);
         }
 
@@ -273,7 +264,7 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (!canManageMembership(currentUser, membership)) {
+        if (canManageMembership(currentUser, membership)) {
             throw new ForbiddenOperationException(ApplicationConstants.CANNOT_UPDATE_MEMBERSHIP);
         }
 
@@ -317,58 +308,30 @@ public class MembershipServiceImpl implements MembershipService {
     @Override
     @Transactional(readOnly = true)
     public Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status) {
-        List<Membership> memberships = membershipRepository.findAllWithTypeAndUser();
-        
-        if (q != null && !q.trim().isEmpty()) {
-            String searchQuery = q.toLowerCase().trim();
-            memberships = memberships.stream()
-                    .filter(membership -> {
-                        User user = membership.getUser();
-                        return (user.getFirstName() != null && user.getFirstName().toLowerCase().contains(searchQuery)) ||
-                               (user.getLastName() != null && user.getLastName().toLowerCase().contains(searchQuery)) ||
-                               (user.getEmail() != null && user.getEmail().toLowerCase().contains(searchQuery)) ||
-                               (membership.getMembershipType().getName() != null && membership.getMembershipType().getName().toLowerCase().contains(searchQuery));
-                    })
-                    .toList();
-        }
-        
+        MembershipStatus statusEnum = null;
         if (status != null && !status.trim().isEmpty()) {
-            try {
-                MembershipStatus statusFilter = MembershipStatus.valueOf(status.toUpperCase());
-                memberships = memberships.stream()
-                        .filter(membership -> membership.getStatus() == statusFilter)
-                        .toList();
-            } catch (IllegalArgumentException e) {
-                return new PageImpl<>(List.of(), pageable, 0);
-            }
+            statusEnum = MembershipStatus.valueOf(status.toUpperCase());
         }
         
-        List<AdminMembershipRecordResponse> responses = memberships.stream()
-                .map(membership -> new AdminMembershipRecordResponse(
-                        membership.getId(),
-                        membership.getUser().getId(),
-                        membership.getUser().getFirstName(),
-                        membership.getUser().getLastName(),
-                        membership.getUser().getEmail(),
-                        membership.getMembershipType().getId(),
-                        membership.getMembershipType().getName(),
-                        membership.getMembershipType().getDurationDays(),
-                        membership.getMembershipType().getPrice(),
-                        membership.getStartDate(),
-                        membership.getEndDate(),
-                        membership.getStatus(),
-                        membership.getNutritionPlanId(),
-                        membership.getTrainerId(),
-                        membership.getGroupClassId()
-                ))
-                .toList();
+        Page<Membership> memberships = membershipRepository.findAllWithFilters(q, statusEnum, pageable);
         
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), responses.size());
-        List<AdminMembershipRecordResponse> pageContent = start < responses.size() ? 
-                responses.subList(start, end) : List.of();
-        
-        return new PageImpl<>(pageContent, pageable, responses.size());
+        return memberships.map(membership -> new AdminMembershipRecordResponse(
+                membership.getId(),
+                membership.getUser().getId(),
+                membership.getUser().getFirstName(),
+                membership.getUser().getLastName(),
+                membership.getUser().getEmail(),
+                membership.getMembershipType().getId(),
+                membership.getMembershipType().getName(),
+                membership.getMembershipType().getDurationDays(),
+                membership.getMembershipType().getPrice(),
+                membership.getStartDate(),
+                membership.getEndDate(),
+                membership.getStatus(),
+                membership.getNutritionPlanId(),
+                membership.getTrainerId(),
+                membership.getGroupClassId()
+        ));
     }
 
     @Override
@@ -488,8 +451,8 @@ public class MembershipServiceImpl implements MembershipService {
 
     private boolean canManageMembership(User currentUser, Membership membership) {
         if (currentUser.getRole() == UserRole.ADMIN) {
-            return true;
+            return false;
         }
-        return membership.getUser().getId().equals(currentUser.getId());
+        return !membership.getUser().getId().equals(currentUser.getId());
     }
 }

@@ -38,8 +38,6 @@ class AdminMemberServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private UserAdminService userAdminService;
-    @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
     private MemberValidator memberValidator;
@@ -129,7 +127,7 @@ class AdminMemberServiceTest {
         when(userRepository.findActiveByRoleAndStatusAndSearch(eq(UserRole.CLIENT), eq(UserStatus.ACTIVE), eq("jon"), any()))
                 .thenReturn(userPage);
 
-        var page = adminMemberService.getMembers(0, 20, "createdAt,desc", "jon", "active");
+        var page = adminMemberService.getMembers(0, 20, null, "jon", "active");
         
         assertNotNull(page, "Page should not be null");
         assertEquals(1, page.getTotalElements());
