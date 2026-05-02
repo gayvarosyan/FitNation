@@ -1,6 +1,8 @@
 package com.example.fitnationtrainer.entity;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;
@@ -17,6 +19,7 @@ import com.example.fitnationuser.user.User;
 @Entity
 @Table(name = "trainers")
 @PrimaryKeyJoinColumn(name = "user_id")
+@Access(AccessType.FIELD)
 @EqualsAndHashCode(callSuper = true)
 public class Trainer extends User {
     @Column(nullable = false, length = ApplicationConstants.SMALL_TEXT)

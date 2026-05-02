@@ -4,6 +4,7 @@ import com.example.fitnationcommon.dto.response.AdminMembershipRecordResponse;
 import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.enums.MembershipStatus;
 import com.example.fitnationmembership.service.MembershipService;
+import com.example.fitnationrestapi.endpoint.MembershipEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,7 @@ class AdminMembershipApiIntegrationTest {
     private MockMvc mockMvc;
 
     private void initMvc() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new MembershipController(membershipService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new MembershipEndpoint(membershipService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }

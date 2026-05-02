@@ -2,6 +2,7 @@ package com.example.fitnationuser.service;
 
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.UserBlockedException;
+import com.example.fitnationcommon.exception.UserDeletedException;
 import com.example.fitnationcommon.exception.UserInactiveException;
 import com.example.fitnationuser.user.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,14 +41,14 @@ class UserStatusUtilTest {
     void ensureActive_throwsWhenDeleted() {
         User user = User.builder().status(UserStatus.ACTIVE).deletedAt(LocalDateTime.now()).build();
 
-        assertThrows(UserBlockedException.class, () -> userStatusUtil.ensureActive(user));
+        assertThrows(UserDeletedException.class, () -> userStatusUtil.ensureActive(user));
     }
 
     @Test
     void ensureActive_throwsWhenStatusDeleted() {
         User user = User.builder().status(UserStatus.DELETED).build();
 
-        assertThrows(UserBlockedException.class, () -> userStatusUtil.ensureActive(user));
+        assertThrows(UserDeletedException.class, () -> userStatusUtil.ensureActive(user));
     }
 
     @Test

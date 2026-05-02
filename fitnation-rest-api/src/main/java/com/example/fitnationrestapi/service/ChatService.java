@@ -6,6 +6,7 @@ import com.example.fitnationcommon.dto.response.ConversationResponse;
 import com.example.fitnationcommon.dto.response.MessageResponse;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.exception.ConversationNotFoundException;
+import com.example.fitnationcommon.exception.UserDeletedException;
 import com.example.fitnationrestapi.entity.ChatConversation;
 import com.example.fitnationrestapi.entity.ChatMessage;
 import com.example.fitnationrestapi.repository.ChatConversationRepository;
@@ -16,9 +17,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.Objects;
 
 @Service
@@ -26,11 +30,13 @@ import java.util.Objects;
 public class ChatService extends PerformanceOptimizedService {
 
     private final ChatConversationRepository conversationRepository;
-    private final ChatMessageRepository messageRepository;
-    private final UserRepository userRepo;
+    private final ChatMessageRepository      messageRepository;
+    private final UserRepository             userRepo;
 
     public ConversationResponse openOrGet(Long currentUserId, UserRole role,
                                           OpenConversationRequest req) {
+        assertUserActive(currentUserId);
+
         Long clientId, trainerId;
 
         if (role == UserRole.CLIENT) {
@@ -57,12 +63,16 @@ public class ChatService extends PerformanceOptimizedService {
 
     @Transactional(readOnly = true)
     public Page<ConversationResponse> listConversations(Long userId, Pageable pageable) {
+        assertUserActive(userId);
+
         return executeReadOnlyWithMonitoring("listConversations", () -> {
             Pageable validatedPageable = validatePageable(pageable);
-            Page<ConversationResponse> result = conversationRepository.findAllByUserIdWithUsers(userId, validatedPageable)
+            Page<ConversationResponse> result = conversationRepository
+                    .findAllByUserIdWithUsers(userId, validatedPageable)
                     .map(conversation -> {
                         Page<ChatMessage> last = messageRepository
-                                .findByConversationIdOrderByCreatedAtDesc(conversation.getId(), PageRequest.of(0, 1));
+                                .findByConversationIdOrderByCreatedAtDesc(
+                                        conversation.getId(), PageRequest.of(0, 1));
                         MessageResponse lastMsg = last.isEmpty() ? null
                                 : toMsgResponse(last.getContent().get(0));
                         return toConvResponse(conversation, lastMsg);
@@ -74,6 +84,8 @@ public class ChatService extends PerformanceOptimizedService {
 
     @Transactional(readOnly = true)
     public Page<MessageResponse> getMessages(Long userId, Long conversationId, Pageable pageable) {
+        assertUserActive(userId);
+
         return executeReadOnlyWithMonitoring("getMessages", () -> {
             Pageable validatedPageable = validatePageable(pageable);
             ChatConversation conversation = conversationRepository.findById(conversationId)
@@ -92,6 +104,8 @@ public class ChatService extends PerformanceOptimizedService {
         if (body == null || body.isBlank() || body.length() > ApplicationConstants.CHAT_MESSAGE_MAX_LENGTH)
             throw new IllegalArgumentException("Invalid message body");
 
+        assertUserActive(senderId);
+
         ChatConversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new ConversationNotFoundException(
                         ApplicationConstants.MSG_CONVERSATION_NOT_FOUND + conversationId));
@@ -106,6 +120,15 @@ public class ChatService extends PerformanceOptimizedService {
 
         conversation.setLastMessageAt(saved.getCreatedAt());
         return toMsgResponse(saved);
+    }
+
+    private void assertUserActive(Long userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, ApplicationConstants.MSG_USER_NOT_FOUND + userId));
+        if (user.getDeletedAt() != null) {
+            throw new UserDeletedException(userId);
+        }
     }
 
     private void assertParticipant(Long userId, ChatConversation conversation) {

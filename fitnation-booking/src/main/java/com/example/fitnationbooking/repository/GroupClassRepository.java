@@ -13,7 +13,8 @@ public interface GroupClassRepository extends JpaRepository<GroupClass, Long> {
     @Query("SELECT g FROM GroupClass g JOIN FETCH g.trainer")
     List<GroupClass> findAllWithTrainer();
 
-    List<GroupClass> findAllByTrainerId(Long trainerId);
+    @Query("SELECT g FROM GroupClass g WHERE g.trainer.id = :trainerId")
+    List<GroupClass> findAllByTrainerId(@Param("trainerId") Long trainerId);
 
     @Modifying
     @Query("""

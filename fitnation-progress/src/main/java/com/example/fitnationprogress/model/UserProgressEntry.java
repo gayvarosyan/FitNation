@@ -1,5 +1,6 @@
 package com.example.fitnationprogress.model;
 
+import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import com.example.fitnationuser.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -20,7 +21,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -71,26 +72,18 @@ public class UserProgressEntry {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    public void updateMetrics(
-            LocalDateTime recordedAt,
-            BigDecimal weight,
-            BigDecimal bodyFatPercent,
-            BigDecimal muscleMass,
-            BigDecimal waistCm,
-            BigDecimal chestCm,
-            BigDecimal hipCm,
-            String notes) {
-        this.recordedAt = recordedAt;
-        this.weight = weight;
-        this.bodyFatPercent = bodyFatPercent;
-        this.muscleMass = muscleMass;
-        this.waistCm = waistCm;
-        this.chestCm = chestCm;
-        this.hipCm = hipCm;
-        this.notes = notes;
+    public void updateMetrics(UpsertUserProgressEntryRequest request) {
+        this.recordedAt = request.recordedAt();
+        this.weight = request.weight();
+        this.bodyFatPercent = request.bodyFatPercent();
+        this.muscleMass = request.muscleMass();
+        this.waistCm = request.waistCm();
+        this.chestCm = request.chestCm();
+        this.hipCm = request.hipCm();
+        this.notes = request.notes();
     }
 
-    public void markDeleted(LocalDateTime timestamp) {
-        this.deletedAt = timestamp;
+    public void markDeleted() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

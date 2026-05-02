@@ -12,9 +12,11 @@ import com.example.fitnationmembership.model.Membership;
 import com.example.fitnationmembership.repository.*;
 import com.example.fitnationbooking.repository.GroupClassRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.payment.PaymentRepository;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
+import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.fitnationnutrition.repository.NutritionPlanRepository;
 import com.example.fitnationcommon.rbac.RbacPolicyService;
 import org.junit.jupiter.api.Test;
@@ -25,23 +27,40 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MembershipServiceImplTest {
 
-    @Mock private MembershipRepository membershipRepository;
-    @Mock private MembershipTypeRepository membershipTypeRepository;
-    @Mock private MembershipRequestRepository membershipRequestRepository;
-    @Mock private PaymentRepository paymentRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private MembershipTypeMapper membershipTypeMapper;
-    @Mock private MembershipMapper membershipMapper;
-    @Mock private NutritionPlanRepository nutritionPlanRepository;
-    @Mock private TrainerRepository trainerRepository;
-    @Mock private GroupClassRepository groupClassRepository;
-    @Mock private RbacPolicyService rbacPolicyService;
+    @Mock
+    private MembershipRepository membershipRepository;
+    @Mock
+    private MembershipTypeRepository membershipTypeRepository;
+    @Mock
+    private MembershipRequestRepository membershipRequestRepository;
+    @Mock
+    private PaymentRepository paymentRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private MembershipTypeMapper membershipTypeMapper;
+    @Mock
+    private MembershipMapper membershipMapper;
+    @Mock
+    private NutritionPlanRepository nutritionPlanRepository;
+    @Mock
+    private TrainerRepository trainerRepository;
+    @Mock
+    private GroupClassRepository groupClassRepository;
+    @Mock
+    private NotificationCommandPublisher notificationCommandPublisher;
+    @Mock
+    private SoftDeleteValidationService softDeleteValidationService;
+    @Mock
+    private RbacPolicyService rbacPolicyService;
 
     @InjectMocks
     private MembershipServiceImpl membershipService;
@@ -74,6 +93,8 @@ class MembershipServiceImplTest {
         trainer.setRole(UserRole.TRAINER);
 
         when(userRepository.findByEmail("t@test.com")).thenReturn(Optional.of(trainer));
+
+        org.mockito.Mockito.doNothing().when(softDeleteValidationService).validateUserForMembership(trainer);
 
         doThrow(new ForbiddenOperationException("not allowed"))
                 .when(rbacPolicyService)
