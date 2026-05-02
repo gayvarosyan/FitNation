@@ -29,6 +29,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -95,10 +97,6 @@ class MembershipServiceImplTest {
         when(userRepository.findByEmail("t@test.com")).thenReturn(Optional.of(trainer));
 
         org.mockito.Mockito.doNothing().when(softDeleteValidationService).validateUserForMembership(trainer);
-
-        doThrow(new ForbiddenOperationException("not allowed"))
-                .when(rbacPolicyService)
-                .requireClientOrAdmin(any());
 
         assertThrows(ForbiddenOperationException.class, () ->
                 membershipService.submitMembershipRequest(

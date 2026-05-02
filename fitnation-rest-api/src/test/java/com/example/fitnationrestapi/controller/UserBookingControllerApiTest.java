@@ -6,9 +6,10 @@ import com.example.fitnationcommon.enums.BookingDisplayStatus;
 import com.example.fitnationcommon.enums.ClassBookingStatus;
 import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
+import com.example.fitnationbooking.service.ClassBookingService;
+import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationrestapi.endpoint.UserBookingEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
-import com.example.fitnationrestapi.service.UserBookingFacadeService;
 import com.example.fitnationuser.security.SecurityAuthoritiesUtil;
 import com.example.fitnationuser.user.User;
 import org.junit.jupiter.api.AfterEach;
@@ -25,7 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import static org.mockito.ArgumentMatchers.any;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,14 +38,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserBookingControllerApiTest {
 
     @Mock
-    private UserBookingFacadeService bookingFacadeService;
+    private ClassBookingService classBookingService;
+    @Mock
+    private GroupClassService groupClassService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new UserBookingController(classBookingService, groupClassService))
+                .standaloneSetup(new UserBookingEndpoint(classBookingService, groupClassService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(
                         new org.springframework.security.web.method.annotation
@@ -82,7 +85,7 @@ class UserBookingControllerApiTest {
         mockMvc.perform(post("/api/users/classes/7/book"))
                 .andExpect(status().isCreated());
 
-        verify(bookingFacadeService).bookClass(7L);
+        verify(classBookingService).bookClass(7L, 42L);
     }
 
     @Test
@@ -111,7 +114,7 @@ class UserBookingControllerApiTest {
                         .sort("createdAt,desc")
                         .build();
 
-        when(classBookingService.getUserBookings(anyLong(), anyInt(), anyInt(), anyString(), any()))
+        when(classBookingService.getUserBookings(42L, 0, 20, "createdAt,desc", null))
                 .thenReturn(pagedResponse);
 
         SecurityContextHolder.getContext().setAuthentication(auth(42L));

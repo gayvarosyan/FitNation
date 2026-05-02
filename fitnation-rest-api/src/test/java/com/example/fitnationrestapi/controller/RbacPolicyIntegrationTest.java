@@ -8,6 +8,7 @@ import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.enums.UserStatus;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
 import com.example.fitnationcommon.rbac.RbacPolicyService;
+import com.example.fitnationrestapi.endpoint.UserBookingEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationuser.user.User;
 import org.junit.jupiter.api.AfterEach;
@@ -55,7 +56,7 @@ class RbacPolicyIntegrationTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new UserBookingController(classBookingService, groupClassService))
+                .standaloneSetup(new UserBookingEndpoint(classBookingService, groupClassService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
 

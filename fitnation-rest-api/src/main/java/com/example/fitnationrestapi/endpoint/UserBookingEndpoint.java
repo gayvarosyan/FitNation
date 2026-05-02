@@ -7,7 +7,7 @@ import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.enums.ScheduleFilterStatus;
-import com.example.fitnationrestapi.service.UserBookingFacadeService;
+import com.example.fitnationuser.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
