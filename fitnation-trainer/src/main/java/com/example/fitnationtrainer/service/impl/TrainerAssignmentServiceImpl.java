@@ -16,6 +16,8 @@ import com.example.fitnationtrainer.mapper.TrainerMapper;
 import com.example.fitnationtrainer.repository.TrainerAssignmentRequestRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
 import com.example.fitnationtrainer.service.TrainerAssignmentService;
+import com.example.fitnationprogress.factory.NotificationCommandFactory;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +35,12 @@ import java.util.stream.Collectors;
 public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
 
     private final TrainerAssignmentRequestRepository requestRepository;
-    private final TrainerRepository                  trainerRepository;
-    private final UserRepository                     userRepository;
-    private final TrainerAssignmentRequestMapper     mapper;
-    private final TrainerMapper                      trainerMapper;
-    private final SoftDeleteValidationService        softDeleteValidationService;
+    private final TrainerRepository trainerRepository;
+    private final UserRepository userRepository;
+    private final TrainerAssignmentRequestMapper mapper;
+    private final TrainerMapper trainerMapper;
+    private final NotificationCommandPublisher notificationCommandPublisher;
+    private final SoftDeleteValidationService softDeleteValidationService;
 
     @Override
     public List<TrainerDirectoryItem> getActiveTrainersForClients() {
@@ -109,6 +112,13 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
                         .build()
         );
 
+        var clientDisplayName = formatPersonName(client.getFirstName(), client.getLastName());
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.trainerAssignmentRequested(
+                        saved.getId(),
+                        trainer.getId(),
+                        clientDisplayName));
+
         return mapper.toResponse(saved);
     }
 
@@ -149,6 +159,10 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
         requestRepository.save(tar);
         userRepository.save(client);
 
+        var trainerDisplayName = formatPersonName(tar.getTrainer().getFirstName(), tar.getTrainer().getLastName());
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.trainerAssignmentApproved(tar.getId(), client.getId(), trainerDisplayName));
+
         return mapper.toResponse(tar);
     }
 
@@ -165,7 +179,15 @@ public class TrainerAssignmentServiceImpl implements TrainerAssignmentService {
 
         requestRepository.save(tar);
 
+        var trainerDisplayName = formatPersonName(tar.getTrainer().getFirstName(), tar.getTrainer().getLastName());
+        notificationCommandPublisher.publishAfterCommit(
+                NotificationCommandFactory.trainerAssignmentRejected(tar.getId(), tar.getClient().getId(), trainerDisplayName));
+
         return mapper.toResponse(tar);
+    }
+
+    private static String formatPersonName(String firstName, String lastName) {
+        return firstName.trim() + " " + lastName.trim();
     }
 
     private Trainer findActiveTrainerOrThrow(Long trainerId) {

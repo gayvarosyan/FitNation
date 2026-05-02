@@ -1,6 +1,6 @@
 package com.example.fitnationprogress.mapper;
 
-import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
+import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import com.example.fitnationprogress.dto.ProgressEntryResponse;
 import com.example.fitnationprogress.model.UserProgressEntry;
 import com.example.fitnationuser.user.User;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserProgressMapper {
 
-    public UserProgressEntry toEntity(User user, CreateUserProgressEntryRequest request) {
+    public UserProgressEntry toEntity(User user, UpsertUserProgressEntryRequest request) {
         return UserProgressEntry.builder()
                 .user(user)
                 .recordedAt(request.recordedAt())

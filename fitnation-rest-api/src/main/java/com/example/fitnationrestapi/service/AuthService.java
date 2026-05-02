@@ -1,6 +1,8 @@
 package com.example.fitnationrestapi.service;
 
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.dto.request.LoginRequest;
+import com.example.fitnationcommon.dto.request.RefreshTokenRequest;
 import com.example.fitnationcommon.dto.request.RegisterRequest;
 import com.example.fitnationcommon.dto.response.AuthResponse;
 import com.example.fitnationcommon.enums.UserRole;
@@ -61,6 +63,10 @@ public class AuthService {
         return buildAuthResponse(user, accessToken, refreshToken);
     }
 
+    public AuthResponse login(LoginRequest request) {
+        return login(request.email(), request.password());
+    }
+
     public AuthResponse refresh(String refreshToken) {
         if (!jwtService.isRefreshTokenValid(refreshToken)) {
             throw new InvalidTokenException(ApplicationConstants.INVALID_REFRESH_TOKEN);
@@ -74,5 +80,9 @@ public class AuthService {
         String newRefreshToken = jwtService.generateRefreshToken(user);
 
         return buildAuthResponse(user, newAccessToken, newRefreshToken);
+    }
+
+    public AuthResponse refresh(RefreshTokenRequest request) {
+        return refresh(request.refreshToken());
     }
 }

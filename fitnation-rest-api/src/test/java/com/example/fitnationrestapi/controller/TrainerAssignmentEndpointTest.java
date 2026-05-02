@@ -7,6 +7,7 @@ import com.example.fitnationcommon.dto.response.TrainerDirectoryItem;
 import com.example.fitnationcommon.dto.response.TrainerPublicProfileResponse;
 import com.example.fitnationcommon.enums.TrainerAssignmentRequestStatus;
 import com.example.fitnationcommon.enums.UserStatus;
+import com.example.fitnationrestapi.endpoint.TrainerAssignmentEndpoint;
 import com.example.fitnationrestapi.support.CurrentUserHelper;
 import com.example.fitnationtrainer.service.impl.TrainerAssignmentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;

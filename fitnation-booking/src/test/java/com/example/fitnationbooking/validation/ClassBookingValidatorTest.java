@@ -45,7 +45,7 @@ class ClassBookingValidatorTest {
 
     @Test
     void validateCanBook_throwsWhenClassFull() {
-        when(classBookingRepository.countByScheduleAndStatus(schedule.getId(), ClassBookingStatus.BOOKED.name())).thenReturn(2L);
+        when(classBookingRepository.countBySchedule_IdAndStatus(schedule.getId(), ClassBookingStatus.BOOKED)).thenReturn(2L);
 
         ClassBookingConflictException ex = assertThrows(ClassBookingConflictException.class, () ->
                 validator.validateCanBook(schedule, user));
@@ -54,7 +54,7 @@ class ClassBookingValidatorTest {
 
     @Test
     void validateCanBook_throwsWhenDuplicateBooking() {
-        when(classBookingRepository.countByScheduleAndStatus(schedule.getId(), ClassBookingStatus.BOOKED.name())).thenReturn(0L);
+        when(classBookingRepository.countBySchedule_IdAndStatus(schedule.getId(), ClassBookingStatus.BOOKED)).thenReturn(0L);
         when(classBookingRepository.existsByScheduleAndUserAndStatus(schedule, user, ClassBookingStatus.BOOKED))
                 .thenReturn(true);
 
@@ -65,7 +65,7 @@ class ClassBookingValidatorTest {
 
     @Test
     void validateCanBook_succeedsWhenSeatsAvailableAndNoDuplicate() {
-        when(classBookingRepository.countByScheduleAndStatus(schedule.getId(), ClassBookingStatus.BOOKED.name())).thenReturn(1L);
+        when(classBookingRepository.countBySchedule_IdAndStatus(schedule.getId(), ClassBookingStatus.BOOKED)).thenReturn(1L);
         when(classBookingRepository.existsByScheduleAndUserAndStatus(schedule, user, ClassBookingStatus.BOOKED))
                 .thenReturn(false);
 

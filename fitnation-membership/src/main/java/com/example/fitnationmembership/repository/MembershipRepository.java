@@ -66,4 +66,14 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
             @Param("q") String q,
             @Param("status") MembershipStatus status,
             Pageable pageable);
+
+    @Query("""
+            SELECT m FROM Membership m
+            JOIN FETCH m.membershipType
+            JOIN FETCH m.user
+            WHERE m.status = :status AND m.endDate = :endDate
+            """)
+    List<Membership> findAllByStatusAndEndDate(
+            @Param("status") MembershipStatus status,
+            @Param("endDate") LocalDate endDate);
 }

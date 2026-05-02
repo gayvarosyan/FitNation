@@ -4,6 +4,7 @@ import com.example.fitnationcommon.enums.UserRole;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
 import com.example.fitnationprogress.dto.ProgressSummaryResponse;
 import com.example.fitnationprogress.service.UserProgressService;
+import com.example.fitnationrestapi.endpoint.TrainerClientProgressEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationrestapi.support.CurrentUserHelper;
 import org.junit.jupiter.api.BeforeEach;

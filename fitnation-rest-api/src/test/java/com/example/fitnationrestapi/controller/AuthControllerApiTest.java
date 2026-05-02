@@ -2,6 +2,7 @@ package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.request.LoginRequest;
 import com.example.fitnationcommon.dto.response.AuthResponse;
+import com.example.fitnationrestapi.endpoint.AuthEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationrestapi.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,7 +36,7 @@ class AuthControllerApiTest {
         objectMapper = new ObjectMapper();
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
-        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(authService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new AuthEndpoint(authService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setValidator(validator)
                 .build();
@@ -56,7 +57,7 @@ class AuthControllerApiTest {
         AuthResponse response = new AuthResponse(
                 1L, "client@test.com", "CLIENT", "ACTIVE",
                 "access-token", "refresh-token", "Bearer", 3600L);
-        when(authService.login(eq("client@test.com"), eq("Secure1@x"))).thenReturn(response);
+        when(authService.login(any(LoginRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

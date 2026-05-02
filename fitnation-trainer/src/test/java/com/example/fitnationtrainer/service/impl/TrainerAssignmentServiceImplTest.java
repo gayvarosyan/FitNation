@@ -15,6 +15,7 @@ import com.example.fitnationtrainer.mapper.TrainerMapper;
 import com.example.fitnationtrainer.repository.TrainerAssignmentRequestRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
 import com.example.fitnationuser.user.User;
+import com.example.fitnationprogress.service.NotificationCommandPublisher;
 import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,7 @@ class TrainerAssignmentServiceImplTest {
     @Mock private TrainerAssignmentRequestMapper mapper;
     @Mock private TrainerMapper trainerMapper;
     @Mock private SoftDeleteValidationService softDeleteValidationService;
+    @Mock private NotificationCommandPublisher notificationCommandPublisher;
 
     @InjectMocks
     private TrainerAssignmentServiceImpl service;
@@ -115,7 +117,7 @@ class TrainerAssignmentServiceImplTest {
         when(mapper.toPublicProfileResponse(trainer)).thenReturn(response);
         when(requestRepository.existsByClient_IdAndStatus(1L, TrainerAssignmentRequestStatus.PENDING)).thenReturn(false);
         when(requestRepository.findByClient_IdAndStatus(1L, TrainerAssignmentRequestStatus.PENDING)).thenReturn(Optional.empty());
-        
+
         doNothing().when(softDeleteValidationService).validateTrainerForOperations(trainer);
         doNothing().when(softDeleteValidationService).validateClientForOperations(client);
 
@@ -134,8 +136,7 @@ class TrainerAssignmentServiceImplTest {
         when(mapper.toPublicProfileResponse(trainer)).thenReturn(response);
         when(requestRepository.existsByClient_IdAndStatus(1L, TrainerAssignmentRequestStatus.PENDING)).thenReturn(false);
         when(requestRepository.findByClient_IdAndStatus(1L, TrainerAssignmentRequestStatus.PENDING)).thenReturn(Optional.empty());
-        
-        // Mock SoftDeleteValidationService to do nothing for active users
+
         doNothing().when(softDeleteValidationService).validateTrainerForOperations(trainer);
         doNothing().when(softDeleteValidationService).validateClientForOperations(client);
 
@@ -152,7 +153,7 @@ class TrainerAssignmentServiceImplTest {
         when(mapper.toPublicProfileResponse(trainer)).thenReturn(response);
         when(requestRepository.existsByClient_IdAndStatus(1L, TrainerAssignmentRequestStatus.PENDING)).thenReturn(true);
         when(requestRepository.findByClient_IdAndStatus(1L, TrainerAssignmentRequestStatus.PENDING)).thenReturn(Optional.empty());
-        
+
         doNothing().when(softDeleteValidationService).validateTrainerForOperations(trainer);
         doNothing().when(softDeleteValidationService).validateClientForOperations(client);
 
@@ -186,7 +187,7 @@ class TrainerAssignmentServiceImplTest {
         when(requestRepository.existsByClient_IdAndStatus(1L, TrainerAssignmentRequestStatus.PENDING)).thenReturn(false);
         when(requestRepository.save(any(TrainerAssignmentRequest.class))).thenReturn(saved);
         when(mapper.toResponse(saved)).thenReturn(new TrainerAssignmentRequestResponse());
-        
+
         doNothing().when(softDeleteValidationService).validateTrainerForOperations(trainer);
         doNothing().when(softDeleteValidationService).validateClientForOperations(client);
 

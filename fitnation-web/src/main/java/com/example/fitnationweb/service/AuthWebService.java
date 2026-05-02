@@ -31,10 +31,10 @@ public class AuthWebService {
         if (request.role() != UserRole.CLIENT && request.role() != UserRole.TRAINER) {
             throw new InvalidRoleException(ApplicationConstants.INVALID_ROLE);
         }
-        if (request.role() == UserRole.CLIENT) {
-            userRegistrationService.register(request);
-        } else {
-            trainerRegistrationService.register(request);
+        switch (request.role()) {
+            case CLIENT -> userRegistrationService.register(request);
+            case TRAINER -> trainerRegistrationService.register(request);
+            case ADMIN -> throw new InvalidRoleException(ApplicationConstants.INVALID_ROLE);
         }
     }
 

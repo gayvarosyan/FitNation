@@ -63,10 +63,10 @@ public class ClassBookingMapper {
 
         if (now.isBefore(sessionStart)) {
             return BookingDisplayStatus.UPCOMING;
-        } else if (!now.isBefore(sessionStart) && now.isBefore(sessionEnd)) {
-            return BookingDisplayStatus.IN_PROGRESS;
-        } else {
-            return BookingDisplayStatus.COMPLETED;
         }
+        if (!now.isBefore(sessionStart) && now.isBefore(sessionEnd)) {
+            return BookingDisplayStatus.IN_PROGRESS;
+        }
+        return BookingDisplayStatus.COMPLETED;
     }
 }

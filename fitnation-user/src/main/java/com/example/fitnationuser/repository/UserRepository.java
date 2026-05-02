@@ -53,6 +53,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findByRoleAndStatus(UserRole role, UserStatus status, Pageable pageable);
 
+    @Query("""
+            SELECT u.id FROM User u
+            WHERE u.role = :role AND u.status = :status AND u.deletedAt IS NULL
+            """)
+    List<Long> findIdsByRoleAndStatus(@Param("role") UserRole role, @Param("status") UserStatus status);
+
     @Query("SELECT u FROM User u WHERE u.deletedAt IS NOT NULL AND u.deletedAt < :cutoffDate")
     List<User> findUsersDeletedBefore(@Param("cutoffDate") LocalDateTime cutoffDate);
 

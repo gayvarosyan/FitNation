@@ -1,6 +1,6 @@
 package com.example.fitnationprogress.mapper;
 
-import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
+import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import com.example.fitnationprogress.model.UserProgressEntry;
 import com.example.fitnationuser.user.User;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ class UserProgressMapperTest {
     @Test
     void toEntity_mapsAllFields() {
         User user = User.builder().id(15L).build();
-        CreateUserProgressEntryRequest request = new CreateUserProgressEntryRequest(
+        UpsertUserProgressEntryRequest request = new UpsertUserProgressEntryRequest(
                 LocalDateTime.of(2026, 4, 20, 10, 0),
                 BigDecimal.valueOf(81.2),
                 BigDecimal.valueOf(15.2),

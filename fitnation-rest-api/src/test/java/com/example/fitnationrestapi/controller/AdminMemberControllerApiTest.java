@@ -2,6 +2,7 @@ package com.example.fitnationrestapi.controller;
 
 import com.example.fitnationcommon.dto.response.MemberListResponse;
 import com.example.fitnationcommon.dto.response.PagedResponse;
+import com.example.fitnationrestapi.endpoint.AdminMemberEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationuser.service.AdminMemberService;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +34,7 @@ class AdminMemberControllerApiTest {
     void setUp() {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
-        mockMvc = MockMvcBuilders.standaloneSetup(new AdminMemberController(adminMemberService))
+        mockMvc = MockMvcBuilders.standaloneSetup(new AdminMemberEndpoint(adminMemberService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setValidator(validator)
                 .build();

@@ -5,12 +5,11 @@ import com.example.fitnationcommon.constants.ApplicationConstants;
 import com.example.fitnationcommon.exception.ForbiddenOperationException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.exception.ProgressEntryNotFoundException;
-import com.example.fitnationprogress.dto.CreateUserProgressEntryRequest;
 import com.example.fitnationprogress.dto.ProgressEntryResponse;
 import com.example.fitnationprogress.dto.ProgressMetricDeltas;
 import com.example.fitnationprogress.dto.ProgressPeriodTrend;
 import com.example.fitnationprogress.dto.ProgressSummaryResponse;
-import com.example.fitnationprogress.dto.UpdateUserProgressEntryRequest;
+import com.example.fitnationprogress.dto.UpsertUserProgressEntryRequest;
 import com.example.fitnationprogress.mapper.UserProgressMapper;
 import com.example.fitnationprogress.model.UserProgressEntry;
 import com.example.fitnationprogress.repository.UserProgressEntryRepository;
@@ -38,10 +37,10 @@ public class UserProgressServiceImpl implements UserProgressService {
 
     @Override
     @Transactional
-    public ProgressEntryResponse createEntry(Long userId, CreateUserProgressEntryRequest request) {
+    public ProgressEntryResponse createEntry(Long userId, UpsertUserProgressEntryRequest request) {
         var user = requireUser(userId);
-        validator.validateForCreate(request);
-        var entity = mapper.toEntity(user, normalizeRequest(request));
+        validator.validateEntry(request);
+        var entity = mapper.toEntity(user, validator.normalize(request));
         return mapper.toResponse(entryRepository.save(entity));
     }
 
@@ -60,19 +59,11 @@ public class UserProgressServiceImpl implements UserProgressService {
 
     @Override
     @Transactional
-    public ProgressEntryResponse updateMyEntry(Long userId, Long entryId, UpdateUserProgressEntryRequest request) {
+    public ProgressEntryResponse updateMyEntry(Long userId, Long entryId, UpsertUserProgressEntryRequest request) {
         var entry = requireOwnedEntry(userId, entryId);
-        validator.validateForUpdate(request);
-        var normalized = normalizeRequest(request);
-        entry.updateMetrics(
-                normalized.recordedAt(),
-                normalized.weight(),
-                normalized.bodyFatPercent(),
-                normalized.muscleMass(),
-                normalized.waistCm(),
-                normalized.chestCm(),
-                normalized.hipCm(),
-                normalized.notes());
+        validator.validateEntry(request);
+        var normalized = validator.normalize(request);
+        entry.updateMetrics(normalized);
         return mapper.toResponse(entryRepository.save(entry));
     }
 
@@ -80,7 +71,7 @@ public class UserProgressServiceImpl implements UserProgressService {
     @Transactional
     public void deleteMyEntry(Long userId, Long entryId) {
         var entry = requireOwnedEntry(userId, entryId);
-        entry.markDeleted(LocalDateTime.now());
+        entry.markDeleted();
         entryRepository.save(entry);
     }
 
@@ -176,41 +167,19 @@ public class UserProgressServiceImpl implements UserProgressService {
     }
 
     private void assertCanReadTargetUser(Long actorUserId, UserRole actorRole, Long targetUserId) {
-        if (actorRole == UserRole.ADMIN || actorUserId.equals(targetUserId)) {
-            requireUser(targetUserId);
+        var targetUser = requireUser(targetUserId);
+        if (actorUserId.equals(targetUserId)) {
             return;
         }
-        if (actorRole == UserRole.TRAINER) {
-            var targetUser = requireUser(targetUserId);
-            if (!actorUserId.equals(targetUser.getAssignedTrainerId())) {
-                throw new ForbiddenOperationException(ApplicationConstants.TRAINER_NOT_ASSIGNED_TO_CLIENT);
+        switch (actorRole) {
+            case ADMIN -> { }
+            case TRAINER -> {
+                if (!actorUserId.equals(targetUser.getAssignedTrainerId())) {
+                    throw new ForbiddenOperationException(ApplicationConstants.TRAINER_NOT_ASSIGNED_TO_CLIENT);
+                }
             }
-            return;
+            default -> throw new ForbiddenOperationException(ApplicationConstants.PROGRESS_ENTRY_NOT_OWNER);
         }
-        throw new ForbiddenOperationException(ApplicationConstants.PROGRESS_ENTRY_NOT_OWNER);
     }
 
-    private CreateUserProgressEntryRequest normalizeRequest(CreateUserProgressEntryRequest request) {
-        return new CreateUserProgressEntryRequest(
-                request.recordedAt(),
-                validator.normalize(request.weight()),
-                validator.normalize(request.bodyFatPercent()),
-                validator.normalize(request.muscleMass()),
-                validator.normalize(request.waistCm()),
-                validator.normalize(request.chestCm()),
-                validator.normalize(request.hipCm()),
-                request.notes());
-    }
-
-    private UpdateUserProgressEntryRequest normalizeRequest(UpdateUserProgressEntryRequest request) {
-        return new UpdateUserProgressEntryRequest(
-                request.recordedAt(),
-                validator.normalize(request.weight()),
-                validator.normalize(request.bodyFatPercent()),
-                validator.normalize(request.muscleMass()),
-                validator.normalize(request.waistCm()),
-                validator.normalize(request.chestCm()),
-                validator.normalize(request.hipCm()),
-                request.notes());
-    }
 }

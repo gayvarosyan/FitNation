@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -36,8 +35,6 @@ class TrainerManagementServiceImplTest {
     @Mock
     private TrainerMapper trainerMapper;
     @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
     private EmailService emailService;
 
     @InjectMocks
@@ -52,7 +49,7 @@ class TrainerManagementServiceImplTest {
                 "A", "B", "dup@test.com", "Secure1@x", "+1234567890", "Spec", "Bio");
 
         assertThrows(EmailAlreadyExistsException.class, () -> trainerManagementService.create(req));
-        verifyNoInteractions(trainerRepository, trainerMapper, passwordEncoder, emailService);
+        verifyNoInteractions(trainerRepository, trainerMapper, emailService);
     }
 
     @Test

@@ -5,13 +5,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public record MvcRedirect(String redirectView, String message, String error) {
 
     public static MvcRedirect to(String path, String message) {
-        String p = path.startsWith("/") ? path : "/" + path;
-        return new MvcRedirect("redirect:" + p, message, null);
+        return new MvcRedirect("redirect:" + normalizePath(path), message, null);
     }
 
     public static MvcRedirect failure(String path, String error) {
-        String p = path.startsWith("/") ? path : "/" + path;
-        return new MvcRedirect("redirect:" + p, null, error);
+        return new MvcRedirect("redirect:" + normalizePath(path), null, error);
+    }
+
+    private static String normalizePath(String path) {
+        return path.startsWith("/") ? path : "/" + path;
     }
 
     public void applyTo(RedirectAttributes redirectAttributes) {

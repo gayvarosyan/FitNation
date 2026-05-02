@@ -4,6 +4,7 @@ import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.EditTrainerRequest;
 import com.example.fitnationcommon.dto.response.TrainerStatsResponse;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
+import com.example.fitnationrestapi.endpoint.TrainerEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationtrainer.service.TrainerManagementService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +43,7 @@ class TrainerControllerApiTest {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         mockMvc = MockMvcBuilders.standaloneSetup(
-                        new TrainerController(groupClassService, trainerManagementService))
+                        new TrainerEndpoint(groupClassService, trainerManagementService))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setValidator(validator)
                 .build();

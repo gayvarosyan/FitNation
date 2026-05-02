@@ -9,6 +9,7 @@ import com.example.fitnationcommon.exception.QrSessionAlreadyUsedException;
 import com.example.fitnationcommon.exception.QrSessionExpiredException;
 import com.example.fitnationcommon.exception.QrSessionInvalidException;
 import com.example.fitnationcommon.exception.RateLimitExceededException;
+import com.example.fitnationrestapi.endpoint.DeviceLoginSessionEndpoint;
 import com.example.fitnationrestapi.exception.GlobalExceptionHandler;
 import com.example.fitnationuser.device.service.DeviceLoginSessionService;
 import com.example.fitnationuser.user.User;
