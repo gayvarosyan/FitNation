@@ -1,10 +1,13 @@
 package com.example.fitnationrestapi.endpoint;
 
+import com.example.fitnationbooking.service.ClassBookingService;
+import com.example.fitnationbooking.service.GroupClassService;
+import com.example.fitnationcommon.dto.request.ClassScheduleFilterRequest;
 import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationcommon.dto.response.UserBookingItemResponse;
 import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.enums.ScheduleFilterStatus;
-import com.example.fitnationrestapi.service.UserBookingFacadeService;
+import com.example.fitnationuser.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +35,8 @@ import java.util.List;
 @Tag(name = "Bookings", description = "Class bookings for the authenticated user (CLIENT, TRAINER, or ADMIN)")
 public class UserBookingEndpoint {
 
-    private final UserBookingFacadeService bookingFacadeService;
+    private final ClassBookingService classBookingService;
+    private final GroupClassService groupClassService;
 
     @Operation(
             summary = "List available classes (paged)",
@@ -64,7 +69,8 @@ public class UserBookingEndpoint {
             @RequestParam(required = false) LocalDate toDate,
             @RequestParam(required = false) ScheduleFilterStatus status
     ) {
-        return bookingFacadeService.getAvailableClasses(trainerId, fromDate, toDate, status);
+        return groupClassService.getAllSchedules(
+                new ClassScheduleFilterRequest(trainerId, fromDate, toDate, status));
     }
 
     @Operation(summary = "Book a class", description = "Books the given schedule for the authenticated user.")
@@ -73,8 +79,10 @@ public class UserBookingEndpoint {
             @ApiResponse(responseCode = "400", description = "Cannot book (e.g. full or invalid schedule)")
     })
     @PostMapping("/classes/{scheduleId}/book")
-    public ResponseEntity<Void> bookClass(@PathVariable Long scheduleId) {
-        bookingFacadeService.bookClass(scheduleId);
+    public ResponseEntity<Void> bookClass(
+            @PathVariable Long scheduleId,
+            @AuthenticationPrincipal User user) {
+        classBookingService.bookClass(scheduleId, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -85,8 +93,10 @@ public class UserBookingEndpoint {
             @ApiResponse(responseCode = "404", description = "Booking not found")
     })
     @PutMapping("/bookings/{id}/cancel")
-    public ResponseEntity<Void> cancelBooking(@PathVariable Long id) {
-        bookingFacadeService.cancelBooking(id);
+    public ResponseEntity<Void> cancelBooking(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        classBookingService.cancelBooking(id, user.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -112,10 +122,11 @@ public class UserBookingEndpoint {
     })
     @GetMapping("/bookings")
     public PagedResponse<UserBookingItemResponse> getUserBookings(
+            @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(defaultValue = "createdAt,desc") String sort,
             @RequestParam(required = false) String status) {
-        return bookingFacadeService.getUserBookings(page, size, sort, status);
+        return classBookingService.getUserBookings(user.getId(), page, size, sort, status);
     }
 }

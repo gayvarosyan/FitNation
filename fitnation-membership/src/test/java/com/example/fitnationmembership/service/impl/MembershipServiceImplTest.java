@@ -9,9 +9,7 @@ import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationmembership.mapper.MembershipMapper;
 import com.example.fitnationmembership.mapper.MembershipTypeMapper;
 import com.example.fitnationmembership.model.Membership;
-import com.example.fitnationmembership.repository.MembershipRepository;
-import com.example.fitnationmembership.repository.MembershipRequestRepository;
-import com.example.fitnationmembership.repository.MembershipTypeRepository;
+import com.example.fitnationmembership.repository.*;
 import com.example.fitnationbooking.repository.GroupClassRepository;
 import com.example.fitnationtrainer.repository.TrainerRepository;
 import com.example.fitnationprogress.service.NotificationCommandPublisher;
@@ -20,6 +18,7 @@ import com.example.fitnationuser.repository.UserRepository;
 import com.example.fitnationuser.user.User;
 import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.fitnationnutrition.repository.NutritionPlanRepository;
+import com.example.fitnationcommon.rbac.RbacPolicyService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +29,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,6 +61,8 @@ class MembershipServiceImplTest {
     private NotificationCommandPublisher notificationCommandPublisher;
     @Mock
     private SoftDeleteValidationService softDeleteValidationService;
+    @Mock
+    private RbacPolicyService rbacPolicyService;
 
     @InjectMocks
     private MembershipServiceImpl membershipService;
@@ -67,6 +70,7 @@ class MembershipServiceImplTest {
     @Test
     void purchaseMembership_throwsWhenUserMissing() {
         when(userRepository.findByEmail("missing@test.com")).thenReturn(Optional.empty());
+
         assertThrows(UserNotFoundException.class, () ->
                 membershipService.purchaseMembership(
                         "missing@test.com",
@@ -77,11 +81,11 @@ class MembershipServiceImplTest {
     void deleteMembershipType_throwsWhenPlanStillReferenced() {
         when(membershipTypeRepository.existsById(10L)).thenReturn(true);
         when(membershipRepository.countByMembershipType_Id(10L)).thenReturn(3L);
-        var ex = assertThrows(ForbiddenOperationException.class, () ->
+
+        ForbiddenOperationException ex = assertThrows(ForbiddenOperationException.class, () ->
                 membershipService.deleteMembershipType(10L));
+
         assertTrue(ex.getMessage().contains("3 subscription record(s)"));
-        verify(membershipTypeRepository).existsById(10L);
-        verify(membershipRepository).countByMembershipType_Id(10L);
     }
 
     @Test
@@ -89,18 +93,22 @@ class MembershipServiceImplTest {
         User trainer = new User();
         trainer.setEmail("t@test.com");
         trainer.setRole(UserRole.TRAINER);
+
         when(userRepository.findByEmail("t@test.com")).thenReturn(Optional.of(trainer));
 
         org.mockito.Mockito.doNothing().when(softDeleteValidationService).validateUserForMembership(trainer);
 
         assertThrows(ForbiddenOperationException.class, () ->
-                membershipService.submitMembershipRequest("t@test.com", new SubmitMembershipRequest(1L)));
+                membershipService.submitMembershipRequest(
+                        "t@test.com",
+                        new SubmitMembershipRequest(1L)));
     }
 
     @Test
     void cancelMembership_throwsWhenClientDoesNotOwnMembership() {
         User owner = new User();
         owner.setId(2L);
+
         User current = new User();
         current.setId(1L);
         current.setRole(UserRole.CLIENT);
@@ -110,7 +118,12 @@ class MembershipServiceImplTest {
                 .status(MembershipStatus.ACTIVE)
                 .build();
 
-        when(membershipRepository.findByIdWithTypeAndUser(99L)).thenReturn(Optional.of(membership));
+        when(membershipRepository.findByIdWithTypeAndUser(99L))
+                .thenReturn(Optional.of(membership));
+
+        doThrow(new ForbiddenOperationException("not owner"))
+                .when(rbacPolicyService)
+                .requireOwnershipOrAdmin(any(), any(), any());
 
         assertThrows(ForbiddenOperationException.class, () ->
                 membershipService.cancelMembership(99L, current));

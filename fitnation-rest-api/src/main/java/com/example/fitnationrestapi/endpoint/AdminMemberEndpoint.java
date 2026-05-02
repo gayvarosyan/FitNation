@@ -100,7 +100,7 @@ public class AdminMemberEndpoint {
             @ApiResponse(responseCode = "400", description = "Validation error")
     })
     @PostMapping("/invite")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MemberDetailResponse> inviteMember(
             @Valid @RequestBody CreateMemberRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminMemberService.inviteMember(request));
@@ -125,7 +125,7 @@ public class AdminMemberEndpoint {
             @ApiResponse(responseCode = "404", description = "Member not found")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
         adminMemberService.deleteMember(id);
         return ResponseEntity.noContent().build();

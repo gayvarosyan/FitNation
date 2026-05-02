@@ -4,29 +4,38 @@ import com.example.fitnationcommon.dto.request.CreateMembershipTypeRequest;
 import com.example.fitnationcommon.dto.request.PageRequestParams;
 import com.example.fitnationcommon.dto.request.PurchaseMembershipRequest;
 import com.example.fitnationcommon.dto.request.SubmitMembershipRequest;
+import com.example.fitnationcommon.dto.response.AdminMembershipStatsResponse;
 import com.example.fitnationcommon.dto.request.UpdateMembershipRequest;
 import com.example.fitnationcommon.dto.response.AdminMembershipRecordResponse;
-import com.example.fitnationcommon.dto.response.AdminMembershipStatsResponse;
 import com.example.fitnationcommon.dto.response.MembershipResponse;
 import com.example.fitnationcommon.dto.response.MembershipTypeResponse;
+import com.example.fitnationcommon.dto.response.PagedResponse;
 import com.example.fitnationcommon.dto.response.UserMembershipRequestResponse;
 import com.example.fitnationmembership.service.MembershipService;
 import com.example.fitnationuser.user.User;
-import com.example.fitnationcommon.dto.response.PagedResponse;
-import org.springframework.data.domain.Pageable;
-import java.util.Set;
-import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Set;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -96,15 +105,15 @@ public class MembershipEndpoint {
     @Operation(
             summary = "List current user's memberships (paged)",
             description = """
-                Paginated membership list for the authenticated user.
-
-                **sort** allowed fields: createdAt, status, startDate, endDate  
-                **size** max: 100, default: 20  
-                **page** 0-based, default: 0  
-                **status** optional filter: ACTIVE, EXPIRED, CANCELLED, PAST_DUE  
-
-                **q** — not supported for this endpoint (ignored).
-                """
+                    Paginated membership list for the authenticated user.
+                    
+                    **sort** allowed fields: createdAt, status, startDate, endDate  
+                    **size** max: 100, default: 20  
+                    **page** 0-based, default: 0  
+                    **status** optional filter: ACTIVE, EXPIRED, CANCELLED, PAST_DUE  
+                    
+                    **q** — not supported for this endpoint (ignored).
+                    """
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Page returned"),
@@ -152,14 +161,14 @@ public class MembershipEndpoint {
     @Operation(
             summary = "List memberships (admin view, paged)",
             description = """
-                Searchable, paginated membership records for admin.
-
-                **q** searches: user firstName, lastName, email, membership type name (case-insensitive, partial match)  
-                **sort** allowed fields: createdAt, status, startDate, endDate, memberName  
-                **size** max: 100, default: 20  
-                **page** 0-based, default: 0  
-                **status** optional filter: ACTIVE, EXPIRED, CANCELLED, PAST_DUE
-                """
+                    Searchable, paginated membership records for admin.
+                    
+                    **q** searches: user firstName, lastName, email, membership type name (case-insensitive, partial match)  
+                    **sort** allowed fields: createdAt, status, startDate, endDate, memberName  
+                    **size** max: 100, default: 20  
+                    **page** 0-based, default: 0  
+                    **status** optional filter: ACTIVE, EXPIRED, CANCELLED, PAST_DUE
+                    """
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Page returned"),

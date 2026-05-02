@@ -27,6 +27,7 @@ import com.example.fitnationcommon.exception.NutritionPlanNotFoundException;
 import com.example.fitnationcommon.exception.TrainerNotFoundException;
 import com.example.fitnationcommon.exception.UserNotFoundException;
 import com.example.fitnationcommon.constants.ApplicationConstants;
+import com.example.fitnationcommon.rbac.RbacPolicyService;
 import com.example.fitnationuser.validation.SoftDeleteValidationService;
 import com.example.fitnationmembership.mapper.MembershipMapper;
 import com.example.fitnationmembership.mapper.MembershipTypeMapper;
@@ -78,6 +79,7 @@ public class MembershipServiceImpl implements MembershipService {
     private final GroupClassRepository groupClassRepository;
     private final SoftDeleteValidationService softDeleteValidationService;
     private final NotificationCommandPublisher notificationCommandPublisher;
+    private final RbacPolicyService rbacPolicyService;
 
     @Override
     @Transactional(readOnly = true)
@@ -171,6 +173,9 @@ public class MembershipServiceImpl implements MembershipService {
         if (user.getRole() != UserRole.CLIENT) {
             throw new ForbiddenOperationException(ApplicationConstants.MEMBERSHIP_REQUEST_CLIENT_ONLY);
         }
+
+        rbacPolicyService.requireClientOrAdmin(user.getRole());
+
         MembershipType type = membershipTypeRepository.findById(request.membershipTypeId())
                 .orElseThrow(() -> new MembershipTypeNotFoundException(ApplicationConstants.MEMBERSHIP_TYPE_NOT_FOUND));
         Long uid = user.getId();
@@ -268,9 +273,10 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (!canManageMembership(currentUser, membership)) {
-            throw new ForbiddenOperationException(ApplicationConstants.CANNOT_CANCEL_MEMBERSHIP);
-        }
+        rbacPolicyService.requireOwnershipOrAdmin(
+                currentUser.getId(),
+                membership.getUser().getId(),
+                currentUser.getRole());
 
         membership.markExpired();
         membershipRepository.save(membership);
@@ -283,9 +289,10 @@ public class MembershipServiceImpl implements MembershipService {
         Membership membership = membershipRepository.findByIdWithTypeAndUser(membershipId)
                 .orElseThrow(() -> new MembershipNotFoundException(ApplicationConstants.MEMBERSHIP_NOT_FOUND));
 
-        if (!canManageMembership(currentUser, membership)) {
-            throw new ForbiddenOperationException(ApplicationConstants.CANNOT_UPDATE_MEMBERSHIP);
-        }
+        rbacPolicyService.requireOwnershipOrAdmin(
+                currentUser.getId(),
+                membership.getUser().getId(),
+                currentUser.getRole());
 
         if (request.endDate().isBefore(request.startDate())) {
             throw new IllegalArgumentException(ApplicationConstants.END_DATE_BEFORE_START_DATE);

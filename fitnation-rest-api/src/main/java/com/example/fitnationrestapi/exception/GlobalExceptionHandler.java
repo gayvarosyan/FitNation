@@ -199,10 +199,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleForbidden(
             RuntimeException ex, HttpServletRequest request) {
 
-        return build(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN,
-                ex.getMessage(), request, null);
-    }
+        ErrorCode code = ErrorCode.FORBIDDEN;
+        String message = ex.getMessage();
 
+        if (message != null) {
+            if (message.startsWith("ROLE_NOT_ALLOWED")) {
+                code = ErrorCode.ROLE_NOT_ALLOWED;
+            } else if (message.startsWith("OWNERSHIP_REQUIRED")) {
+                code = ErrorCode.OWNERSHIP_REQUIRED;
+            } else if (message.startsWith("ACCESS_DENIED")) {
+                code = ErrorCode.ACCESS_DENIED;
+            }
+        }
+
+        return build(HttpStatus.FORBIDDEN, code, message, request, null);
+    }
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(
             AccessDeniedException ex, HttpServletRequest request) {
