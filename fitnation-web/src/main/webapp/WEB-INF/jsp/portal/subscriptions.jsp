@@ -159,6 +159,7 @@
                 <th>Start</th>
                 <th>End</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -168,10 +169,11 @@
                   <td><c:out value="${m.startDate}" /></td>
                   <td><c:out value="${m.endDate}" /></td>
                   <td><c:out value="${m.status}" /></td>
+                  <td><a class="fn-portal-btn-secondary fn-portal-btn-inline" href="${ctx}/portal/memberships/${m.id}/freeze">Freeze</a></td>
                 </tr>
               </c:forEach>
               <c:if test="${empty myMemberships}">
-                <tr><td colspan="4" class="fn-portal-empty-cell">No memberships yet.</td></tr>
+                <tr><td colspan="5" class="fn-portal-empty-cell">No memberships yet.</td></tr>
               </c:if>
             </tbody>
           </table>

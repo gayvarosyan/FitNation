@@ -10,15 +10,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "chat_messages")
-@Getter @Setter @NoArgsConstructor
 public class ChatMessage {
 
     @Id
@@ -30,14 +35,13 @@ public class ChatMessage {
     private ChatConversation conversation;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "sender_user_id", nullable = false)
+    @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
 
-    @Column(nullable = false, length = 8000)
+    @Column(nullable = false, length = 4000)
     private String body;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    private LocalDateTime readAt;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }
+

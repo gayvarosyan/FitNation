@@ -18,14 +18,26 @@
       <span class="fn-portal-nav-icon" aria-hidden="true">💳</span>
       <span class="fn-portal-nav-label">Subscription</span>
     </a>
-    <span class="fn-portal-nav-item fn-portal-nav-placeholder" title="Coming soon">
+    <a href="${ctx}/portal/bookings" class="fn-portal-nav-item ${navSection == 'bookings' ? 'active' : ''}">
       <span class="fn-portal-nav-icon" aria-hidden="true">🗓️</span>
       <span class="fn-portal-nav-label">Bookings</span>
-    </span>
-    <span class="fn-portal-nav-item fn-portal-nav-placeholder" title="Coming soon">
+    </a>
+    <a href="${ctx}/portal/chat" class="fn-portal-nav-item ${navSection == 'chat' ? 'active' : ''}">
+      <span class="fn-portal-nav-icon" aria-hidden="true">💬</span>
+      <span class="fn-portal-nav-label">Chat</span>
+    </a>
+    <a href="${ctx}/portal/progress" class="fn-portal-nav-item ${navSection == 'progress' ? 'active' : ''}">
       <span class="fn-portal-nav-icon" aria-hidden="true">📈</span>
       <span class="fn-portal-nav-label">Progress</span>
-    </span>
+    </a>
+    <a href="${ctx}/portal/profile" class="fn-portal-nav-item ${navSection == 'profile' ? 'active' : ''}">
+      <span class="fn-portal-nav-icon" aria-hidden="true">👤</span>
+      <span class="fn-portal-nav-label">Profile</span>
+    </a>
+    <a href="${ctx}/portal/device-login" class="fn-portal-nav-item ${navSection == 'device-login' ? 'active' : ''}">
+      <span class="fn-portal-nav-icon" aria-hidden="true">📱</span>
+      <span class="fn-portal-nav-label">Device Login</span>
+    </a>
   </nav>
   <div class="fn-portal-sidebar-footer">
     <form method="post" action="${ctx}/logout" class="d-inline">

@@ -34,6 +34,14 @@
       <span class="fn-admin-nav-icon" aria-hidden="true">✅</span>
       <span class="fn-admin-nav-label">Request approvals</span>
     </a>
+    <a href="${ctx}/admin/membership-freeze-requests" class="fn-admin-nav-item ${navSection == 'freeze-requests' ? 'active' : ''}">
+      <span class="fn-admin-nav-icon" aria-hidden="true">🧊</span>
+      <span class="fn-admin-nav-label">Freeze requests</span>
+    </a>
+    <a href="${ctx}/admin/users" class="fn-admin-nav-item ${navSection == 'users' ? 'active' : ''}">
+      <span class="fn-admin-nav-icon" aria-hidden="true">🛠️</span>
+      <span class="fn-admin-nav-label">User restore</span>
+    </a>
   </nav>
   <div class="fn-admin-sidebar-footer">
     <form method="post" action="${ctx}/logout" class="d-inline">
