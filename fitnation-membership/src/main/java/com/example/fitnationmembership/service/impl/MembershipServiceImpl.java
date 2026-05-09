@@ -1,6 +1,7 @@
 package com.example.fitnationmembership.service.impl;
 
 import com.example.fitnationbooking.repository.GroupClassRepository;
+import org.springframework.data.domain.PageImpl;
 import com.example.fitnationcommon.dto.request.CreateMembershipTypeRequest;
 import com.example.fitnationcommon.dto.request.PurchaseMembershipRequest;
 import com.example.fitnationcommon.dto.request.RejectMembershipRequest;
@@ -324,8 +325,16 @@ public class MembershipServiceImpl implements MembershipService {
     public Page<AdminMembershipRecordResponse> getAdminMemberships(Pageable pageable, String q, String status) {
         MembershipStatus membershipStatus = parseMembershipStatusFilter(status).orElse(null);
 
-        return membershipRepository.findAllWithFilters(q, membershipStatus, pageable)
-                .map(this::toAdminMembershipRecordResponse);
+        Page<Membership> memberships = membershipRepository.findAll(pageable);
+        List<Membership> filteredList = memberships.getContent();
+        if (membershipStatus != null) {
+            filteredList = filteredList.stream()
+                    .filter(m -> m.getStatus() == membershipStatus)
+                    .toList();
+        }
+        return new PageImpl<>(filteredList.stream()
+                .map(this::toAdminMembershipRecordResponse)
+                .toList(), pageable, filteredList.size());
     }
 
     @Override
