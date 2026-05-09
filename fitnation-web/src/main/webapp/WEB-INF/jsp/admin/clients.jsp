@@ -139,6 +139,7 @@
                         data-status="${c.userStatus}">Edit</button>
                     </c:otherwise>
                   </c:choose>
+                  <a href="${ctx}/admin/clients/${c.id}/progress" class="fn-admin-action-btn fn-admin-action-edit">Progress</a>
                   <form method="post" action="${ctx}/admin/clients/delete" style="display:inline" onsubmit="return confirm('Delete this client?');">
                     <input type="hidden" name="clientId" value="${c.id}" />
                     <button type="submit" class="fn-admin-action-btn fn-admin-action-delete">Delete</button>

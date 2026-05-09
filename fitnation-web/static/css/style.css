@@ -276,13 +276,14 @@ body {
 }
 
 .fn-admin-sidebar {
-  width: 260px;
-  background: #050505;
-  border-right: 1px solid var(--fn-border);
-  padding: 1.5rem 1.25rem;
+  width: 280px;
+  background: #0a0a0a;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
+  flex-shrink: 0;
 }
 
 .fn-admin-brand {
@@ -318,47 +319,65 @@ body {
 .fn-admin-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
   margin-top: 0.5rem;
+  flex: 1;
 }
 
 .fn-admin-nav-item {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: var(--fn-radius-sm);
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
   background: transparent;
   border: none;
-  color: var(--fn-text-muted);
+  color: #9ca3af;
   font-size: 0.95rem;
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .fn-admin-nav-item:hover {
-  background: #111827;
-  color: var(--fn-text);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
 }
 
 .fn-admin-nav-item.active {
-  background: rgba(16, 185, 129, 0.18);
-  color: var(--fn-green);
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.fn-admin-nav-item.active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: #22c55e;
+  border-radius: 2px 0 0 2px;
 }
 
 .fn-admin-nav-icon {
-  display: inline-flex;
-  width: 26px;
-  height: 26px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: rgba(15, 118, 110, 0.4);
-  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
-  font-size: 1rem;
-  line-height: 1;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  stroke-width: 2;
+  transition: stroke 0.2s ease;
+}
+
+.fn-admin-nav-item:hover .fn-admin-nav-icon {
+  stroke: #e5e7eb;
+}
+
+.fn-admin-nav-item.active .fn-admin-nav-icon {
+  stroke: #22c55e;
 }
 
 .fn-admin-nav-label {
@@ -371,20 +390,25 @@ body {
 
 .fn-admin-logout-btn {
   width: 100%;
-  padding: 0.6rem 0.75rem;
-  border-radius: var(--fn-radius-sm);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
   background: transparent;
-  border: 1px solid var(--fn-border);
-  color: var(--fn-text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .fn-admin-logout-btn:hover {
-  background: #111827;
-  border-color: #4b5563;
-  color: var(--fn-text);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #e5e7eb;
 }
 
 .fn-admin-main {

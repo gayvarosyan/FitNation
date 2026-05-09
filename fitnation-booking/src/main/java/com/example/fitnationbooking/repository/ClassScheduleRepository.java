@@ -28,7 +28,7 @@ public interface ClassScheduleRepository extends JpaRepository<ClassSchedule, Lo
             where (:dateFrom is null or s.date >= :dateFrom)
               and (:dateTo is null or s.date <= :dateTo)
               and (:trainerId is null or gc.trainer.id = :trainerId)
-              and (:className is null or lower(gc.name) like lower(concat('%', :className, '%')))
+              and (:className is null or :className = '' or cast(gc.name as string) like concat('%', :className, '%'))
             order by s.date asc, s.startTime asc
             """)
     List<ClassSchedule> findAllWithFilters(
@@ -45,7 +45,7 @@ public interface ClassScheduleRepository extends JpaRepository<ClassSchedule, Lo
           and (:dateTo is null or s.date <= :dateTo)
           and (:trainerId is null or gc.trainer.id = :trainerId)
           and (:q is null or :q = '' or
-               lower(gc.name) like lower(concat('%', :q, '%')) or
+               cast(gc.name as string) like concat('%', :q, '%') or
                lower(t.firstName) like lower(concat('%', :q, '%')) or
                lower(t.lastName) like lower(concat('%', :q, '%')))
         """,
@@ -57,7 +57,7 @@ public interface ClassScheduleRepository extends JpaRepository<ClassSchedule, Lo
           and (:dateTo is null or s.date <= :dateTo)
           and (:trainerId is null or gc.trainer.id = :trainerId)
           and (:q is null or :q = '' or
-               lower(gc.name) like lower(concat('%', :q, '%')) or
+               cast(gc.name as string) like concat('%', :q, '%') or
                lower(t.firstName) like lower(concat('%', :q, '%')) or
                lower(t.lastName) like lower(concat('%', :q, '%')))
         """)

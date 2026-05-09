@@ -40,32 +40,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
         """)
     Page<Membership> findAllByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    @Query(value = """
-        SELECT m FROM Membership m
-        JOIN FETCH m.membershipType mt
-        JOIN FETCH m.user u
-        WHERE (:status IS NULL OR m.status = :status)
-          AND (:q IS NULL OR :q = '' OR
-               LOWER(u.firstName) LIKE LOWER(CONCAT('%', :q, '%')) OR
-               LOWER(u.lastName)  LIKE LOWER(CONCAT('%', :q, '%')) OR
-               LOWER(u.email)     LIKE LOWER(CONCAT('%', :q, '%')) OR
-               LOWER(mt.name)     LIKE LOWER(CONCAT('%', :q, '%')))
-        """,
-            countQuery = """
-        SELECT count(m) FROM Membership m
-        JOIN m.membershipType mt
-        JOIN m.user u
-        WHERE (:status IS NULL OR m.status = :status)
-          AND (:q IS NULL OR :q = '' OR
-               LOWER(u.firstName) LIKE LOWER(CONCAT('%', :q, '%')) OR
-               LOWER(u.lastName)  LIKE LOWER(CONCAT('%', :q, '%')) OR
-               LOWER(u.email)     LIKE LOWER(CONCAT('%', :q, '%')) OR
-               LOWER(mt.name)     LIKE LOWER(CONCAT('%', :q, '%')))
-        """)
-    Page<Membership> findAllWithFilters(
-            @Param("q") String q,
-            @Param("status") MembershipStatus status,
-            Pageable pageable);
+    Page<Membership> findAll(Pageable pageable);
 
     @Query("""
             SELECT m FROM Membership m

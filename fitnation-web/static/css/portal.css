@@ -393,6 +393,35 @@
   font-size: 0.85rem;
 }
 
+.fn-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.fn-portal-btn-inline {
+  width: auto;
+}
+
+.fn-portal-btn-secondary {
+  border: 1px solid var(--fn-border);
+  border-radius: var(--fn-radius-sm);
+  padding: 0.5rem 0.75rem;
+  color: var(--fn-text);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.fn-portal-btn-secondary:hover {
+  border-color: #f87171;
+  color: #f87171;
+}
+
+.mt-2 {
+  margin-top: 0.75rem;
+}
+
 .fn-pagination {
   display: flex;
   align-items: center;

@@ -1,4 +1,4 @@
-package com.example.fitnationweb.endpoint;
+package com.example.fitnationweb.service;
 
 import com.example.fitnationbooking.service.GroupClassService;
 import com.example.fitnationcommon.dto.request.CreateGroupClassRequest;
@@ -8,92 +8,39 @@ import com.example.fitnationcommon.dto.response.ClassScheduleItemResponse;
 import com.example.fitnationtrainer.service.TrainerManagementService;
 import com.example.fitnationweb.support.MvcRedirect;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Objects;
 
-@Controller
-@RequestMapping("/admin/classes")
+@Service
 @RequiredArgsConstructor
-public class AdminClassMvcEndpoint {
+public class MvcAdminClassService {
 
     private static final String CLASSES_PATH = "/admin/classes";
 
     private final GroupClassService groupClassService;
     private final TrainerManagementService trainerManagementService;
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public String page(Model model) {
+    public void populatePageModel(Model model) {
         List<ClassScheduleItemResponse> schedules = groupClassService.getAllSchedules(null);
         List<ClassScheduleView> rows = schedules.stream()
                 .map(s -> new ClassScheduleView(s, toHm(s.startTime()), toHm(s.endTime())))
                 .toList();
+
         model.addAttribute("scheduleRows", rows);
         model.addAttribute("trainerOptions", trainerManagementService.getDirectory(0, 100, null, null, null).getItems());
         model.addAttribute("navSection", "classes");
         model.addAttribute("classesThisWeek", countClassesThisWeek(schedules));
         model.addAttribute("totalSchedules", schedules.size());
         model.addAttribute("uniqueClassIds", countUniqueClasses(schedules));
-        return "admin/classes";
     }
 
-    @PostMapping("/schedule-new")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String scheduleNew(
-            @RequestParam String name,
-            @RequestParam(required = false) String description,
-            @RequestParam int capacity,
-            @RequestParam long trainerId,
-            @RequestParam LocalDate date,
-            @RequestParam LocalTime startTime,
-            @RequestParam LocalTime endTime,
-            RedirectAttributes redirectAttributes) {
-        var result = createAndScheduleClass(name, description, capacity, trainerId, date, startTime, endTime);
-        result.applyTo(redirectAttributes);
-        return result.redirectView();
-    }
-
-    @PostMapping("/update")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String update(
-            @RequestParam long classId,
-            @RequestParam long scheduleId,
-            @RequestParam String name,
-            @RequestParam(required = false) String description,
-            @RequestParam int capacity,
-            @RequestParam long trainerId,
-            @RequestParam LocalDate date,
-            @RequestParam LocalTime startTime,
-            @RequestParam LocalTime endTime,
-            RedirectAttributes redirectAttributes) {
-        var result = updateClassAndSchedule(classId, scheduleId, name, description, capacity, trainerId, date, startTime, endTime);
-        result.applyTo(redirectAttributes);
-        return result.redirectView();
-    }
-
-    @PostMapping("/schedule/{scheduleId}/delete")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String deleteSchedule(@PathVariable long scheduleId, RedirectAttributes redirectAttributes) {
-        var result = deleteScheduleInternal(scheduleId);
-        result.applyTo(redirectAttributes);
-        return result.redirectView();
-    }
-
-    public record ClassScheduleView(ClassScheduleItemResponse item, String startHm, String endHm) {}
-
-    private MvcRedirect createAndScheduleClass(
+    public MvcRedirect createAndScheduleClass(
             String name,
             String description,
             int capacity,
@@ -104,7 +51,7 @@ public class AdminClassMvcEndpoint {
         try {
             var created = groupClassService.createClass(new CreateGroupClassRequest(
                     name,
-                    description != null ? description : null,
+                    description,
                     capacity,
                     trainerId
             ));
@@ -115,7 +62,7 @@ public class AdminClassMvcEndpoint {
         }
     }
 
-    private MvcRedirect updateClassAndSchedule(
+    public MvcRedirect updateClassAndSchedule(
             long classId,
             long scheduleId,
             String name,
@@ -139,7 +86,7 @@ public class AdminClassMvcEndpoint {
         }
     }
 
-    private MvcRedirect deleteScheduleInternal(long scheduleId) {
+    public MvcRedirect deleteSchedule(long scheduleId) {
         try {
             groupClassService.deleteSchedule(scheduleId);
             return MvcRedirect.to(CLASSES_PATH, "Schedule deleted.");
@@ -147,6 +94,8 @@ public class AdminClassMvcEndpoint {
             return MvcRedirect.failure(CLASSES_PATH, e.getMessage());
         }
     }
+
+    public record ClassScheduleView(ClassScheduleItemResponse item, String startHm, String endHm) {}
 
     private static String toHm(LocalTime t) {
         if (t == null) {
@@ -174,3 +123,4 @@ public class AdminClassMvcEndpoint {
                 .count();
     }
 }
+

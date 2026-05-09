@@ -1,7 +1,6 @@
 package com.example.fitnationrestapi.entity;
 
 import com.example.fitnationuser.user.User;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -10,15 +9,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "chat_conversations")
-@Getter @Setter @NoArgsConstructor
 public class ChatConversation {
 
     @Id
@@ -26,15 +30,15 @@ public class ChatConversation {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "client_user_id", nullable = false)
+    @JoinColumn(name = "client_id", nullable = false)
     private User client;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "trainer_user_id", nullable = false)
+    @JoinColumn(name = "trainer_id", nullable = false)
     private User trainer;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     private LocalDateTime lastMessageAt;
 }
